@@ -4,11 +4,14 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityLoginGuruBinding
+import com.example.mobilelearningapp.firebase.FirestoreClass
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginGuruActivity : BaseActivity(), View.OnClickListener {
     private var binding : ActivityLoginGuruBinding? = null
@@ -41,7 +44,7 @@ class LoginGuruActivity : BaseActivity(), View.OnClickListener {
                 }
 
                 R.id.btn_login -> {
-//                    loginRegisteredUser()
+                    loginRegisteredUser()
                 }
 
                 R.id.tv_register -> {
@@ -52,4 +55,46 @@ class LoginGuruActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+    private fun validateLoginDetails() : Boolean {
+        return when{
+            TextUtils.isEmpty(binding?.etEmail?.text.toString().trim{it <= ' '}) -> {
+                showErrorSnackBar("Silahkan isi email anda",true)
+                false
+            }
+            TextUtils.isEmpty(binding?.etPassword?.text.toString().trim{it <= ' '}) -> {
+                showErrorSnackBar("Silahkan isi password anda",true)
+                false
+            }
+            else -> {
+                true
+            }
+        }
+    }
+
+    private fun loginRegisteredUser(){
+        if (validateLoginDetails()){
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
+            val email = binding?.etEmail?.text.toString().trim{ it <= ' '}
+            val password = binding?.etPassword?.text.toString().trim{it <= ' '}
+
+            FirebaseAuth.getInstance().signInWithEmailAndPassword(email,password)
+                .addOnCompleteListener { task ->
+
+                    if (task.isSuccessful){
+                        FirestoreClass().getGuruDetails(this)
+                    }else{
+                        hideProgressDialog()
+                        showErrorSnackBar(task.exception!!.message.toString(),true)
+                    }
+                }
+        }
+    }
+
+
+    fun userLoggedInSuccess() {
+        hideProgressDialog()
+        val intent = Intent(this@LoginGuruActivity, MainActivity::class.java)
+        startActivity(intent)
+    }
 }

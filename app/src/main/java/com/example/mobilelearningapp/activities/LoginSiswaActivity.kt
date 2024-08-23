@@ -4,13 +4,17 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityLoginSiswaBinding
+import com.example.mobilelearningapp.firebase.FirestoreClass
+import com.example.mobilelearningapp.utils.Constants
+import com.google.firebase.auth.FirebaseAuth
 
-class LoginSiswaActivity : AppCompatActivity(), View.OnClickListener {
+class LoginSiswaActivity : BaseActivity(), View.OnClickListener {
     private var binding: ActivityLoginSiswaBinding? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityLoginSiswaBinding.inflate(layoutInflater)
@@ -40,7 +44,7 @@ class LoginSiswaActivity : AppCompatActivity(), View.OnClickListener {
                 }
 
                 R.id.btn_login -> {
-//                    loginRegisteredUser()
+                    loginRegisteredUser()
                 }
 
                 R.id.tv_register -> {
@@ -49,5 +53,48 @@ class LoginSiswaActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         }
+    }
+
+    private fun validateLoginDetails() : Boolean {
+        return when{
+            TextUtils.isEmpty(binding?.etEmail?.text.toString().trim{it <= ' '}) -> {
+                showErrorSnackBar("Silahkan isi email anda",true)
+                false
+            }
+            TextUtils.isEmpty(binding?.etPassword?.text.toString().trim{it <= ' '}) -> {
+                showErrorSnackBar("Silahkan isi password anda",true)
+                false
+            }
+            else -> {
+                true
+            }
+        }
+    }
+
+    private fun loginRegisteredUser(){
+        if (validateLoginDetails()){
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
+            val email = binding?.etEmail?.text.toString().trim{ it <= ' '}
+            val password = binding?.etPassword?.text.toString().trim{it <= ' '}
+
+            FirebaseAuth.getInstance().signInWithEmailAndPassword(email,password)
+                .addOnCompleteListener { task ->
+
+                    if (task.isSuccessful){
+                        FirestoreClass().getSiswaDetails(this)
+                    }else{
+                        hideProgressDialog()
+                        showErrorSnackBar(task.exception!!.message.toString(),true)
+                    }
+                }
+        }
+    }
+
+
+    fun userLoggedInSuccess() {
+        hideProgressDialog()
+        val intent = Intent(this@LoginSiswaActivity, MainActivity::class.java)
+        startActivity(intent)
     }
 }
