@@ -8,7 +8,7 @@ import android.view.WindowManager
 import com.example.mobilelearningapp.databinding.ActivitySplashBinding
 
 class SplashActivity : BaseActivity() {
-    private var binding : ActivitySplashBinding? = null
+    private var binding: ActivitySplashBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,18 +20,16 @@ class SplashActivity : BaseActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        val typeFacePixel: Typeface = Typeface.createFromAsset(assets,"PixelArmy.ttf")
-        val typeFaceBrazil: Typeface = Typeface.createFromAsset(assets,"BrasiliaDelight-Regular.ttf")
+        val typeFaceMontserrat: Typeface = Typeface.createFromAsset(assets, "Montserrat-Regular.ttf")
 
-        binding?.tvSchoolName?.typeface = typeFacePixel
-        binding?.tvAppName?.typeface = typeFaceBrazil
 
-        binding?.ivIcon?.setOnClickListener{
-            val intent = Intent(this, IntroActivity::class.java)
-            startActivity(intent)
-        }
+        binding?.tvSchoolName?.typeface = typeFaceMontserrat
+        binding?.tvAppName?.typeface = typeFaceMontserrat
+
 
         Handler().postDelayed({
-//            checkUserLoggedIn()
+           val intent = Intent(this, UserChooseActivity::class.java)
+            startActivity(intent)
         }, 3000)
     }
+}

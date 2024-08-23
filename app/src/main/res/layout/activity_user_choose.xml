@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.IntroActivity">
+    tools:context=".activities.UserChooseActivity">
 
     <com.example.kelomproapp.utils.MBLButton
         android:id="@+id/btn_guru"
@@ -22,7 +22,7 @@
         android:text="GURU"
         android:textColor="@color/onPrimary"
         android:drawableEnd="@drawable/guruimg"
-        android:drawablePadding="-130dp"
+        android:drawablePadding="-120dp"
         android:paddingEnd="70dp"
         android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
@@ -42,7 +42,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:drawableEnd="@drawable/siswaimg"
-        android:drawablePadding="-130dp"
+        android:drawablePadding="-120dp"
         android:paddingEnd="70dp"
         android:text="SISWA"
         android:textColor="@color/onPrimary"

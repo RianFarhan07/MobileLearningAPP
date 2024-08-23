@@ -13,4 +13,10 @@
 
     <color name="bluePrimary">#03045E</color>
     <color name="onPrimary">#CAF0F8</color>
+    <color name="textgrey">#666666</color>
+    <color name="dark_grey">#606a6a</color>
+
+    <color name="PacificCyan">#00B4D8</color>
+    <color name="mikadoYellow">#FFC300</color>
+    <color name="gold">#FFD60A</color>
 </resources>

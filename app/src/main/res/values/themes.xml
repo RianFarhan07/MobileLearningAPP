@@ -13,4 +13,34 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+        <item name="colorOnSurfaceVariant">@color/bluePrimary</item>
+    </style>
+    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="PopUpOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Other attributes for the default state -->
+        <item name="boxStrokeColor">@color/bluePrimary</item>
+        <item name="hintTextColor">@color/bluePrimary</item>
+        <item name="boxBackgroundMode">outline</item>
+        <item name="boxBackgroundColor">@null</item>
+        <item name="android:textCursorDrawable">@color/bluePrimary</item>
+        <item name="android:shadowColor">@color/bluePrimary</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">2</item>
+        <item name="android:shadowRadius">3</item>
+    </style>
+
+<!--    <style name="SearchBar" parent="Widget.Material3.SearchBar">-->
+<!--        &lt;!&ndash; Customize attributes for the SearchBar &ndash;&gt;-->
+<!--        <item name="android:background">@drawable/app_gradient_color_background3</item>-->
+<!--        &lt;!&ndash; Add more customizations as needed &ndash;&gt;-->
+<!--    </style>-->
+
+<!--    <style name="SearchView" parent="Widget.Material3.SearchView">-->
+<!--        &lt;!&ndash; Customize attributes for the SearchBar &ndash;&gt;-->
+<!--        <item name="android:background">@drawable/app_gradient_color_background3</item>-->
+<!--        &lt;!&ndash; Add more customizations as needed &ndash;&gt;-->
+<!--    </style>-->
 </resources>
