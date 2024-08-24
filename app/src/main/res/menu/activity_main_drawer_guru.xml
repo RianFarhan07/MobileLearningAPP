@@ -8,6 +8,11 @@
             android:title="Beranda"></item>
 
         <item
+            android:id="@+id/nav_guru_profile"
+            android:icon="@drawable/ic_nav_user"
+            android:title="Profile"></item>
+
+        <item
             android:id="@+id/nav_buat_kelas"
             android:icon="@drawable/ic_baseline_class_24"
             android:title="Buat Kelas"></item>

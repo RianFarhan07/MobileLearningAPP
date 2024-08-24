@@ -1,16 +1,24 @@
 package com.example.mobilelearningapp.activities
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.mobilelearningapp.KelasItemsAdapter
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityMainSiswaBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
+import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Siswa
+import com.example.mobilelearningapp.utils.Constants
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 
@@ -20,6 +28,10 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mUserName : String
     private lateinit var mSiswaId : String
 
+    companion object{
+        const val MY_PROFILE_REQUEST_CODE = 11
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMainSiswaBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
@@ -28,8 +40,19 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
         setupActionBar()
 
         FirestoreClass().getSiswaDetails(this)
+        FirestoreClass().getKelasList(this)
 
         binding?.navView?.setNavigationItemSelectedListener(this)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE){
+            FirestoreClass().getSiswaDetails(this)
+        }
+        else{
+            Log.e("cancelled","cancelled")
+        }
     }
 
     private fun setupActionBar() {
@@ -70,8 +93,8 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
                 binding?.drawerLayout!!.closeDrawer(GravityCompat.START)
             }
             R.id.nav_my_profile -> {
-//                val intent = Intent(this, MyProfileActivity::class.java)
-//                startActivityForResult(intent, MY_PROFILE_REQUEST_CODE)
+                val intent = Intent(this, MyProfileActivity::class.java)
+                startActivityForResult(intent, MY_PROFILE_REQUEST_CODE)
             }
 
             R.id.nav_kuis -> {
@@ -112,6 +135,35 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
 //
 //            FirestoreClass().getKelompokList(this)
 //        }
+    }
+
+    fun populateKelasListToUI(kelasList: ArrayList<Kelas>){
+
+        val rvKelasList : RecyclerView = findViewById(R.id.rv_class_list)
+        val tvNoKelasAvailable : TextView = findViewById(R.id.tv_no_class_available)
+
+
+        if (kelasList.size >0){
+            rvKelasList.visibility = View.VISIBLE
+            tvNoKelasAvailable.visibility  = View.GONE
+
+            rvKelasList.layoutManager = LinearLayoutManager(this)
+            rvKelasList.setHasFixedSize(true)
+
+            val adapter = KelasItemsAdapter(this,kelasList)
+            rvKelasList.adapter = adapter
+
+            adapter.setOnClickListener(object: KelasItemsAdapter.OnClickListener{
+                override fun onClick(position: Int, model: Kelas) {
+//                    val intent = Intent(this@MainActivity, TaskListActivity::class.java)
+//                    intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
+//                    startActivityForResult(intent, UPDATE_KELOMPOK_REQUEST_CODE)
+                }
+            })
+        }else{
+            rvKelasList.visibility = View.GONE
+            tvNoKelasAvailable.visibility  = View.VISIBLE
+        }
     }
 
 }

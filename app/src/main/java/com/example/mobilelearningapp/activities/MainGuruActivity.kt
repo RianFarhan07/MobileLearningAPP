@@ -7,13 +7,18 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.mobilelearningapp.KelasItemsAdapter
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityMainGuruBinding
 import com.example.mobilelearningapp.databinding.DialogBuatKelasBinding
@@ -31,6 +36,12 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
     private lateinit var mGuruId : String
     private lateinit var mUsername : String
 
+    companion object{
+        const val GURU_PROFILE_REQUEST_CODE = 12
+        const val CREATE_KELOMPOK_REQUEST_CODE = 13
+        const val UPDATE_KELOMPOK_REQUEST_CODE = 14
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMainGuruBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
@@ -39,8 +50,23 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
         setupActionBar()
 
         FirestoreClass().getGuruDetails(this)
+        FirestoreClass().getKelasList(this)
 
         binding?.navView?.setNavigationItemSelectedListener(this)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == GURU_PROFILE_REQUEST_CODE){
+            FirestoreClass().getGuruDetails(this)
+        }else if (resultCode == Activity.RESULT_OK && requestCode == CREATE_KELOMPOK_REQUEST_CODE){
+            FirestoreClass().getKelasList(this)
+        }else if (resultCode == Activity.RESULT_OK && requestCode == UPDATE_KELOMPOK_REQUEST_CODE) {
+            FirestoreClass().getKelasList(this)
+        }
+        else{
+            Log.e("cancelled","cancelled")
+        }
     }
 
     private fun setupActionBar() {
@@ -82,6 +108,11 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
             }
             R.id.nav_buat_kelas -> {
                 dialogSearchAnggota()
+            }
+
+            R.id.nav_guru_profile -> {
+                val intent = Intent(this, GuruProfileActivity::class.java)
+                startActivityForResult(intent, GURU_PROFILE_REQUEST_CODE)
             }
 
             R.id.materi -> {
@@ -162,7 +193,35 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
 
 
     fun kelompokCreatedSuccessfully(){
-//
+        FirestoreClass().getKelasList(this)
+    }
+
+    fun populateKelasListToUI(kelasList: ArrayList<Kelas>){
+        val rvKelasList : RecyclerView = findViewById(R.id.rv_class_list)
+        val tvNoKelasAvailable : TextView = findViewById(R.id.tv_no_class_available)
+
+
+        if (kelasList.size >0){
+            rvKelasList.visibility = View.VISIBLE
+            tvNoKelasAvailable.visibility  = View.GONE
+
+            rvKelasList.layoutManager = LinearLayoutManager(this)
+            rvKelasList.setHasFixedSize(true)
+
+            val adapter = KelasItemsAdapter(this,kelasList)
+            rvKelasList.adapter = adapter
+
+            adapter.setOnClickListener(object: KelasItemsAdapter.OnClickListener{
+                override fun onClick(position: Int, model: Kelas) {
+//                    val intent = Intent(this@MainActivity, TaskListActivity::class.java)
+//                    intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
+//                    startActivityForResult(intent, UPDATE_KELOMPOK_REQUEST_CODE)
+                }
+            })
+        }else{
+            rvKelasList.visibility = View.GONE
+            tvNoKelasAvailable.visibility  = View.VISIBLE
+        }
     }
 
 }

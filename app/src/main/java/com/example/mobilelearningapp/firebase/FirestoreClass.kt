@@ -105,12 +105,12 @@ class FirestoreClass {
                             is LoginSiswaActivity -> {
                                 activity.userLoggedInSuccess()
                             }
-                                is MainActivitySiswa -> {
-                                    activity.updateNavigationUserDetails(siswa)
-                                }
-//                                is MyProfileActivity -> {
-//                                    activity.setUserDataInUI(siswa)
-//                                }
+                            is MainActivitySiswa -> {
+                                activity.updateNavigationUserDetails(siswa)
+                               }
+                            is MyProfileActivity -> {
+                                activity.setSiswaDataInUI(siswa)
+                            }
 //                                is KelompokDetailsActivity -> {
 //                                    activity.setUserDataInUI(siswa)
 //                                }
@@ -121,6 +121,12 @@ class FirestoreClass {
                         is LoginSiswaActivity -> {
                             activity.hideProgressDialog()
                             Toast.makeText(activity,"Email tidak ditemukan",Toast.LENGTH_SHORT).show()
+                        }
+                        is MainActivitySiswa -> {
+                            activity.hideProgressDialog()
+                        }
+                        is MyProfileActivity -> {
+                            activity.hideProgressDialog()
                         }
                     }
                     Log.e(activity.javaClass.simpleName.toString(), "Dokumen tidak ditemukan")
@@ -165,15 +171,15 @@ class FirestoreClass {
                             is LoginGuruActivity -> {
                                 activity.userLoggedInSuccess()
                             }
-                                is MainGuruActivity -> {
-                                    activity.updateNavigationUserDetails(guru)
-                                }
-//                                is MyProfileActivity -> {
-//                                    activity.setUserDataInUI(siswa)
-//                                }
-//                                is KelompokDetailsActivity -> {
-//                                    activity.setUserDataInUI(siswa)
-//                                }
+                            is MainGuruActivity -> {
+                                activity.updateNavigationUserDetails(guru)
+                            }
+                            is GuruProfileActivity -> {
+                                activity.setGuruDataInUI(guru)
+                            }
+//                               is KelompokDetailsActivity -> {
+//                                  activity.setUserDataInUI(siswa)
+//                               }
                         }
                     }
                 } else {
@@ -181,6 +187,12 @@ class FirestoreClass {
                         is LoginGuruActivity -> {
                             activity.hideProgressDialog()
                             Toast.makeText(activity,"Email tidak ditemukan",Toast.LENGTH_SHORT).show()
+                        }
+                        is MainGuruActivity -> {
+                            activity.hideProgressDialog()
+                        }
+                        is GuruProfileActivity -> {
+                            activity.hideProgressDialog()
                         }
                     }
                     Log.e(activity.javaClass.simpleName.toString(), "Dokumen tidak ditemukan")
@@ -222,6 +234,98 @@ class FirestoreClass {
                     e->
                 activity.hideProgressDialog()
                 Log.e(activity.javaClass.simpleName, "Error membuat kelas",e)
+            }
+    }
+
+    fun getKelasList(activity: Activity){
+        mFireStore.collection(Constants.KELAS)
+            .get()
+            .addOnSuccessListener {
+                    document ->
+                Log.e(activity.javaClass.simpleName, document.documents.toString())
+                val kelompokList : ArrayList<Kelas> = ArrayList()
+                for(i in document.documents){
+                    val kelas = i.toObject(Kelas::class.java)!!
+                    kelas.documentId = i.id
+                    kelompokList.add(kelas)
+                }
+
+                when(activity) {
+                    is MainGuruActivity -> {
+                        activity.populateKelasListToUI(kelompokList)
+                    }
+                    is MainActivitySiswa -> {
+                        activity.populateKelasListToUI(kelompokList)
+                    }
+                }
+
+            }.addOnFailureListener {
+                when(activity) {
+                    is MainGuruActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                    is MainActivitySiswa -> {
+                        activity.hideProgressDialog()
+                    }
+                }
+                Log.e(activity.javaClass.simpleName, "Error mendapatkan kelompok")
+            }
+    }
+
+    fun updateSiswaProfileData(activity: Activity, userHashMap: HashMap<String, Any>){
+        mFireStore.collection(Constants.SISWA)
+            .document(getCurrentUserID())
+            .update(userHashMap)
+            .addOnSuccessListener {
+                Log.i(activity.javaClass.simpleName,"Profile Data Update Successfully")
+                Toast.makeText(activity,"profile update successfully", Toast.LENGTH_LONG).show()
+                when(activity) {
+                    is MyProfileActivity -> {
+                        activity.profileUpdateSuccess()
+                    }
+                }
+            }
+            .addOnFailureListener {
+                    e->
+                when(activity) {
+                    is MyProfileActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                }
+                Log.e(
+                    activity.javaClass.simpleName,
+                    "Error while update a profile",
+                    e
+                )
+                Toast.makeText(activity,"ERROR while update a profile", Toast.LENGTH_LONG).show()
+            }
+    }
+    fun updateGuruProfileData(activity: Activity, userHashMap: HashMap<String, Any>){
+        mFireStore.collection(Constants.GURU)
+            .document(getCurrentUserID())
+            .update(userHashMap)
+            .addOnSuccessListener {
+                Log.i(activity.javaClass.simpleName,"Profile Data Update Successfully")
+                Toast.makeText(activity,"profile update successfully", Toast.LENGTH_LONG).show()
+                when(activity) {
+                    is GuruProfileActivity -> {
+                        activity.profileUpdateSuccess()
+                    }
+                }
+            }
+            .addOnFailureListener {
+                    e->
+                when(activity) {
+                    is GuruProfileActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                }
+                Log.e(
+                    activity.javaClass.simpleName,
+                    "Error while update a profile",
+                    e
+                )
+                Toast.makeText(activity,"ERROR while update a profile", Toast.LENGTH_LONG).show()
             }
     }
 }
