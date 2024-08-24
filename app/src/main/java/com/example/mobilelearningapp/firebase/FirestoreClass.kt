@@ -2,10 +2,7 @@ package com.example.mobilelearningapp.firebase
 
 import android.app.Activity
 import android.util.Log
-import com.example.mobilelearningapp.activities.LoginGuruActivity
-import com.example.mobilelearningapp.activities.LoginSiswaActivity
-import com.example.mobilelearningapp.activities.RegisterGuruActivity
-import com.example.mobilelearningapp.activities.RegisterSiswaActivity
+import com.example.mobilelearningapp.activities.*
 import com.example.mobilelearningapp.models.Guru
 import com.example.mobilelearningapp.models.Siswa
 import com.example.mobilelearningapp.utils.Constants
@@ -17,6 +14,46 @@ class FirestoreClass {
 
     private val mFireStore = FirebaseFirestore.getInstance()
 
+    fun getCurrentUserID() : String {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+
+        var currentUserID = ""
+        if(currentUser != null){
+            currentUserID = currentUser.uid
+        }
+        return currentUserID
+    }
+
+    fun getUserRole(userId: String, onComplete: (String?) -> Unit) {
+        mFireStore.collection(Constants.SISWA)
+            .document(userId)
+            .get()
+            .addOnSuccessListener { siswaDocument ->
+                if (siswaDocument.exists()) {
+                    onComplete(Constants.SISWA) // Mengembalikan peran siswa
+                } else {
+                    // Jika tidak ditemukan sebagai siswa, cek sebagai guru
+                    mFireStore.collection(Constants.GURU)
+                        .document(userId)
+                        .get()
+                        .addOnSuccessListener { guruDocument ->
+                            if (guruDocument.exists()) {
+                                onComplete(Constants.GURU) // Mengembalikan peran guru
+                            } else {
+                                onComplete(null) // Jika tidak ditemukan sebagai guru, kembalikan null
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FirestoreClass", "Error getting user role (guru): ${e.message}", e)
+                            onComplete(null)
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirestoreClass", "Error getting user role (siswa): ${e.message}", e)
+                onComplete(null)
+            }
+    }
 
     fun registerSiswa(activity: RegisterSiswaActivity, siswaInfo: Siswa){
         mFireStore.collection(Constants.SISWA)
@@ -50,16 +87,6 @@ class FirestoreClass {
             }
     }
 
-    fun getCurrentUserID() : String {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-
-        var currentUserID = ""
-        if(currentUser != null){
-            currentUserID = currentUser.uid
-        }
-        return currentUserID
-    }
-
     fun getSiswaDetails(activity: Activity) {
         val userCollection = Constants.SISWA
 
@@ -76,9 +103,9 @@ class FirestoreClass {
                             is LoginSiswaActivity -> {
                                 activity.userLoggedInSuccess()
                             }
-//                                is MainActivity -> {
-//                                    activity.updateNavigationUserDetails(siswa, readKelompokList)
-//                                }
+                                is MainActivitySiswa -> {
+                                    activity.updateNavigationUserDetails(siswa)
+                                }
 //                                is MyProfileActivity -> {
 //                                    activity.setUserDataInUI(siswa)
 //                                }
@@ -130,9 +157,9 @@ class FirestoreClass {
                             is LoginGuruActivity -> {
                                 activity.userLoggedInSuccess()
                             }
-//                                is MainActivity -> {
-//                                    activity.updateNavigationUserDetails(siswa, readKelompokList)
-//                                }
+                                is MainGuruActivity -> {
+                                    activity.updateNavigationUserDetails(guru)
+                                }
 //                                is MyProfileActivity -> {
 //                                    activity.setUserDataInUI(siswa)
 //                                }

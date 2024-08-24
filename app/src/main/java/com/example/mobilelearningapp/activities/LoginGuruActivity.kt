@@ -94,7 +94,7 @@ class LoginGuruActivity : BaseActivity(), View.OnClickListener {
 
     fun userLoggedInSuccess() {
         hideProgressDialog()
-        val intent = Intent(this@LoginGuruActivity, MainActivity::class.java)
+        val intent = Intent(this@LoginGuruActivity, MainGuruActivity::class.java)
         startActivity(intent)
     }
 }

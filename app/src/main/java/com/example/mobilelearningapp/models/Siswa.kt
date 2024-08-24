@@ -6,7 +6,7 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class Siswa(
         val id: String = "",
-        val Name: String = "",
+        val name: String = "",
         val email: String = "",
         val classes: String = "",
         val image: String = "",

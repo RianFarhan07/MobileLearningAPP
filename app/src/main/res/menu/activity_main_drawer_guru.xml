@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_beranda"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="Beranda"></item>
+
+        <item
+            android:id="@+id/nav_buat_kelas"
+            android:icon="@drawable/ic_baseline_class_24"
+            android:title="Buat Kelas"></item>
+
+        <item
+            android:id="@+id/materi"
+            android:icon="@drawable/ic_baseline_menu_book_24"
+            android:title="Materi Saya"></item>
+
+        <item
+            android:id="@+id/nav_kuis"
+            android:icon="@drawable/ic_baseline_task_24"
+            android:title="Kuis Saya"></item>
+
+        <item
+            android:id="@+id/nav_sign_out"
+            android:icon="@drawable/ic_nav_sign_out"
+            android:title="Sign Out"></item>
+
+    </group>
+
+</menu>

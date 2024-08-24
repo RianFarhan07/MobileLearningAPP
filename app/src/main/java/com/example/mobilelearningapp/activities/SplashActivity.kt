@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.WindowManager
 import com.example.mobilelearningapp.databinding.ActivitySplashBinding
+import com.example.mobilelearningapp.firebase.FirestoreClass
 
 class SplashActivity : BaseActivity() {
     private var binding: ActivitySplashBinding? = null
@@ -28,8 +29,36 @@ class SplashActivity : BaseActivity() {
 
 
         Handler().postDelayed({
-           val intent = Intent(this, UserChooseActivity::class.java)
-            startActivity(intent)
+            checkUserLoggedIn()
         }, 3000)
+    }
+
+    private fun checkUserLoggedIn() {
+        val currentUserID = FirestoreClass().getCurrentUserID()
+
+        Handler().postDelayed({
+            if (currentUserID.isNotEmpty()) {
+                FirestoreClass().getUserRole(currentUserID) { role ->
+                    if (role != null) {
+                        handleUserRole(role)
+                    }
+                }
+            } else {
+                startActivity(Intent(this, UserChooseActivity::class.java))
+                finish()
+            }
+        }, 2000)
+    }
+
+    fun handleUserRole(role: String) {
+        when(role) {
+            "siswa" -> {
+                startActivity(Intent(this, MainActivitySiswa::class.java))
+            }
+            "guru" -> {
+                startActivity(Intent(this, MainGuruActivity::class.java))
+            }
+        }
+        finish()
     }
 }

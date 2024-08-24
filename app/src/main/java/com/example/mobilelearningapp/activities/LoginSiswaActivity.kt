@@ -2,7 +2,6 @@ package com.example.mobilelearningapp.activities
 
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
@@ -11,7 +10,6 @@ import android.view.WindowManager
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityLoginSiswaBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
-import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginSiswaActivity : BaseActivity(), View.OnClickListener {
@@ -94,7 +92,7 @@ class LoginSiswaActivity : BaseActivity(), View.OnClickListener {
 
     fun userLoggedInSuccess() {
         hideProgressDialog()
-        val intent = Intent(this@LoginSiswaActivity, MainActivity::class.java)
+        val intent = Intent(this@LoginSiswaActivity, MainActivitySiswa::class.java)
         startActivity(intent)
     }
 }

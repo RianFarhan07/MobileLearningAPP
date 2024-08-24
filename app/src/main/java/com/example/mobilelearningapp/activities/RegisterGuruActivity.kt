@@ -9,7 +9,7 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Toast
 import com.example.mobilelearningapp.R
-import com.example.mobilelearningapp.databinding.ActivityMainBinding
+
 import com.example.mobilelearningapp.databinding.ActivityRegisterGuruBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.Guru
