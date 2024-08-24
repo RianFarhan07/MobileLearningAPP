@@ -1,17 +1,25 @@
 package com.example.mobilelearningapp.activities
 
+import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityMainGuruBinding
+import com.example.mobilelearningapp.databinding.DialogBuatKelasBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.Guru
+import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Siswa
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -21,6 +29,7 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
     private var binding : ActivityMainGuruBinding? = null
     private lateinit var mUserName : String
     private lateinit var mGuruId : String
+    private lateinit var mUsername : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMainGuruBinding.inflate(layoutInflater)
@@ -72,8 +81,7 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
                 binding?.drawerLayout!!.closeDrawer(GravityCompat.START)
             }
             R.id.nav_buat_kelas -> {
-//                val intent = Intent(this, MyProfileActivity::class.java)
-//                startActivityForResult(intent, MY_PROFILE_REQUEST_CODE)
+                dialogSearchAnggota()
             }
 
             R.id.materi -> {
@@ -118,6 +126,43 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
 //
 //            FirestoreClass().getKelompokList(this)
 //        }
+    }
+
+    private fun dialogSearchAnggota() {
+        val binding = DialogBuatKelasBinding.inflate(layoutInflater)
+        val dialog = Dialog(this)
+        dialog.setContentView(binding.root)
+
+        binding.tvAdd.setOnClickListener {
+            val nama = binding.etClasssesName.text.toString()
+            val course = binding.etCourse.text.toString()
+
+            var kelas = Kelas(
+                nama,
+                course,
+                mUserName,
+            )
+
+            if (binding.etClasssesName.text?.isNotEmpty() == true &&
+                binding.etCourse.text?.isNotEmpty() == true){
+                FirestoreClass().createKelas(this,kelas)
+
+                dialog.dismiss()
+            }else{
+                Toast.makeText(this,"Silahkan isi informasi kelompok", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.tvCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+
+    fun kelompokCreatedSuccessfully(){
+//
     }
 
 }

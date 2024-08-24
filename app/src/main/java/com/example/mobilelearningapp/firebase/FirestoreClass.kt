@@ -2,8 +2,10 @@ package com.example.mobilelearningapp.firebase
 
 import android.app.Activity
 import android.util.Log
+import android.widget.Toast
 import com.example.mobilelearningapp.activities.*
 import com.example.mobilelearningapp.models.Guru
+import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Siswa
 import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -115,6 +117,12 @@ class FirestoreClass {
                         }
                     }
                 } else {
+                    when(activity) {
+                        is LoginSiswaActivity -> {
+                            activity.hideProgressDialog()
+                            Toast.makeText(activity,"Email tidak ditemukan",Toast.LENGTH_SHORT).show()
+                        }
+                    }
                     Log.e(activity.javaClass.simpleName.toString(), "Dokumen tidak ditemukan")
                 }
             }
@@ -169,6 +177,12 @@ class FirestoreClass {
                         }
                     }
                 } else {
+                    when(activity) {
+                        is LoginGuruActivity -> {
+                            activity.hideProgressDialog()
+                            Toast.makeText(activity,"Email tidak ditemukan",Toast.LENGTH_SHORT).show()
+                        }
+                    }
                     Log.e(activity.javaClass.simpleName.toString(), "Dokumen tidak ditemukan")
                 }
             }
@@ -192,6 +206,22 @@ class FirestoreClass {
                     activity.javaClass.simpleName.toString(),
                     "Error Mengambil data detail guru", e
                 )
+            }
+    }
+
+    fun createKelas(activity : MainGuruActivity, kelas: Kelas){
+        mFireStore.collection(Constants.KELAS)
+            .document()
+            .set(kelas, SetOptions.merge())
+            .addOnSuccessListener {
+                Log.e(activity.javaClass.simpleName, "Kelas berhasil dibuat")
+                Toast.makeText(activity,"Berhasil membuat kelas", Toast.LENGTH_LONG).show()
+                activity.kelompokCreatedSuccessfully()
+
+            }.addOnFailureListener {
+                    e->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error membuat kelas",e)
             }
     }
 }

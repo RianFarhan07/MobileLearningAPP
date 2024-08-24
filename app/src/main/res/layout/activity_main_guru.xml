@@ -22,7 +22,7 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer_siswa"/>
+        app:menu="@menu/activity_main_drawer_guru"/>
 
 
 
