@@ -3,6 +3,7 @@ package com.example.mobilelearningapp.firebase
 import android.app.Activity
 import android.util.Log
 import android.widget.Toast
+import com.example.mobilelearningapp.KelasItemsAdapter
 import com.example.mobilelearningapp.activities.*
 import com.example.mobilelearningapp.models.Guru
 import com.example.mobilelearningapp.models.Kelas
@@ -272,6 +273,75 @@ class FirestoreClass {
             }
     }
 
+    fun getKelasDetails(activity: Activity, documentId: String) {
+        mFireStore.collection(Constants.KELAS)
+            .document(documentId)
+            .get()
+            .addOnSuccessListener { document ->
+                val kelompok = document.toObject(Kelas::class.java)
+                kelompok?.documentId = document.id
+
+                if (activity is MateriListActivity){
+                    activity.kelasDetails(kelompok!!)
+                }
+
+            }
+            .addOnFailureListener { e ->
+
+                if (activity is MateriListActivity) {
+                    activity.hideProgressDialog()
+                }
+
+                Log.e(activity.javaClass.simpleName, "Error fetching kelompok details: ${e.message}")
+            }
+    }
+
+    fun updateKelasData(activity: Activity, kelasHashMap: HashMap<String, Any>, kelasId : String){
+        mFireStore.collection(Constants.KELAS)
+            .document(kelasId)
+            .update(kelasHashMap)
+            .addOnSuccessListener {
+                Log.i(activity.javaClass.simpleName,"Kelas Data Update Successfully")
+                Toast.makeText(activity,"kelas update successfully", Toast.LENGTH_LONG).show()
+                when(activity) {
+                    is MainGuruActivity -> {
+                        activity.kelompokUpdateSuccess()
+                    }
+                }
+            }
+            .addOnFailureListener {
+                    e->
+                when(activity) {
+                    is MainGuruActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                }
+                Log.e(
+                    activity.javaClass.simpleName,
+                    "Error while update a profile",
+                    e
+                )
+                Toast.makeText(activity,"ERROR while update a profile", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    fun deleteKelas(activity: MainGuruActivity, kelasId: String){
+        mFireStore.collection(Constants.KELAS)
+            .document(kelasId)
+            .delete()
+            .addOnSuccessListener {
+                activity.kelasDeleteSuccess()
+            }
+            .addOnFailureListener { e ->
+                activity.hideProgressDialog()
+
+                Log.e(activity.javaClass.simpleName,
+                    "Error while deleting kelompok",e)
+            }
+    }
+
+
+
     fun updateSiswaProfileData(activity: Activity, userHashMap: HashMap<String, Any>){
         mFireStore.collection(Constants.SISWA)
             .document(getCurrentUserID())
@@ -328,4 +398,6 @@ class FirestoreClass {
                 Toast.makeText(activity,"ERROR while update a profile", Toast.LENGTH_LONG).show()
             }
     }
+
+
 }

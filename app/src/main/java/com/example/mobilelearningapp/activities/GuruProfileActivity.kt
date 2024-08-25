@@ -173,7 +173,7 @@ class GuruProfileActivity : BaseActivity() {
         }
 
         val newPassword = binding?.etPassword?.text.toString()
-        if (newPassword.isNotEmpty() && newPassword.length > 6) {
+        if (newPassword.isNotEmpty()) {
             // Jika password diisi, kita akan mengubahnya
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
@@ -184,7 +184,9 @@ class GuruProfileActivity : BaseActivity() {
                             Toast.makeText(this, "Password berhasil diubah", Toast.LENGTH_SHORT).show()
                             anyChangesMade = true
                         } else {
-                            Toast.makeText(this, "Gagal mengubah password: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this, "Gagal mengubah password coba logout dan login kembali: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                            hideProgressDialog()
+                            finish()
                         }
                         // Lanjutkan dengan pembaruan profil lainnya
                         continueProfileUpdate(userHashMap, anyChangesMade)

@@ -63,17 +63,20 @@
       android:textColorHint="@color/textgrey"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/tv_login">
+      app:layout_constraintTop_toBottomOf="@id/tv_login"
+      app:startIconDrawable="@drawable/email"
+      app:startIconTint="@color/textgrey">
 
     <com.example.kelomproapp.utils.MBLEditText
         android:id="@+id/et_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"
+        android:inputType="textEmailAddress"
         android:padding="16dp"
         android:textColor="@color/dark_grey"
         android:textSize="16sp"
         tools:text="abc@gmail.com" />
+
   </com.google.android.material.textfield.TextInputLayout>
 
   <com.google.android.material.textfield.TextInputLayout
@@ -88,7 +91,11 @@
       android:textColorHint="@color/textgrey"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/til_email">
+      app:layout_constraintTop_toBottomOf="@id/til_email"
+      app:startIconDrawable="@drawable/password"
+      app:startIconTint="@color/textgrey"
+      app:passwordToggleEnabled="true"
+      app:passwordToggleTint="@color/bluePrimary">
 
     <com.example.kelomproapp.utils.MBLEditText
         android:id="@+id/et_password"
@@ -98,10 +105,7 @@
         android:padding="16dp"
         android:textColor="@color/dark_grey"
         android:textSize="16sp"
-        tools:text="123456"
-        app:passwordToggleEnabled="true"
-        app:passwordToggleTint="@color/bluePrimary"/>
-
+        tools:text="123456" />
 
   </com.google.android.material.textfield.TextInputLayout>
 

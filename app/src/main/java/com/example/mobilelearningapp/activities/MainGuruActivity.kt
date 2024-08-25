@@ -1,16 +1,16 @@
 package com.example.mobilelearningapp.activities
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -22,10 +22,11 @@ import com.example.mobilelearningapp.KelasItemsAdapter
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityMainGuruBinding
 import com.example.mobilelearningapp.databinding.DialogBuatKelasBinding
+import com.example.mobilelearningapp.databinding.DialogMoreMateriBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.Guru
 import com.example.mobilelearningapp.models.Kelas
-import com.example.mobilelearningapp.models.Siswa
+import com.example.mobilelearningapp.utils.Constants
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 
@@ -39,7 +40,7 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
     companion object{
         const val GURU_PROFILE_REQUEST_CODE = 12
         const val CREATE_KELOMPOK_REQUEST_CODE = 13
-        const val UPDATE_KELOMPOK_REQUEST_CODE = 14
+        const val UPDATE_KELAS_REQUEST_CODE = 14
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +62,7 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
             FirestoreClass().getGuruDetails(this)
         }else if (resultCode == Activity.RESULT_OK && requestCode == CREATE_KELOMPOK_REQUEST_CODE){
             FirestoreClass().getKelasList(this)
-        }else if (resultCode == Activity.RESULT_OK && requestCode == UPDATE_KELOMPOK_REQUEST_CODE) {
+        }else if (resultCode == Activity.RESULT_OK && requestCode == UPDATE_KELAS_REQUEST_CODE) {
             FirestoreClass().getKelasList(this)
         }
         else{
@@ -107,7 +108,7 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
                 binding?.drawerLayout!!.closeDrawer(GravityCompat.START)
             }
             R.id.nav_buat_kelas -> {
-                dialogSearchAnggota()
+                dialogBuatKelas()
             }
 
             R.id.nav_guru_profile -> {
@@ -159,7 +160,7 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
 //        }
     }
 
-    private fun dialogSearchAnggota() {
+    private fun dialogBuatKelas() {
         val binding = DialogBuatKelasBinding.inflate(layoutInflater)
         val dialog = Dialog(this)
         dialog.setContentView(binding.root)
@@ -191,6 +192,51 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
         dialog.show()
     }
 
+    private fun dialogUpdateKelas(kelas: Kelas) {
+        val binding = DialogBuatKelasBinding.inflate(layoutInflater)
+        val dialog = Dialog(this)
+        dialog.setContentView(binding.root)
+
+        // Mengisi EditText dengan informasi kelas yang ada
+        binding.etClasssesName.setText(kelas.nama)
+        binding.etCourse.setText(kelas.course)
+
+        binding.tvAdd.text = "UPDATE" // Mengubah teks tombol menjadi "Update"
+
+        binding.tvAdd.setOnClickListener {
+            val newNama = binding.etClasssesName.text.toString()
+            val newCourse = binding.etCourse.text.toString()
+
+            val kelasHashMap = HashMap<String, Any>()
+            var anyChangesMade = false
+
+            if (newNama != kelas.nama) {
+                kelasHashMap["nama"] = newNama
+                anyChangesMade = true
+            }
+
+            if (newCourse != kelas.course) {
+                kelasHashMap["course"] = newCourse
+                anyChangesMade = true
+            }
+
+            if (anyChangesMade) {
+                // Update kelas di Firestore
+                kelas.documentId?.let { id ->
+                    FirestoreClass().updateKelasData(this, kelasHashMap, id)
+                }
+                dialog.dismiss()
+            } else {
+                Toast.makeText(this, "Tidak ada perubahan yang dilakukan", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.tvCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
 
     fun kelompokCreatedSuccessfully(){
         FirestoreClass().getKelasList(this)
@@ -208,20 +254,61 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
             rvKelasList.layoutManager = LinearLayoutManager(this)
             rvKelasList.setHasFixedSize(true)
 
-            val adapter = KelasItemsAdapter(this,kelasList)
+            val adapter = KelasItemsAdapter(this@MainGuruActivity,kelasList)
             rvKelasList.adapter = adapter
 
             adapter.setOnClickListener(object: KelasItemsAdapter.OnClickListener{
                 override fun onClick(position: Int, model: Kelas) {
-//                    val intent = Intent(this@MainActivity, TaskListActivity::class.java)
-//                    intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
-//                    startActivityForResult(intent, UPDATE_KELOMPOK_REQUEST_CODE)
+                    val intent = Intent(this@MainGuruActivity, MateriListActivity::class.java)
+                    intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
+                    startActivityForResult(intent, UPDATE_KELAS_REQUEST_CODE)
+                }
+            })
+
+            adapter.setOnEditClickListener(object : KelasItemsAdapter.OnEditClickListener {
+                override fun onEditClick(position: Int, model: Kelas) {
+                    dialogUpdateKelas(model)
+                }
+            })
+
+            adapter.setOnDeleteClickListener(object : KelasItemsAdapter.OnDeleteClickListener {
+                override fun onDeleteClick(position: Int, model: Kelas) {
+
+                    val dialogView = LayoutInflater.from(this@MainGuruActivity).inflate(R.layout.dialog_confirm_delete, null)
+                    // Konfirmasi penghapusan
+                    val dialog = AlertDialog.Builder(this@MainGuruActivity)
+                        .setView(dialogView)
+                        .create()
+
+
+                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    dialog.show()
+
+                    val tvYa = dialogView.findViewById<TextView>(R.id.tv_ya)
+                    val tvTidak = dialogView.findViewById<TextView>(R.id.tv_tidak)
+
+                    tvYa.setOnClickListener {
+                        model.documentId?.let { FirestoreClass().deleteKelas(this@MainGuruActivity, it) }
+                        dialog.dismiss()
+                    }
+
+                    tvTidak.setOnClickListener {
+                        dialog.dismiss()
+                    }
                 }
             })
         }else{
             rvKelasList.visibility = View.GONE
             tvNoKelasAvailable.visibility  = View.VISIBLE
         }
+    }
+
+    fun kelompokUpdateSuccess(){
+        FirestoreClass().getKelasList(this)
+    }
+
+    fun kelasDeleteSuccess(){
+        FirestoreClass().getKelasList(this)
     }
 
 }

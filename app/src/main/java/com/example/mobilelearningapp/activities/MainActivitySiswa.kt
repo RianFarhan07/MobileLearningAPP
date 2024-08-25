@@ -30,6 +30,8 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
 
     companion object{
         const val MY_PROFILE_REQUEST_CODE = 11
+        const val UPDATE_KELAS_REQUEST_CODE = 14
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -155,9 +157,9 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
 
             adapter.setOnClickListener(object: KelasItemsAdapter.OnClickListener{
                 override fun onClick(position: Int, model: Kelas) {
-//                    val intent = Intent(this@MainActivity, TaskListActivity::class.java)
-//                    intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
-//                    startActivityForResult(intent, UPDATE_KELOMPOK_REQUEST_CODE)
+                    val intent = Intent(this@MainActivitySiswa, MateriListActivity::class.java)
+                    intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
+                    startActivityForResult(intent, UPDATE_KELAS_REQUEST_CODE)
                 }
             })
         }else{

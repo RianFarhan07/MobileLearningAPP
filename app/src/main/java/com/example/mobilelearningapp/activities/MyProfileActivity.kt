@@ -186,6 +186,8 @@ class MyProfileActivity : BaseActivity() {
                             anyChangesMade = true
                         } else {
                             Toast.makeText(this, "Gagal mengubah password: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                            hideProgressDialog()
+                            finish()
                         }
                         // Lanjutkan dengan pembaruan profil lainnya
                         continueProfileUpdate(userHashMap, anyChangesMade)
