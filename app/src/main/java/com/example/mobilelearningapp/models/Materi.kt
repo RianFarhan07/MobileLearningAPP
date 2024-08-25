@@ -6,9 +6,9 @@ import java.util.*
 
 @Parcelize
 data class Materi(
-    var id: String = UUID.randomUUID().toString(),
-    val name: String = "",
-    val topic: String = "",
+    var id: String = "",
+    var nama: String = "",
+    var createdBy: String = "",
     val desc : String = "",
 //    val kuis
     val url: String = "",

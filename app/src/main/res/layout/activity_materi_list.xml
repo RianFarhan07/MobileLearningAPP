@@ -31,7 +31,7 @@
         </androidx.appcompat.widget.Toolbar>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_task_list"
+            android:id="@+id/rv_materi_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
@@ -67,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:autofillHints="Nama Materi"
-                    android:hint="Nama Tugas"
+                    android:hint="Nama Materi"
                     android:imeOptions="actionDone"
                     android:inputType="text" />
 
@@ -82,7 +82,7 @@
         </androidx.cardview.widget.CardView>
 
         <TextView
-            android:id="@+id/tv_add_tugas"
+            android:id="@+id/tv_add_materi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
@@ -95,7 +95,7 @@
             android:textSize="18sp" />
 
         <TextView
-            android:id="@+id/tv_no_task_available"
+            android:id="@+id/tv_no_materi_available"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"

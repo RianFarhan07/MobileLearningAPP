@@ -3,10 +3,10 @@ package com.example.mobilelearningapp.firebase
 import android.app.Activity
 import android.util.Log
 import android.widget.Toast
-import com.example.mobilelearningapp.KelasItemsAdapter
 import com.example.mobilelearningapp.activities.*
 import com.example.mobilelearningapp.models.Guru
 import com.example.mobilelearningapp.models.Kelas
+import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.models.Siswa
 import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -15,7 +15,7 @@ import com.google.firebase.firestore.SetOptions
 
 class FirestoreClass {
 
-    private val mFireStore = FirebaseFirestore.getInstance()
+    val mFireStore = FirebaseFirestore.getInstance()
 
     fun getCurrentUserID() : String {
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -399,5 +399,93 @@ class FirestoreClass {
             }
     }
 
+    fun addUpdateMateriList(activity: Activity, kelas: Kelas){
+        val materiListHashMap = HashMap<String, Any>()
+        materiListHashMap[Constants.MATERI_LIST] = kelas.materiList
+
+        mFireStore.collection(Constants.KELAS)
+            .document(kelas.documentId.toString())
+            .update(materiListHashMap)
+            .addOnSuccessListener {
+                Log.e(activity.javaClass.simpleName, "TaskList updated successfully")
+                when (activity) {
+                    is MateriListActivity -> {
+                        activity.addUpdateMateriListSuccess()
+                    }
+//                    is TaskDetailsActivity -> {
+//                        activity.addUpdateTaskListSuccess()
+//                    }
+
+                }
+            }
+            .addOnFailureListener {
+                    exception ->
+                when(activity) {
+                    is MateriListActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                }
+
+                Log.e(activity.javaClass.simpleName,"Error while updating TaskList")
+            }
+    }
+
+    fun updateMateri(activity: MateriListActivity, kelasId: String, updatedMateri: Materi) {
+        mFireStore.collection(Constants.KELAS)
+            .document(kelasId)
+            .get()
+            .addOnSuccessListener { document ->
+                val kelas = document.toObject(Kelas::class.java)
+                kelas?.let {
+                    val updatedMateriList = it.materiList.map { materi ->
+                        if (materi.id == updatedMateri.id) updatedMateri else materi
+                    }
+                    it.materiList = updatedMateriList as ArrayList<Materi>
+
+                    mFireStore.collection(Constants.KELAS)
+                        .document(kelasId)
+                        .set(it)
+                        .addOnSuccessListener {
+                            activity.materiUpdateSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            activity.hideProgressDialog()
+                            Log.e(activity.javaClass.simpleName, "Error updating materi", e)
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error fetching kelas details", e)
+            }
+    }
+
+    fun deleteMateri(activity: MateriListActivity, materiId: String) {
+        mFireStore.collection(Constants.KELAS)
+            .document(activity.mKelasDocumentId)
+            .get()
+            .addOnSuccessListener { document ->
+                val kelas = document.toObject(Kelas::class.java)
+                kelas?.let {
+                    val updatedMateriList = it.materiList.filter { materi -> materi.id != materiId }
+                    it.materiList = updatedMateriList as ArrayList<Materi>
+
+                    mFireStore.collection(Constants.KELAS)
+                        .document(activity.mKelasDocumentId)
+                        .set(it)
+                        .addOnSuccessListener {
+                            activity.materiDeleteSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            activity.hideProgressDialog()
+                            Log.e(activity.javaClass.simpleName, "Error deleting materi", e)
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error fetching kelas details", e)
+            }
+    }
 
 }
