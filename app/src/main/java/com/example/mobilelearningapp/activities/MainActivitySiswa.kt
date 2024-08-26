@@ -32,7 +32,6 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
     companion object{
         const val MY_PROFILE_REQUEST_CODE = 11
         const val UPDATE_KELAS_REQUEST_CODE = 14
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

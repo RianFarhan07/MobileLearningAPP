@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -26,6 +27,10 @@ class MateriListActivity : BaseActivity() {
     private var binding : ActivityMateriListBinding? = null
     private lateinit var mKelasDetails : Kelas
     lateinit var mKelasDocumentId : String
+
+    companion object{
+        const val REQUEST_CODE_MATERI_DETAILS = 7
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMateriListBinding.inflate(layoutInflater)
@@ -73,6 +78,14 @@ class MateriListActivity : BaseActivity() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_MATERI_DETAILS && resultCode == RESULT_OK) {
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+            FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+        }
+    }
+
     private fun setupActionBar(){
         setSupportActionBar(binding?.toolbarMateriListActivity)
         val toolbar = supportActionBar
@@ -84,6 +97,11 @@ class MateriListActivity : BaseActivity() {
         binding?.toolbarMateriListActivity?.setNavigationOnClickListener {
             onBackPressed()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        return true
     }
 
     fun kelasDetails(kelas: Kelas){

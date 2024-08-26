@@ -1,9 +1,175 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg"
     tools:context=".activities.MateriDetailsActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:title="Materi Pembelajaran"
+            app:titleTextColor="@color/bluePrimary"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Materi Pembelajaran"
+                        android:textSize="18sp"
+                        android:textStyle="bold"/>
+
+                    <EditText
+                        android:id="@+id/etMateri"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@android:color/transparent"
+                        android:hint="Ketik materi di sini..."
+                        android:inputType="textMultiLine"
+                        android:minLines="3"/>
+
+                    <LinearLayout
+                        android:id="@+id/ll_image_materi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rv_item_image_background"
+                        android:padding="2dp">
+
+                        <ImageView
+                            android:id="@+id/iv_image_materi"
+                            android:layout_width="330dp"
+                            android:layout_height="450dp"
+                            android:scaleType="fitXY" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+
+                        <ImageButton
+                            android:id="@+id/btnBold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_format_bold_24"
+                            android:layout_margin="5dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Bold"/>
+
+                        <ImageButton
+                            android:id="@+id/btnItalic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_format_italic_24"
+                            android:layout_margin="5dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Italic"/>
+
+                        <ImageButton
+                            android:id="@+id/btnUploadImage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_image_24"
+                            android:layout_margin="5dp"
+                            android:maxWidth="100dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Upload Image"/>
+
+                        <Button
+                            android:id="@+id/btn_update_text"
+                            android:layout_width="140dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="90dp"
+                            android:background="@drawable/app_gradient_color_background"
+                            android:text="UPDATE"
+                            android:textColor="@color/white"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_materi_file_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btnUploadFile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Upload File (PDF/Word)"
+                android:backgroundTint="@color/onPrimary"
+                android:textColor="@color/bluePrimary"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <Button
+                    android:id="@+id/btnTugas"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Tugas"
+                    android:textColor="@color/bluePrimary"
+                    android:backgroundTint="@color/onPrimary"
+                    android:layout_marginEnd="8dp"/>
+
+                <Button
+                    android:id="@+id/btnKuis"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Kuis"
+                    android:textColor="@color/bluePrimary"
+                    android:backgroundTint="@color/onPrimary"
+                    android:layout_marginStart="8dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

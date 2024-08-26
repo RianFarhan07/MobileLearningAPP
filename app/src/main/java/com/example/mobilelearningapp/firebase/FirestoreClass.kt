@@ -278,18 +278,27 @@ class FirestoreClass {
             .document(documentId)
             .get()
             .addOnSuccessListener { document ->
-                val kelompok = document.toObject(Kelas::class.java)
-                kelompok?.documentId = document.id
+                val kelas = document.toObject(Kelas::class.java)
+                kelas?.documentId = document.id
 
-                if (activity is MateriListActivity){
-                    activity.kelasDetails(kelompok!!)
+                when (activity) {
+                    is MateriListActivity -> {
+                        activity.kelasDetails(kelas!!)
+                    }
+                    is MateriDetailsActivity -> {
+                        activity.kelasDetails(kelas!!)
+                    }
                 }
-
             }
             .addOnFailureListener { e ->
 
-                if (activity is MateriListActivity) {
-                    activity.hideProgressDialog()
+                when (activity) {
+                    is MateriListActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                    is MateriDetailsActivity -> {
+                        activity.hideProgressDialog()
+                    }
                 }
 
                 Log.e(activity.javaClass.simpleName, "Error fetching kelompok details: ${e.message}")
@@ -431,6 +440,36 @@ class FirestoreClass {
     }
 
     fun updateMateri(activity: MateriListActivity, kelasId: String, updatedMateri: Materi) {
+        mFireStore.collection(Constants.KELAS)
+            .document(kelasId)
+            .get()
+            .addOnSuccessListener { document ->
+                val kelas = document.toObject(Kelas::class.java)
+                kelas?.let {
+                    val updatedMateriList = it.materiList.map { materi ->
+                        if (materi.id == updatedMateri.id) updatedMateri else materi
+                    }
+                    it.materiList = updatedMateriList as ArrayList<Materi>
+
+                    mFireStore.collection(Constants.KELAS)
+                        .document(kelasId)
+                        .set(it)
+                        .addOnSuccessListener {
+                            activity.materiUpdateSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            activity.hideProgressDialog()
+                            Log.e(activity.javaClass.simpleName, "Error updating materi", e)
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error fetching kelas details", e)
+            }
+    }
+
+    fun updateMateriDetail(activity: MateriDetailsActivity, kelasId: String, updatedMateri: Materi) {
         mFireStore.collection(Constants.KELAS)
             .document(kelasId)
             .get()
