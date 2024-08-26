@@ -11,8 +11,6 @@ data class Materi(
     var nama: String = "",
     var createdBy: String = "",
     var desc : String = "",
-    var file : @RawValue ArrayList<MateriFile> = ArrayList(),
+    var materiFile : ArrayList<MateriFile> = ArrayList(),
     var image: String = "",
-    var url: String = "",
-    var fileType: String = ""
 ) : Parcelable

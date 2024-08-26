@@ -421,9 +421,9 @@ class FirestoreClass {
                     is MateriListActivity -> {
                         activity.addUpdateMateriListSuccess()
                     }
-//                    is TaskDetailsActivity -> {
-//                        activity.addUpdateTaskListSuccess()
-//                    }
+                    is MateriDetailsActivity -> {
+//                        activity.addUpdateMateriListSuccess()
+                    }
 
                 }
             }
@@ -431,6 +431,9 @@ class FirestoreClass {
                     exception ->
                 when(activity) {
                     is MateriListActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                    is MateriDetailsActivity -> {
                         activity.hideProgressDialog()
                     }
                 }

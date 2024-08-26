@@ -40,6 +40,7 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(binding?.root)
 
         setupActionBar()
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
         FirestoreClass().getSiswaDetails(this)
         FirestoreClass().getKelasList(this)
@@ -155,7 +156,7 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun populateKelasListToUI(kelasList: ArrayList<Kelas>){
-
+        hideProgressDialog()
         val rvKelasList : RecyclerView = findViewById(R.id.rv_class_list)
         val tvNoKelasAvailable : TextView = findViewById(R.id.tv_no_class_available)
 

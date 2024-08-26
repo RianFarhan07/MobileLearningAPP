@@ -63,6 +63,15 @@
                         android:inputType="textMultiLine"
                         android:minLines="3"/>
 
+                    <TextView
+                        android:id="@+id/tvMateri"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@android:color/transparent"
+                        android:minLines="3"
+                        android:visibility="gone"/>
+
                     <LinearLayout
                         android:id="@+id/ll_image_materi"
                         android:layout_width="wrap_content"
@@ -113,8 +122,10 @@
                             android:id="@+id/btn_update_text"
                             android:layout_width="140dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="90dp"
+                            android:layout_marginStart="80dp"
                             android:background="@drawable/app_gradient_color_background"
+                            android:layout_gravity="center"
+                            android:gravity="center"
                             android:text="UPDATE"
                             android:textColor="@color/white"/>
 

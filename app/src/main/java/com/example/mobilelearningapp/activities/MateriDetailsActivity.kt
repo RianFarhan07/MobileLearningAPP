@@ -1,18 +1,23 @@
 package com.example.mobilelearningapp.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Typeface
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.text.*
 import android.text.style.StyleSpan
 import android.util.Log
 import android.view.Menu
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -32,6 +37,8 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.activity_materi_details.*
 import java.io.IOException
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MateriDetailsActivity : BaseActivity() {
 
@@ -39,8 +46,15 @@ class MateriDetailsActivity : BaseActivity() {
     private lateinit var mKelasDetails : Kelas
     lateinit var mKelasDocumentId : String
     private var mMateriListPosition = -1
+    private lateinit var mMateriFileList: ArrayList<MateriFile>
+
     private var mSelectedImageFileUri : Uri? = null
     private var mMateriImageURL: String = ""
+
+    private var mSelectedFileUri: Uri? = null
+    private var mFileType: String? = ""
+    private var mFileName: String? = ""
+    private var mStorageReference: StorageReference? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMateriDetailsBinding.inflate(layoutInflater)
@@ -57,12 +71,17 @@ class MateriDetailsActivity : BaseActivity() {
         if (currentUserID.isNotEmpty()) {
             FirestoreClass().getUserRole(currentUserID) { role ->
                 if (role == "siswa") {
-                    binding?.etMateri?.inputType = InputType.TYPE_NULL
+                    binding?.etMateri?.visibility = View.GONE
+//                    binding?.etMateri?.inputType = InputType.TYPE_NULL
                     binding?.btnBold?.visibility = View.GONE
                     binding?.btnItalic?.visibility = View.GONE
                     binding?.btnUploadImage?.visibility = View.GONE
                     binding?.btnUpdateText?.visibility = View.GONE
                     binding?.btnUploadFile?.visibility = View.GONE
+                    binding?.tvMateri?.visibility = View.VISIBLE
+
+                    binding?.tvMateri?.text =
+                        mKelasDetails.materiList[mMateriListPosition].desc
                 }
             }
         }
@@ -91,6 +110,17 @@ class MateriDetailsActivity : BaseActivity() {
                     Constants.READ_STORAGE_PERMISSION_CODE
                 )
             }
+        }
+
+        binding?.btnUploadFile?.setOnClickListener {
+
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "*/*"
+            startActivityForResult(intent, Constants.PICK_FILE_REQUEST_CODE)
+
+            FirestoreClass().getKelasDetails(this,mKelasDocumentId)
+            populateMateriFileListToUI(mKelasDetails.materiList[mMateriListPosition].materiFile)
+
         }
     }
 
@@ -163,6 +193,16 @@ class MateriDetailsActivity : BaseActivity() {
                 e.printStackTrace()
             }
         }
+        if (requestCode == Constants.PICK_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            // Get selected file URI
+
+            mSelectedFileUri = data.data
+            mFileType = getFileType(mSelectedFileUri)
+            mFileName =  getFileName(mSelectedFileUri)
+            mSelectedFileUri?.let { uploadFileToFirebase(it) }
+
+
+        }
     }
 
     private fun getIntentData() {
@@ -185,7 +225,7 @@ class MateriDetailsActivity : BaseActivity() {
 //        hideProgressDialog()
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
-        populateMateriFileListToUI(kelas.materiList[mMateriListPosition].file)
+        populateMateriFileListToUI(kelas.materiList[mMateriListPosition].materiFile)
         }
 
     private fun applyStyle(style: Int) {
@@ -204,6 +244,7 @@ class MateriDetailsActivity : BaseActivity() {
     }
 
     fun populateMateriFileListToUI(materiFileList: ArrayList<MateriFile>){
+        mMateriFileList = materiFileList
 
         val rvMateriList : RecyclerView = findViewById(R.id.rv_materi_file_list)
 
@@ -308,6 +349,77 @@ class MateriDetailsActivity : BaseActivity() {
         updateMateriInFirestore()
     }
 
+    private fun getFileType(uri: Uri?): String? {
+        return if (uri == null) {
+            null
+        } else {
+            val contentResolver: ContentResolver = this.contentResolver
+            val mimeTypeMap = MimeTypeMap.getSingleton()
+            mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri))
+        }
+    }
 
+    private fun uploadFileToFirebase(fileUri: Uri) {
+        showProgressDialog("Uploading File...")
+        mStorageReference = FirebaseStorage.getInstance().reference
+        val fileName = UUID.randomUUID().toString()
+        val fileRef = mStorageReference!!.child(Constants.MATERIFILE).child(fileName)
+
+        fileRef.putFile(fileUri)
+            .addOnSuccessListener { taskSnapshot ->
+                hideProgressDialog()
+                Toast.makeText(this, "Upload Success", Toast.LENGTH_LONG).show()
+
+                // Get the download URL for the uploaded file
+                fileRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    val downloadUrl = downloadUri.toString()
+                    // Create Materi object with the download URL
+                    val materiFile = MateriFile(
+                        name = mFileName.toString(),
+                        url = downloadUrl,
+                        fileType = mFileType.toString()
+                    )
+
+                    mKelasDetails.materiList[mMateriListPosition].materiFile.add(0,materiFile)
+
+                    // Notify the adapter of the new item
+                    val adapter = rv_materi_file_list.adapter as MateriFileItemsAdapter
+                    adapter.notifyItemInserted(0)
+                    rv_materi_file_list.scrollToPosition(0)
+
+                    updateMateriInFirestore()
+                }
+            }
+            .addOnFailureListener { exception ->
+                hideProgressDialog()
+                Toast.makeText(this, "Failed to upload file: ${exception.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+
+    @SuppressLint("Range")
+    private fun getFileName(uri: Uri?): String? {
+        var result: String? = null
+        if (uri?.scheme == "content") {
+            val cursor: Cursor? = contentResolver.query(uri, null, null, null, null)
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                }
+            } finally {
+                cursor?.close()
+            }
+        }
+        if (result == null) {
+            result = uri?.lastPathSegment
+        }
+        return result
+    }
+
+    fun fileUpdateSuccess() {
+        hideProgressDialog()
+        setResult(RESULT_OK)
+        Toast.makeText(this, "Deskripsi materi berhasil diperbarui", Toast.LENGTH_SHORT).show()
+    }
 
 }

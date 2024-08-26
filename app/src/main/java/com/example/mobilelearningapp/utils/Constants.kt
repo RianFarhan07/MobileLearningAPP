@@ -11,6 +11,8 @@ object Constants {
     const val SISWA: String = "siswa"
     const val GURU: String = "guru"
     const val KELAS: String = "kelas"
+    const val Materi: String = "materi"
+    const val MATERIFILE: String = "materiFile"
 
     const val IMAGE : String = "image"
     const val NAME : String = "name"
