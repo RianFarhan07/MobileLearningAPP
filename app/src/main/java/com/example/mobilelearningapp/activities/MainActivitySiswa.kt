@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
@@ -55,6 +56,21 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
         else{
             Log.e("cancelled","cancelled")
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_logo -> {
+                // Tindakan ketika logo diklik
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun setupActionBar() {

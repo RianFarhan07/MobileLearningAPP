@@ -8,9 +8,8 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -70,6 +69,22 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_logo -> {
+                // Tindakan ketika logo diklik
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+
     private fun setupActionBar() {
         val toolbar : Toolbar = findViewById(R.id.toolbar_main_activity_guru)
 
@@ -80,6 +95,7 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
         toolbar.setNavigationOnClickListener {
             toogleDrawer()
         }
+
 
     }
 

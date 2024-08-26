@@ -7,15 +7,22 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityMyProfileBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.Siswa
 import com.example.mobilelearningapp.utils.Constants
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -27,6 +34,8 @@ class MyProfileActivity : BaseActivity() {
     private lateinit var mSiswaDetails : Siswa
     private var mSelectedImageFileUri : Uri? = null
     private var mUserProfileImageURL: String = ""
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var toggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMyProfileBinding.inflate(layoutInflater)
@@ -34,6 +43,7 @@ class MyProfileActivity : BaseActivity() {
         setContentView(binding?.root)
 
         setupActionBar()
+        setupNavigationDrawer()
 
         FirestoreClass().getSiswaDetails(this)
 
@@ -61,19 +71,59 @@ class MyProfileActivity : BaseActivity() {
             }
         }
 
-
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        return true
+    }
+
     private fun setupActionBar() {
+        val toolbar: Toolbar = findViewById(R.id.toolbar_update_profile_siswa_activity)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_action_navigation_menu) // Ganti dengan icon menu Anda
+        supportActionBar?.setDisplayShowTitleEnabled(false) // Sembunyikan judul default
+        supportActionBar?.title = "PROFILE"
+        toolbar.title = "PROFILE"
+    }
 
-        setSupportActionBar(binding?.toolbarUpdateProfileActivity)
+    private fun setupNavigationDrawer() {
+        drawerLayout = binding?.drawerLayout!!
+        val navView: NavigationView = binding!!.navView
 
-        val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
+        toggle = ActionBarDrawerToggle(
+            this, drawerLayout, binding!!.toolbarUpdateProfileSiswaActivity,
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_beranda -> {
+                    // Navigasi ke halaman beranda
+                    startActivity(Intent(this, MainActivitySiswa::class.java))
+                    finish()
+                }
+                R.id.nav_my_profile -> {
+                    // Sudah di halaman profil, mungkin refresh data?
+                    FirestoreClass().getSiswaDetails(this)
+                }
+                // Tambahkan item menu lainnya sesuai kebutuhan
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
         }
+    }
 
-        binding?.toolbarUpdateProfileActivity?.setNavigationOnClickListener { onBackPressed() }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -175,7 +225,6 @@ class MyProfileActivity : BaseActivity() {
 
         val newPassword = binding?.etPassword?.text.toString()
         if (newPassword.isNotEmpty()) {
-            // Jika password diisi, kita akan mengubahnya
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
                 showProgressDialog(resources.getString(R.string.mohon_tunggu))
@@ -189,7 +238,6 @@ class MyProfileActivity : BaseActivity() {
                             hideProgressDialog()
                             finish()
                         }
-                        // Lanjutkan dengan pembaruan profil lainnya
                         continueProfileUpdate(userHashMap, anyChangesMade)
                     }
             } else {
