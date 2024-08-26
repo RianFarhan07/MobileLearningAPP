@@ -12,7 +12,7 @@ data class Materi(
     var createdBy: String = "",
     var desc : String = "",
     var file : @RawValue ArrayList<MateriFile> = ArrayList(),
-    val image: String = "",
+    var image: String = "",
     var url: String = "",
     var fileType: String = ""
 ) : Parcelable

@@ -1,22 +1,25 @@
 package com.example.mobilelearningapp.activities
 
+import android.Manifest
+import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.TextWatcher
+import android.text.*
 import android.text.style.StyleSpan
 import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.adapters.MateriFileItemsAdapter
 import com.example.mobilelearningapp.databinding.ActivityGuruProfileBinding
@@ -25,6 +28,10 @@ import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.MateriFile
 import com.example.mobilelearningapp.utils.Constants
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import kotlinx.android.synthetic.main.activity_materi_details.*
+import java.io.IOException
 
 class MateriDetailsActivity : BaseActivity() {
 
@@ -32,6 +39,8 @@ class MateriDetailsActivity : BaseActivity() {
     private lateinit var mKelasDetails : Kelas
     lateinit var mKelasDocumentId : String
     private var mMateriListPosition = -1
+    private var mSelectedImageFileUri : Uri? = null
+    private var mMateriImageURL: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMateriDetailsBinding.inflate(layoutInflater)
@@ -44,6 +53,19 @@ class MateriDetailsActivity : BaseActivity() {
         FirestoreClass().getKelasDetails(this,mKelasDocumentId)
         populateMateriDesc()
 
+        val currentUserID = FirestoreClass().getCurrentUserID()
+        if (currentUserID.isNotEmpty()) {
+            FirestoreClass().getUserRole(currentUserID) { role ->
+                if (role == "siswa") {
+                    binding?.etMateri?.inputType = InputType.TYPE_NULL
+                    binding?.btnBold?.visibility = View.GONE
+                    binding?.btnItalic?.visibility = View.GONE
+                    binding?.btnUploadImage?.visibility = View.GONE
+                    binding?.btnUpdateText?.visibility = View.GONE
+                    binding?.btnUploadFile?.visibility = View.GONE
+                }
+            }
+        }
 
         if (mKelasDetails.materiList[mMateriListPosition].image.isEmpty()){
             binding?.llImageMateri?.visibility = View.GONE
@@ -56,6 +78,20 @@ class MateriDetailsActivity : BaseActivity() {
 
         binding?.btnBold?.setOnClickListener { applyStyle(Typeface.BOLD) }
         binding?.btnItalic?.setOnClickListener { applyStyle(Typeface.ITALIC)}
+
+        binding?.btnUploadImage?.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED){
+                Constants.showImageChooser(this)
+            }else{
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    Constants.READ_STORAGE_PERMISSION_CODE
+                )
+            }
+        }
     }
 
     private fun setupActionBar(){
@@ -86,6 +122,47 @@ class MateriDetailsActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         return true
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == Constants.READ_STORAGE_PERMISSION_CODE){
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Constants.showImageChooser(this)
+            }
+        }else{
+            Toast.makeText(this,"kamu menolak izin storage, aktifkan di setting", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK
+            && requestCode == Constants.PICK_IMAGE_REQUEST_CODE
+            && data!!.data != null
+        ) {
+            mSelectedImageFileUri = data.data
+
+            try {
+                Glide
+                    .with(this@MateriDetailsActivity)
+                    .load(mSelectedImageFileUri)
+                    .centerCrop()
+                    .placeholder(R.drawable.ic_board_place_holder)
+                    .into(binding?.ivImageMateri!!)
+
+                binding?.llImageMateri?.visibility = View.VISIBLE
+
+                // Panggil fungsi untuk upload gambar
+                uploadMateriImage()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun getIntentData() {
@@ -162,7 +239,11 @@ class MateriDetailsActivity : BaseActivity() {
 
     private fun updateMateriInFirestore() {
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
-        FirestoreClass().updateMateriDetail(this@MateriDetailsActivity, mKelasDocumentId, mKelasDetails.materiList[mMateriListPosition])
+        FirestoreClass().updateMateriDetail(
+            this@MateriDetailsActivity,
+            mKelasDocumentId,
+            mKelasDetails.materiList[mMateriListPosition]
+        )
     }
 
     fun materiUpdateSuccess() {
@@ -174,7 +255,57 @@ class MateriDetailsActivity : BaseActivity() {
     fun populateMateriDesc() {
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
         binding?.etMateri?.setText(mKelasDetails.materiList[mMateriListPosition].desc)
+
+        if (mKelasDetails.materiList[mMateriListPosition].image.isNotEmpty()) {
+            binding?.llImageMateri?.visibility = View.VISIBLE
+            Glide
+                .with(this@MateriDetailsActivity)
+                .load(mKelasDetails.materiList[mMateriListPosition].image)
+                .centerCrop()
+                .placeholder(R.drawable.ic_board_place_holder)
+                .into(binding?.ivImageMateri!!)
+        } else {
+            binding?.llImageMateri?.visibility = View.GONE
+        }
+
         materiUpdateSuccess()
+    }
+
+    private fun uploadMateriImage() {
+
+        if (mSelectedImageFileUri != null) {
+            val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
+                "MATERI_IMAGE" + System.currentTimeMillis() + "."
+                        + Constants.getFileExtension(this, mSelectedImageFileUri!!)
+            )
+
+            sRef.putFile(mSelectedImageFileUri!!).addOnSuccessListener { taskSnapshot ->
+                Log.e(
+                    "Firebase Image URL",
+                    taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
+                )
+
+                taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
+                    Log.e("Downloadable Image URL", uri.toString())
+                    mMateriImageURL = uri.toString()
+
+                    // Update Materi dengan URL gambar baru
+                    updateMateriWithImage()
+                }
+            }.addOnFailureListener { exception ->
+                Toast.makeText(
+                    this@MateriDetailsActivity,
+                    exception.message,
+                    Toast.LENGTH_LONG
+                ).show()
+                hideProgressDialog()
+            }
+        }
+    }
+
+    private fun updateMateriWithImage() {
+        mKelasDetails.materiList[mMateriListPosition].image = mMateriImageURL
+        updateMateriInFirestore()
     }
 
 
