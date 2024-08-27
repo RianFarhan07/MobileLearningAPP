@@ -3,13 +3,13 @@ package com.example.mobilelearningapp.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Typeface
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.*
@@ -18,7 +18,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.webkit.MimeTypeMap
-import android.widget.TextView
+import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -27,11 +27,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.adapters.MateriFileItemsAdapter
-import com.example.mobilelearningapp.databinding.ActivityGuruProfileBinding
 import com.example.mobilelearningapp.databinding.ActivityMateriDetailsBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.Kelas
-import com.example.mobilelearningapp.models.MateriFile
+import com.example.mobilelearningapp.models.File
 import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -46,7 +45,7 @@ class MateriDetailsActivity : BaseActivity() {
     private lateinit var mKelasDetails : Kelas
     lateinit var mKelasDocumentId : String
     private var mMateriListPosition = -1
-    private lateinit var mMateriFileList: ArrayList<MateriFile>
+    private lateinit var mFileList: ArrayList<File>
 
     private var mSelectedImageFileUri : Uri? = null
     private var mMateriImageURL: String = ""
@@ -119,8 +118,12 @@ class MateriDetailsActivity : BaseActivity() {
             startActivityForResult(intent, Constants.PICK_FILE_REQUEST_CODE)
 
             FirestoreClass().getKelasDetails(this,mKelasDocumentId)
-            populateMateriFileListToUI(mKelasDetails.materiList[mMateriListPosition].materiFile)
+            populateMateriFileListToUI(mKelasDetails.materiList[mMateriListPosition].file)
 
+        }
+
+        binding?.btnTugas?.setOnClickListener {
+            showTugasDialog()
         }
     }
 
@@ -130,7 +133,7 @@ class MateriDetailsActivity : BaseActivity() {
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
-            supportActionBar?.title = "Daftar Kelompok ${mKelasDetails.materiList[mMateriListPosition].nama}"
+            supportActionBar?.title = "Materi ${mKelasDetails.materiList[mMateriListPosition].nama}"
         }
         binding?.toolbar?.setNavigationOnClickListener {
             val currentUserID = FirestoreClass().getCurrentUserID()
@@ -225,7 +228,7 @@ class MateriDetailsActivity : BaseActivity() {
 //        hideProgressDialog()
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
-        populateMateriFileListToUI(kelas.materiList[mMateriListPosition].materiFile)
+        populateMateriFileListToUI(kelas.materiList[mMateriListPosition].file)
         }
 
     private fun applyStyle(style: Int) {
@@ -243,24 +246,24 @@ class MateriDetailsActivity : BaseActivity() {
         }
     }
 
-    fun populateMateriFileListToUI(materiFileList: ArrayList<MateriFile>){
-        mMateriFileList = materiFileList
+    fun populateMateriFileListToUI(fileList: ArrayList<File>){
+        mFileList = fileList
 
         val rvMateriList : RecyclerView = findViewById(R.id.rv_materi_file_list)
 
         hideProgressDialog()
 
-        if (materiFileList.isNotEmpty()){
+        if (fileList.isNotEmpty()){
             rvMateriList.visibility = View.VISIBLE
 
             rvMateriList.layoutManager = LinearLayoutManager(this)
             rvMateriList.setHasFixedSize(true)
 
-            val adapter = MateriFileItemsAdapter(this, materiFileList)
+            val adapter = MateriFileItemsAdapter(this, fileList)
             rvMateriList.adapter = adapter
 
             adapter.setOnClickListener(object: MateriFileItemsAdapter.OnClickListener{
-                override fun onClick(position: Int, model: MateriFile) {
+                override fun onClick(position: Int, model: File) {
                     val intent = Intent(Intent.ACTION_VIEW)
                     intent.data = Uri.parse(model.url)
                     startActivity(intent)
@@ -374,13 +377,13 @@ class MateriDetailsActivity : BaseActivity() {
                 fileRef.downloadUrl.addOnSuccessListener { downloadUri ->
                     val downloadUrl = downloadUri.toString()
                     // Create Materi object with the download URL
-                    val materiFile = MateriFile(
+                    val file = File(
                         name = mFileName.toString(),
                         url = downloadUrl,
                         fileType = mFileType.toString()
                     )
 
-                    mKelasDetails.materiList[mMateriListPosition].materiFile.add(0, materiFile)
+                    mKelasDetails.materiList[mMateriListPosition].file.add(0, file)
 
                     // Notify the adapter of the new item
                     val adapter = rv_materi_file_list.adapter as? MateriFileItemsAdapter
@@ -389,7 +392,7 @@ class MateriDetailsActivity : BaseActivity() {
                         rv_materi_file_list.scrollToPosition(0)
                         hideProgressDialog()
                     } else {
-                        populateMateriFileListToUI(mKelasDetails.materiList[mMateriListPosition].materiFile)
+                        populateMateriFileListToUI(mKelasDetails.materiList[mMateriListPosition].file)
                     }
 
                     updateMateriInFirestore()
@@ -426,6 +429,42 @@ class MateriDetailsActivity : BaseActivity() {
         hideProgressDialog()
         setResult(RESULT_OK)
         Toast.makeText(this, "Deskripsi materi berhasil diperbarui", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showTugasDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_tugas, null)
+        val dialogBuilder = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+
+        val dialog = dialogBuilder.create()
+
+        val rvTugasList = dialogView.findViewById<RecyclerView>(R.id.rv_tugas_list)
+        val btnBuatTugas = dialogView.findViewById<Button>(R.id.btn_buat_tugas)
+
+        // Set up RecyclerView untuk daftar tugas
+        // Anda perlu mengimplementasikan adapter dan logika untuk mengambil data tugas
+
+        // Tampilkan atau sembunyikan tombol "Buat Tugas" berdasarkan peran pengguna
+        val currentUserID = FirestoreClass().getCurrentUserID()
+        if (currentUserID.isNotEmpty()) {
+            FirestoreClass().getUserRole(currentUserID) { role ->
+                if (role == "siswa") {
+                  btnBuatTugas?.visibility = View.GONE
+                }
+            }
+        }
+
+        btnBuatTugas.setOnClickListener {
+            val intent = Intent(this,TugasActivity::class.java)
+            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+            intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
+            startActivity(intent)
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
 }

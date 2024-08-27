@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">MobileLearningAPP</string>
     <string name="mohon_tunggu">Mohon Tunggu...</string>
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
+
 </resources>

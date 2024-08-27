@@ -5,13 +5,13 @@ import kotlinx.android.parcel.Parcelize
 import kotlin.collections.ArrayList
 
 @Parcelize
-data class Materi(
+data class Kuis(
     var id: String = "",
     var nama: String = "",
     var createdBy: String = "",
     var desc : String = "",
     var file : ArrayList<File> = ArrayList(),
     var image: String = "",
-    var tugas : ArrayList<Tugas> = ArrayList(),
-    var kuis : ArrayList<Kuis> = ArrayList()
+//    var tugas : ArrayList<Tugas> = ArrayList(),
+//    var kuis : ArrayList<Kuis> = ArrayList()
 ) : Parcelable

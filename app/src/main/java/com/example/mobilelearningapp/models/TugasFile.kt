@@ -5,7 +5,7 @@ import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 @Parcelize
-data class MateriFile(
+data class TugasFile(
     var id: String = UUID.randomUUID().toString(),
     val name: String = "",
     val url: String = "",

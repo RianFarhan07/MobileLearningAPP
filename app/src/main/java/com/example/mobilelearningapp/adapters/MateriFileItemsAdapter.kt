@@ -1,17 +1,16 @@
 package com.example.mobilelearningapp.adapters
 
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ItemMateriFileBinding
-import com.example.mobilelearningapp.models.MateriFile
+import com.example.mobilelearningapp.models.File
 
 class MateriFileItemsAdapter(
     private val context: Context,
-    private var list: ArrayList<MateriFile>
+    private var list: ArrayList<File>
 ) :
     RecyclerView.Adapter<MateriFileItemsAdapter.MateriFileViewHolder>() {
 
@@ -51,7 +50,7 @@ class MateriFileItemsAdapter(
     }
 
     interface OnClickListener {
-        fun onClick(position: Int, model: MateriFile)
+        fun onClick(position: Int, model: File)
     }
 
     fun setOnClickListener(onClickListener: OnClickListener) {
@@ -65,7 +64,7 @@ class MateriFileItemsAdapter(
 //        notifyItemChanged(position)
 //    }
 
-    fun notifySearchItem(list: ArrayList<MateriFile>) {
+    fun notifySearchItem(list: ArrayList<File>) {
         this.list = list
         notifyDataSetChanged()
     }

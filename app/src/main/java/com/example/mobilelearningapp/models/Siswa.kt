@@ -10,5 +10,6 @@ data class Siswa(
         val email: String = "",
         val classes: String = "",
         val image: String = "",
+//      SIMPAN TODO TUGAS YANG SUDAH DIBUAT
         val role : String = "siswa"
 ) : Parcelable

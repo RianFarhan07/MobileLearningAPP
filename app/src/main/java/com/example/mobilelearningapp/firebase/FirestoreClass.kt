@@ -472,7 +472,7 @@ class FirestoreClass {
             }
     }
 
-    fun updateMateriDetail(activity: MateriDetailsActivity, kelasId: String, updatedMateri: Materi) {
+    fun updateMateriDetail(activity: Activity, kelasId: String, updatedMateri: Materi) {
         mFireStore.collection(Constants.KELAS)
             .document(kelasId)
             .get()
@@ -488,17 +488,28 @@ class FirestoreClass {
                         .document(kelasId)
                         .set(it)
                         .addOnSuccessListener {
-                            activity.materiUpdateSuccess()
+                            when (activity) {
+                                is MateriDetailsActivity -> {
+                                    activity.materiUpdateSuccess()
+                                }
+                                is TugasActivity -> {
+                                    activity.materiUpdateSuccess()
+                                }
+                            }
                         }
                         .addOnFailureListener { e ->
-                            activity.hideProgressDialog()
+                            when (activity) {
+                                is MateriDetailsActivity -> {
+                                    activity.hideProgressDialog()
+                                }
+                                is TugasActivity -> {
+                                    activity.hideProgressDialog()
+                                }
+                            }
+
                             Log.e(activity.javaClass.simpleName, "Error updating materi", e)
                         }
                 }
-            }
-            .addOnFailureListener { e ->
-                activity.hideProgressDialog()
-                Log.e(activity.javaClass.simpleName, "Error fetching kelas details", e)
             }
     }
 
