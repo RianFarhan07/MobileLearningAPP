@@ -380,12 +380,17 @@ class MateriDetailsActivity : BaseActivity() {
                         fileType = mFileType.toString()
                     )
 
-                    mKelasDetails.materiList[mMateriListPosition].materiFile.add(0,materiFile)
+                    mKelasDetails.materiList[mMateriListPosition].materiFile.add(0, materiFile)
 
                     // Notify the adapter of the new item
-                    val adapter = rv_materi_file_list.adapter as MateriFileItemsAdapter
-                    adapter.notifyItemInserted(0)
-                    rv_materi_file_list.scrollToPosition(0)
+                    val adapter = rv_materi_file_list.adapter as? MateriFileItemsAdapter
+                    if (adapter != null) {
+                        adapter.notifyItemInserted(0)
+                        rv_materi_file_list.scrollToPosition(0)
+                        hideProgressDialog()
+                    } else {
+                        populateMateriFileListToUI(mKelasDetails.materiList[mMateriListPosition].materiFile)
+                    }
 
                     updateMateriInFirestore()
                 }
@@ -395,6 +400,7 @@ class MateriDetailsActivity : BaseActivity() {
                 Toast.makeText(this, "Failed to upload file: ${exception.message}", Toast.LENGTH_LONG).show()
             }
     }
+
 
 
     @SuppressLint("Range")

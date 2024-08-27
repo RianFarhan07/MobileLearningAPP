@@ -197,7 +197,7 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
 
                 dialog.dismiss()
             }else{
-                Toast.makeText(this,"Silahkan isi informasi kelompok", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"Silahkan isi informasi kelasips", Toast.LENGTH_SHORT).show()
             }
         }
 
