@@ -8,29 +8,37 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.*
 import android.text.style.StyleSpan
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.mobilelearningapp.MateriItemsAdapter
 import com.example.mobilelearningapp.R
+import com.example.mobilelearningapp.TugasItemsAdapter
 import com.example.mobilelearningapp.adapters.MateriFileItemsAdapter
 import com.example.mobilelearningapp.databinding.ActivityMateriDetailsBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.File
+import com.example.mobilelearningapp.models.Materi
+import com.example.mobilelearningapp.models.Tugas
 import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -432,6 +440,7 @@ class MateriDetailsActivity : BaseActivity() {
     }
 
     private fun showTugasDialog() {
+        val tugasList = mKelasDetails.materiList[mMateriListPosition].tugas
         val dialogView = layoutInflater.inflate(R.layout.dialog_tugas, null)
         val dialogBuilder = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -442,8 +451,24 @@ class MateriDetailsActivity : BaseActivity() {
         val rvTugasList = dialogView.findViewById<RecyclerView>(R.id.rv_tugas_list)
         val btnBuatTugas = dialogView.findViewById<Button>(R.id.btn_buat_tugas)
 
-        // Set up RecyclerView untuk daftar tugas
-        // Anda perlu mengimplementasikan adapter dan logika untuk mengambil data tugas
+        if (tugasList.size >0){
+            rvTugasList.visibility = View.VISIBLE
+
+            rvTugasList.layoutManager = LinearLayoutManager(this)
+            rvTugasList.setHasFixedSize(true)
+
+            val adapter = TugasItemsAdapter(this@MateriDetailsActivity,tugasList)
+            rvTugasList.adapter = adapter
+
+            adapter.setOnClickListener(object: TugasItemsAdapter.OnClickListener{
+                override fun onClick(position: Int, model: Tugas) {
+                    tugasDetails(position)
+                }
+            })
+
+        }else{
+            rvTugasList.visibility = View.GONE
+        }
 
         // Tampilkan atau sembunyikan tombol "Buat Tugas" berdasarkan peran pengguna
         val currentUserID = FirestoreClass().getCurrentUserID()
@@ -465,6 +490,15 @@ class MateriDetailsActivity : BaseActivity() {
         }
 
         dialog.show()
+    }
+
+    fun tugasDetails(tugasPosition: Int){
+        val intent = Intent(this, TugasActivity::class.java)
+        intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+        intent.putExtra(Constants.TUGAS_LIST_ITEM_POSITION,tugasPosition)
+        intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+        intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
+        startActivity(intent)
     }
 
 }
