@@ -10,10 +10,11 @@ import kotlin.collections.ArrayList
 data class JawabanTugas(
     var id: String = "",
     var createdBy: String = "",
-    var namaTugas : String = "",
-    var jawaban : ArrayList<File> = ArrayList(),
+    var namaPenjawab : String = "",
+    var jawaban : String = "",
     var imageJawaban: String = "",
-    var fileJawaban: String = "",
+    val pdfUrl: String = "",
+    val pdfUrlName: String = "",
     var uploadedDate: Long = 0,
     var nilai: String = "",
 

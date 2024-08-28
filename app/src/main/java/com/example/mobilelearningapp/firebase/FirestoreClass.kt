@@ -427,6 +427,9 @@ class FirestoreClass {
                     is TugasActivity -> {
                         activity.addUpdateMateriListSuccess()
                     }
+                    is JawabActivity -> {
+                        activity.addUpdateMateriListSuccess()
+                    }
 
                 }
             }

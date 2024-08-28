@@ -51,7 +51,6 @@ class TugasActivity : BaseActivity() {
     lateinit var mKelasDocumentId : String
     private var mMateriListPosition = -1
     private var mTugasListPosition = -1
-    private lateinit var mFileList: ArrayList<File>
     private var isUpdate = false
 
     private var mSelectedDueDateMilliSeconds : Long = 0
@@ -68,8 +67,7 @@ class TugasActivity : BaseActivity() {
     private lateinit var mStorageReference: StorageReference
 
     companion object {
-        private const val REQUEST_IMAGE_PICK = 1
-        private const val REQUEST_FILE_PICK = 2
+        const val REQUEST_CODE_JAWAB_DETAILS = 11
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +84,15 @@ class TugasActivity : BaseActivity() {
             FirestoreClass().getUserRole(currentUserID) { role ->
                 if (role == "siswa") {
                     binding?.btnLihatHasilTugas?.visibility = View.GONE
+                    binding?.btnKumpulTugas?.setOnClickListener {
+
+                        val intent = Intent(this@TugasActivity,JawabActivity::class.java)
+                        intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+                        intent.putExtra(Constants.TUGAS_LIST_ITEM_POSITION,mTugasListPosition)
+                        intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+                        intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
+                        startActivityForResult(intent, REQUEST_CODE_JAWAB_DETAILS)
+                    }
                 }else{
                     if (isUpdate){
                         binding?.btnKumpulTugas?.text = "Update Tugas"
@@ -509,7 +516,7 @@ class TugasActivity : BaseActivity() {
 
         if (mSelectedImageFileUri != null) {
             val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
-                "MATERI_IMAGE" + System.currentTimeMillis() + "."
+                "SOAL_IMAGE" + System.currentTimeMillis() + "."
                         + Constants.getFileExtension(this, mSelectedImageFileUri!!)
             )
 

@@ -13,11 +13,11 @@
         android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_tugas"
+            android:id="@+id/toolbar_jawab"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/bluePrimary"
-            app:title="Tugas"
+            app:title="Jawab Tugas"
             app:titleTextColor="@color/onPrimary"/>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -47,20 +47,20 @@
                     android:padding="16dp">
 
                     <EditText
-                        android:id="@+id/et_nama_soal"
+                        android:id="@+id/et_nama_penjawab"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Nama Tugas"
+                        android:hint="Nama Anda"
                         android:textSize="18sp"
                         android:textStyle="bold"/>
 
                     <EditText
-                        android:id="@+id/etSoal"
+                        android:id="@+id/etJawab"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:background="@android:color/transparent"
-                        android:hint="Ketik materi di sini..."
+                        android:hint="Ketik jawaban anda di sini..."
                         android:inputType="textMultiLine"
                         android:minLines="3"/>
 
@@ -130,59 +130,48 @@
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="Upload Image"/>
 
-                        <Button
-                            android:id="@+id/btn_due_date"
-                            android:layout_width="140dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="30dp"
-                            android:background="@drawable/app_gradient_color_background"
-                            android:layout_gravity="center"
-                            android:gravity="center"
-                            android:text="Pilih Tenggat Waktu"
-                            android:textColor="@color/white"/>
-
                     </LinearLayout>
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:elevation="10dp"
-            app:cardCornerRadius="10dp">
-
-        <LinearLayout
-            android:id="@+id/ll_due_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:visibility="gone">
-
-            <TextView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:text="Tenggat Waktu"
-                android:textColor="@color/dark_grey"
-                android:textSize="14dp" />
+                android:layout_height="match_parent"
+                android:layout_marginBottom="10dp"
+                android:elevation="10dp"
+                app:cardCornerRadius="10dp">
 
-            <TextView
-                android:id="@+id/tv_select_due_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:padding="10dp"
-                android:textStyle="bold"
-                android:text="Pilih Tenggat Waktu"
-                android:textColor="@color/dark_grey" />
+                <LinearLayout
+                    android:id="@+id/ll_due_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
 
-        </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:text="Tenggat Waktu"
+                        android:textColor="@color/dark_grey"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/tv_select_due_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:padding="10dp"
+                        android:textStyle="bold"
+                        android:text="Pilih Tenggat Waktu"
+                        android:textColor="@color/dark_grey" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cv_file"
@@ -241,13 +230,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_jawaban"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:visibility="gone"
-                tools:visibility="visible"/>
 
             <com.example.kelomproapp.utils.MBLButton
                 android:id="@+id/btn_kumpulTugas"
@@ -262,7 +244,7 @@
                 android:gravity="center"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="JAWAB TUGAS"
+                android:text="KUMPUL TUGAS"
                 android:textColor="@color/onPrimary"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -270,26 +252,6 @@
                 app:layout_constraintTop_toBottomOf="@id/tv_forgot_password"
                 tools:ignore="TouchTargetSizeCheck" />
 
-            <com.example.kelomproapp.utils.MBLButton
-                android:id="@+id/btn_lihat_hasil_tugas"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/shape_button_rounded_outline"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:text="LIHAT HASIL TUGAS"
-                android:textColor="@color/onPrimary"
-                android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_forgot_password"
-                tools:ignore="TouchTargetSizeCheck" />
 
 
         </LinearLayout>
