@@ -4,10 +4,7 @@ import android.app.Activity
 import android.util.Log
 import android.widget.Toast
 import com.example.mobilelearningapp.activities.*
-import com.example.mobilelearningapp.models.Guru
-import com.example.mobilelearningapp.models.Kelas
-import com.example.mobilelearningapp.models.Materi
-import com.example.mobilelearningapp.models.Siswa
+import com.example.mobilelearningapp.models.*
 import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -288,6 +285,9 @@ class FirestoreClass {
                     is MateriDetailsActivity -> {
                         activity.kelasDetails(kelas!!)
                     }
+                    is TugasActivity -> {
+                        activity.kelasDetails(kelas!!)
+                    }
                 }
             }
             .addOnFailureListener { e ->
@@ -422,7 +422,10 @@ class FirestoreClass {
                         activity.addUpdateMateriListSuccess()
                     }
                     is MateriDetailsActivity -> {
-//                        activity.addUpdateMateriListSuccess()
+                        activity.addUpdateMateriListSuccess()
+                    }
+                    is TugasActivity -> {
+                        activity.addUpdateMateriListSuccess()
                     }
 
                 }

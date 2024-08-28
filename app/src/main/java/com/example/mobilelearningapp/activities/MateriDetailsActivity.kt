@@ -64,6 +64,10 @@ class MateriDetailsActivity : BaseActivity() {
     private var mFileName: String? = ""
     private var mStorageReference: StorageReference? = null
 
+    companion object{
+        const val REQUEST_CODE_TUGAS_DETAILS = 8
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMateriDetailsBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
@@ -215,6 +219,12 @@ class MateriDetailsActivity : BaseActivity() {
 
 
         }
+        if (requestCode == REQUEST_CODE_TUGAS_DETAILS && resultCode == RESULT_OK) {
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
+            FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+//            showTugasDialog()
+        }
     }
 
     private fun getIntentData() {
@@ -235,7 +245,6 @@ class MateriDetailsActivity : BaseActivity() {
     fun kelasDetails(kelas: Kelas){
         mKelasDetails = kelas
 //        hideProgressDialog()
-        showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
         populateMateriFileListToUI(kelas.materiList[mMateriListPosition].file)
         }
@@ -487,7 +496,7 @@ class MateriDetailsActivity : BaseActivity() {
             intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
             intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
             intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
-            startActivity(intent)
+            startActivityForResult(intent,REQUEST_CODE_TUGAS_DETAILS)
             dialog.dismiss()
         }
 
@@ -501,7 +510,13 @@ class MateriDetailsActivity : BaseActivity() {
         intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
         intent.putExtra(Constants.IS_UPDATE, true)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
-        startActivity(intent)
+        startActivityForResult(intent,REQUEST_CODE_TUGAS_DETAILS)
+    }
+
+    fun addUpdateMateriListSuccess(){
+        setResult(RESULT_OK)
+        Toast.makeText(this, " tugas berhasil ditambah", Toast.LENGTH_SHORT).show()
+
     }
 
 }

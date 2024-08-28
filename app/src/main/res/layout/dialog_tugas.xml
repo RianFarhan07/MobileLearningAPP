@@ -1,42 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Daftar Tugas"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
+        android:orientation="vertical"
+        android:padding="16dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Daftar Tugas"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_tugas_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_tugas_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"/>
 
-    <TextView
-        android:id="@+id/tv_no_tugas_available"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingTop="250dp"
-        android:layout_gravity="center"
-        android:textSize="24dp"
-        android:text="Tidak ada Materi!!!!"
-        android:textColor="@color/dark_grey"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/tv_no_tugas_available"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="250dp"
+            android:layout_gravity="center"
+            android:textSize="24dp"
+            android:text="Tidak ada Materi!!!!"
+            android:textColor="@color/dark_grey"
+            android:visibility="gone"/>
 
-    <Button
-        android:id="@+id/btn_buat_tugas"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Buat Tugas"
-        android:backgroundTint="@color/bluePrimary"
-        android:textColor="@color/white"/>
+        <Button
+            android:id="@+id/btn_buat_tugas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Buat Tugas"
+            android:backgroundTint="@color/bluePrimary"
+            android:textColor="@color/white"/>
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

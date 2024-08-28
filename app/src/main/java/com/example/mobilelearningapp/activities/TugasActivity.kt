@@ -286,9 +286,10 @@ class TugasActivity : BaseActivity() {
         )
 
         mKelasDetails.materiList[mMateriListPosition].tugas.add(tugas)
+        FirestoreClass().   addUpdateMateriList(this, mKelasDetails)
 
-        FirestoreClass().updateMateriDetail(this@TugasActivity, mKelasDocumentId, mKelasDetails.materiList[mMateriListPosition])
-        finish()
+//        FirestoreClass().updateMateriDetail(this@TugasActivity, mKelasDocumentId, mKelasDetails.materiList[mMateriListPosition])
+
     }
 
 
@@ -497,6 +498,22 @@ class TugasActivity : BaseActivity() {
     fun materiUpdateSuccess() {
         setResult(RESULT_OK)
         Toast.makeText(this, "Deskripsi tugas berhasil diperbarui", Toast.LENGTH_SHORT).show()
+
+    }
+
+
+
+    fun kelasDetails(kelas: Kelas){
+        mKelasDetails = kelas
+//        hideProgressDialog()
+
+    }
+
+    fun addUpdateMateriListSuccess(){
+        setResult(RESULT_OK)
+        Toast.makeText(this, " tugas berhasil ditambah", Toast.LENGTH_SHORT).show()
+        finish()
+
     }
 
 }
