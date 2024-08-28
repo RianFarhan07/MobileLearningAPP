@@ -78,7 +78,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/rv_item_image_background"
-                        android:padding="2dp">
+                        android:padding="2dp"
+                        android:visibility="gone">
 
                         <ImageView
                             android:id="@+id/iv_image_materi"
@@ -88,6 +89,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/ll_input"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp">

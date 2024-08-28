@@ -14,6 +14,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
@@ -97,6 +98,7 @@ class TugasActivity : BaseActivity() {
         }
 
         if (isUpdate){
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
             setUpDataTugas()
         }
 
@@ -146,7 +148,23 @@ class TugasActivity : BaseActivity() {
     }
 
     private fun setUpDataTugas() {
+
         val currentTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition]
+        val currentUserID = FirestoreClass().getCurrentUserID()
+        if (currentUserID.isNotEmpty()) {
+            FirestoreClass().getUserRole(currentUserID) { role ->
+                if (role == "siswa") {
+                    binding?.etSoal?.visibility = View.GONE
+                    binding?.tvSoal?.visibility = View.VISIBLE
+                    binding?.etNamaSoal?.inputType = InputType.TYPE_NULL
+                    binding?.llInput?.visibility = View.GONE
+                    binding?.btnDueDate?.visibility = View.INVISIBLE
+                }else{
+                    binding?.etNamaSoal?.setText(currentTugas.namaTugas)
+                    binding?.etSoal?.setText(currentTugas.soal)
+                }
+            }
+        }
 
         mSelectedDueDateMilliSeconds = currentTugas.dueDate
 
@@ -171,9 +189,6 @@ class TugasActivity : BaseActivity() {
             }
         }
 
-        binding?.etNamaSoal?.setText(currentTugas.namaTugas)
-        binding?.etSoal?.setText(currentTugas.soal)
-
         if (currentTugas.imageSoal.isNotEmpty()) {
             binding?.llImageSoal?.visibility = View.VISIBLE
             Glide
@@ -185,6 +200,7 @@ class TugasActivity : BaseActivity() {
         } else {
             binding?.llImageSoal?.visibility = View.GONE
         }
+        hideProgressDialog()
     }
 
     private fun getIntentData() {
@@ -247,10 +263,7 @@ class TugasActivity : BaseActivity() {
     private fun createTugas() {
         val namaTugas = binding?.etNamaSoal?.text.toString().trim()
         val deskripsiTugas = binding?.etSoal?.text.toString().trim()
-        if (isUpdate){
-
-        }
-
+        val PdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else ""
 
         if (namaTugas.isEmpty()) {
             Toast.makeText(this, "Mohon masukkan nama tugas", Toast.LENGTH_SHORT).show()
@@ -267,7 +280,7 @@ class TugasActivity : BaseActivity() {
             imageSoal = mMateriImageURL,
             dueDate = mSelectedDueDateMilliSeconds,
             createdBy = FirestoreClass().getCurrentUserID(),
-            pdfUrl =  mUploadedPdfUri.toString(),
+            pdfUrl =  PdfUrl,
             pdfUrlName= selectedPdfFileName,
         )
 
@@ -397,6 +410,7 @@ class TugasActivity : BaseActivity() {
                 binding?.llImageSoal?.visibility = View.VISIBLE
 
                 // Panggil fungsi untuk upload gambar
+                showProgressDialog("Uploading Image")
                 uploadMateriImage()
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -506,6 +520,7 @@ class TugasActivity : BaseActivity() {
                 )
 
                 taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
+                    hideProgressDialog()
                     Log.e("Downloadable Image URL", uri.toString())
                     mMateriImageURL = uri.toString()
 
