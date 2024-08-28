@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mobilelearningapp.activities.MateriDetailsActivity
 import com.example.mobilelearningapp.databinding.ItemKelasBinding
@@ -21,6 +22,8 @@ import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.models.Tugas
 import com.example.mobilelearningapp.utils.Constants
+import java.util.*
+import kotlin.collections.ArrayList
 
 class TugasItemsAdapter(
     private val context: Context,
@@ -40,6 +43,22 @@ class TugasItemsAdapter(
         val model = list[position]
 
         holder.binding.tvName.text = model.namaTugas
+
+        val currentDate = Calendar.getInstance()
+        val dueDate = Calendar.getInstance()
+        dueDate.timeInMillis = model.dueDate //
+        val diffInMillis = dueDate.timeInMillis - currentDate.timeInMillis
+        val diffInDays = diffInMillis / (1000 * 60 * 60 * 24)
+        val diffInHours = (diffInMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+
+        holder.binding.tvSisaWaktu.text = "Sisa waktu: $diffInDays hari $diffInHours jam"
+
+        if (diffInMillis < 0) {
+            holder.binding.tvSisaWaktu.setTextColor(ContextCompat.getColor(context, R.color.colorSnackBarError))
+            holder.binding.tvSisaWaktu.text = "Waktu telah lewat"
+        } else {
+            holder.binding.tvSisaWaktu.text = "Sisa waktu: $diffInDays hari $diffInHours jam"
+        }
 
         holder.itemView.setOnClickListener {
             val index = list.indexOf(model)

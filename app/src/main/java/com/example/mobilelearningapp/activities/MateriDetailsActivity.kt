@@ -43,6 +43,7 @@ import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.activity_materi_details.*
+import kotlinx.android.synthetic.main.dialog_tugas.*
 import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -468,6 +469,7 @@ class MateriDetailsActivity : BaseActivity() {
 
         }else{
             rvTugasList.visibility = View.GONE
+            tv_no_tugas_available.visibility  = View.VISIBLE
         }
 
         // Tampilkan atau sembunyikan tombol "Buat Tugas" berdasarkan peran pengguna
@@ -497,6 +499,7 @@ class MateriDetailsActivity : BaseActivity() {
         intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
         intent.putExtra(Constants.TUGAS_LIST_ITEM_POSITION,tugasPosition)
         intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+        intent.putExtra(Constants.IS_UPDATE, true)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
         startActivity(intent)
     }

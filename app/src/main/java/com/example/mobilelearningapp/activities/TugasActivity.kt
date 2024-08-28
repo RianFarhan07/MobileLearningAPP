@@ -23,6 +23,7 @@ import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -145,10 +146,44 @@ class TugasActivity : BaseActivity() {
             binding?.tvSelectDueDate?.text = selectedDate
         }
 
+        val mUploadedPdfUriString: String? = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].pdfUrl
+        mDatabasePdf = mUploadedPdfUriString?.toUri()
+
         if (mDatabasePdf!= null) {
             selectedPdfFileName = mDatabasePdf.toString()
             binding?.tvNamaFile?.text =
                 mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas
+        }
+
+        if (mDatabasePdf!= null) {
+            binding?.cvFile?.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = mDatabasePdf
+                startActivity(intent)
+            }
+        }
+
+        binding?.etNamaSoal?.setText(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas)
+        binding?.etSoal?.setText(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].soal)
+
+        if (mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal.isNotEmpty()) {
+            binding?.llImageSoal?.visibility = View.VISIBLE
+            Glide
+                .with(this@TugasActivity)
+                .load(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal)
+                .centerCrop()
+                .placeholder(R.drawable.ic_board_place_holder)
+                .into(binding?.ivImageMateri!!)
+        } else {
+            binding?.llImageSoal?.visibility = View.GONE
+        }
+
+        mSelectedDueDateMilliSeconds =
+            mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].dueDate
+
+        if (mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].pdfUrl.isNotEmpty()){
+            binding?.cvFile?.visibility = View.VISIBLE
+            binding?.tvNamaFile?.text = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].pdfUrlName
         }
 
     }
@@ -162,9 +197,17 @@ class TugasActivity : BaseActivity() {
             mMateriListPosition = intent.getIntExtra(Constants.MATERI_LIST_ITEM_POSITION, -1)
             Log.e("MATERI_ITEM_POSITION", mMateriListPosition.toString())
         }
+        if (intent.hasExtra(Constants.TUGAS_LIST_ITEM_POSITION)) {
+            mTugasListPosition = intent.getIntExtra(Constants.TUGAS_LIST_ITEM_POSITION, -1)
+            Log.e("TUGAS_ITEM_POSITION", mTugasListPosition.toString())
+        }
         if (intent.hasExtra(Constants.DOCUMENT_ID)) {
             mKelasDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID).toString()
             Log.e("document", "document $mKelasDocumentId")
+        }
+        if (intent.hasExtra(Constants.IS_UPDATE)) {
+            isUpdate = intent.getBooleanExtra(Constants.IS_UPDATE, false)
+            Log.e("TOCOURSE ", isUpdate.toString())
         }
     }
 
@@ -174,7 +217,12 @@ class TugasActivity : BaseActivity() {
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
-            supportActionBar?.title = "Tugas ${mKelasDetails.materiList[mMateriListPosition].tugas}"
+            if (isUpdate){
+                supportActionBar?.title = "Tugas ${mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas}"
+            }else{
+                supportActionBar?.title = "Buat Tugas"
+            }
+
         }
         binding?.toolbarTugas?.setNavigationOnClickListener {
             val currentUserID = FirestoreClass().getCurrentUserID()
@@ -230,9 +278,10 @@ class TugasActivity : BaseActivity() {
             id = UUID.randomUUID().toString(),
             namaTugas = namaTugas,
             soal = deskripsiTugas,
+            imageSoal = mMateriImageURL,
             dueDate = mSelectedDueDateMilliSeconds,
             createdBy = FirestoreClass().getCurrentUserID(),
-            pdfUrl =  mMateriImageURL,
+            pdfUrl =  mUploadedPdfUri.toString(),
             pdfUrlName= selectedPdfFileName,
         )
 
@@ -429,7 +478,10 @@ class TugasActivity : BaseActivity() {
                     Log.e("Downloadable Image URL", uri.toString())
                     mMateriImageURL = uri.toString()
 
-                    mKelasDetails.materiList[mMateriListPosition].image = mMateriImageURL
+                    //TODO GANTI INI KALAU IMAGE TIDAK MAU MUNCUL SAAT BUAT TUGAS PERTAMA KALI HILANGKAN ISUPDATE
+                    if (isUpdate){
+                        mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal = mMateriImageURL
+                    }
                 }
             }.addOnFailureListener { exception ->
                 Toast.makeText(
