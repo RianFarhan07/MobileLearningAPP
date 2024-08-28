@@ -145,22 +145,11 @@ class MateriDetailsActivity : BaseActivity() {
         val toolbar = supportActionBar
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
+//            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
             supportActionBar?.title = "Materi ${mKelasDetails.materiList[mMateriListPosition].nama}"
         }
         binding?.toolbar?.setNavigationOnClickListener {
-            val currentUserID = FirestoreClass().getCurrentUserID()
-            if (currentUserID.isNotEmpty()) {
-                FirestoreClass().getUserRole(currentUserID) { role ->
-                    if (role == "siswa") {
-                        val intent = Intent(this,MainActivitySiswa::class.java)
-                        startActivity(intent)
-                    }else{
-                        val intent = Intent(this,MainGuruActivity::class.java)
-                        startActivity(intent)
-                    }
-                }
-            }
+            onBackPressed()
 
         }
     }
@@ -306,6 +295,7 @@ class MateriDetailsActivity : BaseActivity() {
             mKelasDocumentId,
             mKelasDetails.materiList[mMateriListPosition]
         )
+        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
     }
 
     fun materiUpdateSuccess() {
@@ -473,12 +463,13 @@ class MateriDetailsActivity : BaseActivity() {
             adapter.setOnClickListener(object: TugasItemsAdapter.OnClickListener{
                 override fun onClick(position: Int, model: Tugas) {
                     tugasDetails(position)
+                    dialog.dismiss()
                 }
             })
 
         }else{
             rvTugasList.visibility = View.GONE
-            tv_no_tugas_available.visibility  = View.VISIBLE
+
         }
 
         // Tampilkan atau sembunyikan tombol "Buat Tugas" berdasarkan peran pengguna
@@ -511,6 +502,7 @@ class MateriDetailsActivity : BaseActivity() {
         intent.putExtra(Constants.IS_UPDATE, true)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
         startActivityForResult(intent,REQUEST_CODE_TUGAS_DETAILS)
+
     }
 
     fun addUpdateMateriListSuccess(){

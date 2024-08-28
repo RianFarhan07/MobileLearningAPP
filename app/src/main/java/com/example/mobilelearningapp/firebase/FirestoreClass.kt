@@ -544,4 +544,40 @@ class FirestoreClass {
             }
     }
 
+    fun updateTugasInMateri(
+        activity: TugasActivity,
+        kelasDocumentId: String,
+        materiPosition: Int,
+        tugasPosition: Int,
+        updatedTugas: Tugas
+    ) {
+        mFireStore.collection(Constants.KELAS)
+            .document(kelasDocumentId)
+            .get()
+            .addOnSuccessListener { document ->
+                val kelas = document.toObject(Kelas::class.java)
+                kelas?.let {
+                    // Update the specific tugas in the materi
+                    it.materiList[materiPosition].tugas[tugasPosition] = updatedTugas
+
+                    // Update the entire kelas document
+                    mFireStore.collection(Constants.KELAS)
+                        .document(kelasDocumentId)
+                        .set(it, SetOptions.merge())
+                        .addOnSuccessListener {
+                            activity.hideProgressDialog()
+                            activity.tugasUpdateSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            activity.hideProgressDialog()
+                            Log.e(activity.javaClass.simpleName, "Error updating tugas", e)
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error getting kelas document", e)
+            }
+    }
+
 }

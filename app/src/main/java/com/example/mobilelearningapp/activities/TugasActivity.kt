@@ -86,7 +86,12 @@ class TugasActivity : BaseActivity() {
                 if (role == "siswa") {
                     binding?.btnLihatHasilTugas?.visibility = View.GONE
                 }else{
-                    binding?.btnKumpulTugas?.text = "Buat/Update Tugas"
+                    if (isUpdate){
+                        binding?.btnKumpulTugas?.text = "Update Tugas"
+                    }else{
+                        binding?.btnKumpulTugas?.text = "Buat Tugas"
+                    }
+
                 }
             }
         }
@@ -128,34 +133,37 @@ class TugasActivity : BaseActivity() {
                 if (role == "siswa") {
 //                    val intent = Intent(this,ActivityJawabTugas ::class.java)
                 } else {
-                    createTugas()
+                    if (isUpdate){
+                        updateTugas()
+                    }else{
+                        createTugas()
+                    }
+
                 }
             }
         }
 
     }
 
-    private fun setUpDataTugas(){
-        mSelectedDueDateMilliSeconds =
-            mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].dueDate
+    private fun setUpDataTugas() {
+        val currentTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition]
 
-        if (mSelectedDueDateMilliSeconds > 0 ){
+        mSelectedDueDateMilliSeconds = currentTugas.dueDate
+
+        if (mSelectedDueDateMilliSeconds > 0) {
             val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
             val selectedDate = simpleDateFormat.format(Date(mSelectedDueDateMilliSeconds))
             binding?.llDueDate?.visibility = View.VISIBLE
             binding?.tvSelectDueDate?.text = selectedDate
         }
 
-        val mUploadedPdfUriString: String? = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].pdfUrl
-        mDatabasePdf = mUploadedPdfUriString?.toUri()
+        // Load existing PDF information
+        if (currentTugas.pdfUrl.isNotEmpty()) {
+            mDatabasePdf = currentTugas.pdfUrl.toUri()
+            selectedPdfFileName = currentTugas.pdfUrlName
+            binding?.tvNamaFile?.text = selectedPdfFileName
+            binding?.cvFile?.visibility = View.VISIBLE
 
-        if (mDatabasePdf!= null) {
-            selectedPdfFileName = mDatabasePdf.toString()
-            binding?.tvNamaFile?.text =
-                mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas
-        }
-
-        if (mDatabasePdf!= null) {
             binding?.cvFile?.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = mDatabasePdf
@@ -163,29 +171,20 @@ class TugasActivity : BaseActivity() {
             }
         }
 
-        binding?.etNamaSoal?.setText(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas)
-        binding?.etSoal?.setText(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].soal)
+        binding?.etNamaSoal?.setText(currentTugas.namaTugas)
+        binding?.etSoal?.setText(currentTugas.soal)
 
-        if (mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal.isNotEmpty()) {
+        if (currentTugas.imageSoal.isNotEmpty()) {
             binding?.llImageSoal?.visibility = View.VISIBLE
             Glide
                 .with(this@TugasActivity)
-                .load(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal)
+                .load(currentTugas.imageSoal)
                 .centerCrop()
                 .placeholder(R.drawable.ic_board_place_holder)
                 .into(binding?.ivImageMateri!!)
         } else {
             binding?.llImageSoal?.visibility = View.GONE
         }
-
-        mSelectedDueDateMilliSeconds =
-            mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].dueDate
-
-        if (mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].pdfUrl.isNotEmpty()){
-            binding?.cvFile?.visibility = View.VISIBLE
-            binding?.tvNamaFile?.text = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].pdfUrlName
-        }
-
     }
 
     private fun getIntentData() {
@@ -216,7 +215,6 @@ class TugasActivity : BaseActivity() {
         val toolbar = supportActionBar
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
             if (isUpdate){
                 supportActionBar?.title = "Tugas ${mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas}"
             }else{
@@ -225,19 +223,7 @@ class TugasActivity : BaseActivity() {
 
         }
         binding?.toolbarTugas?.setNavigationOnClickListener {
-            val currentUserID = FirestoreClass().getCurrentUserID()
-            if (currentUserID.isNotEmpty()) {
-                FirestoreClass().getUserRole(currentUserID) { role ->
-                    if (role == "siswa") {
-                        val intent = Intent(this,MainActivitySiswa::class.java)
-                        startActivity(intent)
-                    }else{
-                        val intent = Intent(this,MainGuruActivity::class.java)
-                        startActivity(intent)
-                    }
-                }
-            }
-
+            onBackPressed()
         }
     }
 
@@ -262,8 +248,7 @@ class TugasActivity : BaseActivity() {
         val namaTugas = binding?.etNamaSoal?.text.toString().trim()
         val deskripsiTugas = binding?.etSoal?.text.toString().trim()
         if (isUpdate){
-            val originalPdfUrl = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].pdfUrl
-            val pdfUriString = mUploadedPdfUri?.toString() ?: originalPdfUrl
+
         }
 
 
@@ -272,7 +257,8 @@ class TugasActivity : BaseActivity() {
             return
         }
 
-        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+        //TODO UPDATE TUGAS BELUM
+//        showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
         val tugas = Tugas(
             id = UUID.randomUUID().toString(),
@@ -285,11 +271,55 @@ class TugasActivity : BaseActivity() {
             pdfUrlName= selectedPdfFileName,
         )
 
+
         mKelasDetails.materiList[mMateriListPosition].tugas.add(tugas)
-        FirestoreClass().   addUpdateMateriList(this, mKelasDetails)
+
+
+        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
 
 //        FirestoreClass().updateMateriDetail(this@TugasActivity, mKelasDocumentId, mKelasDetails.materiList[mMateriListPosition])
 
+    }
+
+    private fun updateTugas() {
+        val namaTugas = binding?.etNamaSoal?.text.toString().trim()
+        val deskripsiTugas = binding?.etSoal?.text.toString().trim()
+
+        if (namaTugas.isEmpty()) {
+            Toast.makeText(this, "Mohon masukkan nama tugas", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
+        // Preserve existing PDF information if not changed
+        val currentTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition]
+        val updatedPdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else currentTugas.pdfUrl
+        val updatedPdfUrlName = if (selectedPdfFileName.isNotEmpty()) selectedPdfFileName else currentTugas.pdfUrlName
+
+        val updatedTugas = Tugas(
+            id = currentTugas.id,
+            namaTugas = namaTugas,
+            soal = deskripsiTugas,
+            imageSoal = if (mMateriImageURL.isNotEmpty()) mMateriImageURL else currentTugas.imageSoal,
+            dueDate = mSelectedDueDateMilliSeconds,
+            createdBy = FirestoreClass().getCurrentUserID(),
+            pdfUrl = updatedPdfUrl,
+            pdfUrlName = updatedPdfUrlName,
+            jawab = currentTugas.jawab // Preserve existing jawab data
+        )
+
+        // Update the tugas in the mKelasDetails
+        mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition] = updatedTugas
+
+        // Update in Firestore
+        FirestoreClass().updateTugasInMateri(
+            this,
+            mKelasDocumentId,
+            mMateriListPosition,
+            mTugasListPosition,
+            updatedTugas
+        )
     }
 
 
@@ -514,6 +544,10 @@ class TugasActivity : BaseActivity() {
         Toast.makeText(this, " tugas berhasil ditambah", Toast.LENGTH_SHORT).show()
         finish()
 
+    }
+
+    fun tugasUpdateSuccess(){
+        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
     }
 
 }

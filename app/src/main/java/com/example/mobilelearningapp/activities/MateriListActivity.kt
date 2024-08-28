@@ -118,7 +118,7 @@ class MateriListActivity : BaseActivity() {
         intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,materiListPosition)
         intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
-        startActivity(intent)
+        startActivityForResult(intent,REQUEST_CODE_MATERI_DETAILS)
     }
 
     fun populateMaterListToUI(materiList: ArrayList<Materi>){
