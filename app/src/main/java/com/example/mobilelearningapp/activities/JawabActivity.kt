@@ -22,8 +22,12 @@ import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.R
+import com.example.mobilelearningapp.adapters.JawabItemsAdapter
+import com.example.mobilelearningapp.adapters.MateriFileItemsAdapter
 import com.example.mobilelearningapp.databinding.ActivityJawabBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.File
@@ -48,6 +52,8 @@ class JawabActivity : BaseActivity() {
     private var mSelectedDueDateMilliSeconds : Long = 0
     private var mSelectedImageFileUri : Uri? = null
     private var mMateriImageURL: String = ""
+
+
 
     private var mSelectedFileUri: Uri? = null
     private var mFileType: String? = ""
@@ -83,6 +89,8 @@ class JawabActivity : BaseActivity() {
                 )
             }
         }
+
+
 
         binding?.btnUploadFile?.setOnClickListener {
             selectFile()
@@ -212,9 +220,9 @@ class JawabActivity : BaseActivity() {
                     .load(mSelectedImageFileUri)
                     .centerCrop()
                     .placeholder(R.drawable.ic_board_place_holder)
-                    .into(binding?.ivImageMateri!!)
+                    .into(binding?.ivImageJawab!!)
 
-                binding?.llImageSoal?.visibility = View.VISIBLE
+                binding?.llImageJawab?.visibility = View.VISIBLE
 
                 // Panggil fungsi untuk upload gambar
                 showProgressDialog("Uploading Image")
@@ -313,6 +321,7 @@ class JawabActivity : BaseActivity() {
             namaPenjawab = namaPenjawab,
             jawaban = deskripsiTugas,
             imageJawaban = mMateriImageURL,
+            uploadedDate =  System.currentTimeMillis(),
             createdBy = FirestoreClass().getCurrentUserID(),
             pdfUrl =  PdfUrl,
             pdfUrlName= selectedPdfFileName,
@@ -334,4 +343,6 @@ class JawabActivity : BaseActivity() {
         finish()
 
     }
+
+
 }

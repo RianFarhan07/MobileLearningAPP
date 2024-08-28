@@ -29,11 +29,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.R
+import com.example.mobilelearningapp.adapters.JawabItemsAdapter
 import com.example.mobilelearningapp.adapters.MateriFileItemsAdapter
 import com.example.mobilelearningapp.databinding.ActivityMainGuruBinding
 import com.example.mobilelearningapp.databinding.ActivityTugasBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.File
+import com.example.mobilelearningapp.models.JawabanTugas
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Tugas
 import com.example.mobilelearningapp.utils.Constants
@@ -57,6 +59,8 @@ class TugasActivity : BaseActivity() {
     private var mSelectedImageFileUri : Uri? = null
     private var mMateriImageURL: String = ""
 
+    private lateinit var mJawabList: java.util.ArrayList<JawabanTugas>
+
     private var mSelectedFileUri: Uri? = null
     private var mFileType: String? = ""
     private var mFileName: String? = ""
@@ -78,6 +82,7 @@ class TugasActivity : BaseActivity() {
         getIntentData()
         setupActionBar()
         mStorageReference = FirebaseStorage.getInstance().reference
+        populateJawabListToUI(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab)
 
         val currentUserID = FirestoreClass().getCurrentUserID()
         if (currentUserID.isNotEmpty()) {
@@ -570,6 +575,31 @@ class TugasActivity : BaseActivity() {
 
     fun tugasUpdateSuccess(){
         FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+    }
+
+    fun populateJawabListToUI(jawabList: java.util.ArrayList<JawabanTugas>){
+        mJawabList = jawabList
+
+        val rvJawabList : RecyclerView = findViewById(R.id.rv_jawaban)
+
+
+        if (jawabList.isNotEmpty()){
+            rvJawabList.visibility = View.VISIBLE
+
+            rvJawabList.layoutManager = LinearLayoutManager(this)
+            rvJawabList.setHasFixedSize(true)
+
+            val adapter = JawabItemsAdapter(jawabList)
+            rvJawabList.adapter = adapter
+
+//            adapter.setOnClickListener(object: JawabItemsAdapter.OnClickListener{
+//                override fun onClick(position: Int, model: File) {
+//
+//                }
+//            })
+        } else {
+            rvJawabList.visibility = View.GONE
+        }
     }
 
 }
