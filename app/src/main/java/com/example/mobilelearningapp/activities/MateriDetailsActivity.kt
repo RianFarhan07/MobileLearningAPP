@@ -26,6 +26,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -40,6 +41,7 @@ import com.example.mobilelearningapp.models.File
 import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.models.Tugas
 import com.example.mobilelearningapp.utils.Constants
+import com.example.mobilelearningapp.utils.SwipeToDeleteCallback
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.activity_materi_details.*
@@ -180,6 +182,7 @@ class MateriDetailsActivity : BaseActivity() {
             && requestCode == Constants.PICK_IMAGE_REQUEST_CODE
             && data!!.data != null
         ) {
+            showProgressDialog("Uploading Image")
             mSelectedImageFileUri = data.data
 
             try {
@@ -256,18 +259,18 @@ class MateriDetailsActivity : BaseActivity() {
     fun populateMateriFileListToUI(fileList: ArrayList<File>){
         mFileList = fileList
 
-        val rvMateriList : RecyclerView = findViewById(R.id.rv_materi_file_list)
+        val rvMateriFileList : RecyclerView = findViewById(R.id.rv_materi_file_list)
 
         hideProgressDialog()
 
         if (fileList.isNotEmpty()){
-            rvMateriList.visibility = View.VISIBLE
+            rvMateriFileList.visibility = View.VISIBLE
 
-            rvMateriList.layoutManager = LinearLayoutManager(this)
-            rvMateriList.setHasFixedSize(true)
+            rvMateriFileList.layoutManager = LinearLayoutManager(this)
+            rvMateriFileList.setHasFixedSize(true)
 
             val adapter = MateriFileItemsAdapter(this, fileList)
-            rvMateriList.adapter = adapter
+            rvMateriFileList.adapter = adapter
 
             adapter.setOnClickListener(object: MateriFileItemsAdapter.OnClickListener{
                 override fun onClick(position: Int, model: File) {
@@ -276,8 +279,47 @@ class MateriDetailsActivity : BaseActivity() {
                     startActivity(intent)
                 }
             })
+
+            val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val position = viewHolder.adapterPosition
+                    val fileToDelete = fileList[position]
+
+                    val dialogView = LayoutInflater.from(this@MateriDetailsActivity).inflate(R.layout.dialog_confirm_delete, null)
+                    val dialog = AlertDialog.Builder(this@MateriDetailsActivity)
+                        .setView(dialogView)
+                        .create()
+
+                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    dialog.show()
+
+                    val tvYa = dialogView.findViewById<TextView>(R.id.tv_ya)
+                    val tvTidak = dialogView.findViewById<TextView>(R.id.tv_tidak)
+
+                    tvYa.setOnClickListener {
+                        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+                        FirestoreClass().deleteFileMateri(
+                            this@MateriDetailsActivity,
+                            mKelasDocumentId,
+                            mMateriListPosition,
+                            fileToDelete.id
+                        )
+
+                        dialog.dismiss()
+                    }
+
+                    tvTidak.setOnClickListener {
+                        dialog.dismiss()
+                    }
+
+                }
+            }
+
+            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+            deleteItemTouchHelper.attachToRecyclerView(rvMateriFileList)
+
         } else {
-            rvMateriList.visibility = View.GONE
+            rvMateriFileList.visibility = View.GONE
         }
     }
 
@@ -340,6 +382,7 @@ class MateriDetailsActivity : BaseActivity() {
                 taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
                     Log.e("Downloadable Image URL", uri.toString())
                     mMateriImageURL = uri.toString()
+                    hideProgressDialog()
 
                     // Update Materi dengan URL gambar baru
                     updateMateriWithImage()
@@ -436,6 +479,7 @@ class MateriDetailsActivity : BaseActivity() {
     fun fileUpdateSuccess() {
         hideProgressDialog()
         setResult(RESULT_OK)
+       FirestoreClass().getKelasDetails(this, mKelasDocumentId)
         Toast.makeText(this, "Deskripsi materi berhasil diperbarui", Toast.LENGTH_SHORT).show()
     }
 
@@ -510,5 +554,7 @@ class MateriDetailsActivity : BaseActivity() {
         Toast.makeText(this, " tugas berhasil ditambah", Toast.LENGTH_SHORT).show()
 
     }
+
+
 
 }

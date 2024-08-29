@@ -390,7 +390,6 @@ class JawabActivity : BaseActivity() {
     private fun createJawaban() {
         val namaPenjawab = binding?.etNamaPenjawab?.text.toString().trim()
         val deskripsiTugas = binding?.etJawab?.text.toString().trim()
-        val nilai = binding?.etNilai?.text.toString().trim()
         val PdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else ""
         val assignedUserArrayList: ArrayList<String> = ArrayList()
         assignedUserArrayList.add(FirestoreClass().getCurrentUserID())

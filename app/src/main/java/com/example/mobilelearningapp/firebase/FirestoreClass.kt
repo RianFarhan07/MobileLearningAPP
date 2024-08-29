@@ -550,6 +550,54 @@ class FirestoreClass {
             }
     }
 
+    fun deleteFileMateri(
+        activity: MateriDetailsActivity,
+        kelasDocumentId: String,
+        materiPosition: Int,
+        fileId: String
+    ) {
+        mFireStore.collection(Constants.KELAS).document(kelasDocumentId)
+            .get()
+            .addOnSuccessListener { document ->
+                val kelasDetails = document.toObject(Kelas::class.java)
+                kelasDetails?.let { kelas ->
+                    if (materiPosition < kelas.materiList.size) {
+
+                        val currentMateri = kelas.materiList[materiPosition]
+                        val updatedFileList = currentMateri.file.filter { it.id != fileId }
+
+                        // Create a new Tugas object with the updated jawab list
+                        val updatedFile = currentMateri.copy(file = ArrayList(updatedFileList))
+
+                        // Update the Tugas in the Materi
+                        kelas.materiList[materiPosition] = updatedFile
+
+                        // Update the entire Kelas object in Firestore
+                        mFireStore.collection(Constants.KELAS)
+                            .document(kelasDocumentId)
+                            .set(kelas)
+                            .addOnSuccessListener {
+                                activity.fileUpdateSuccess()
+                            }
+                            .addOnFailureListener { e ->
+                                activity.hideProgressDialog()
+                                Log.e(activity.javaClass.simpleName, "Error while deleting jawab tugas", e)
+                            }
+                    } else {
+                        activity.hideProgressDialog()
+                        Log.e(activity.javaClass.simpleName, "Invalid materi or tugas position")
+                    }
+                } ?: run {
+                    activity.hideProgressDialog()
+                    Log.e(activity.javaClass.simpleName, "Kelas details are null")
+                }
+            }
+            .addOnFailureListener { e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error while fetching kelas details", e)
+            }
+    }
+
     fun updateTugasInMateri(
         activity: TugasActivity,
         kelasDocumentId: String,

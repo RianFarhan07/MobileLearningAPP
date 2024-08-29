@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.activities.MateriDetailsActivity
 import com.example.mobilelearningapp.databinding.ItemJawabBinding
 
@@ -46,9 +47,17 @@ class JawabTugasItemsAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val model = items[position]
         if (holder is MyViewHolder) {
+//            Glide
+//                .with(context)
+//                .load(model.image)
+//                .centerCrop()
+//                .placeholder(R.drawable.ic_user_place_holder)
+//                .into(holder.binding.ivAnggotaImage)
+
             holder.tvNamaPenjawab.text = model.namaPenjawab
             holder.tvTanggalUpload.text = formatDate(model.uploadedDate)
             holder.tvNilai.text = model.nilai ?: "Belum dinilai"
+
         }
 
         holder.itemView.setOnClickListener {

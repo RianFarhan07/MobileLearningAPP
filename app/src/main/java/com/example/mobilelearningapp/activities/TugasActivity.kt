@@ -650,7 +650,6 @@ class TugasActivity : BaseActivity() {
             }
         }
 
-
         val rvJawabList: RecyclerView = findViewById(R.id.rv_jawaban)
         val btnKumpul : Button = findViewById(R.id.btn_kumpulTugas)
 

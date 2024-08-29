@@ -11,6 +11,8 @@ import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityLoginSiswaBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 
 class LoginSiswaActivity : BaseActivity(), View.OnClickListener {
     private var binding: ActivityLoginSiswaBinding? = null
@@ -83,7 +85,12 @@ class LoginSiswaActivity : BaseActivity(), View.OnClickListener {
                         FirestoreClass().getSiswaDetails(this)
                     }else{
                         hideProgressDialog()
-                        showErrorSnackBar(task.exception!!.message.toString(),true)
+                        val errorMessage = when (task.exception) {
+                            is FirebaseAuthInvalidUserException -> "Akun dengan email ini tidak ditemukan."
+                            is FirebaseAuthInvalidCredentialsException -> "Password yang Anda masukkan salah."
+                            else -> "Terjadi kesalahan saat masuk. Silakan coba lagi."
+                        }
+                        showErrorSnackBar(errorMessage,true)
                     }
                 }
         }

@@ -91,13 +91,15 @@
                     <LinearLayout
                         android:id="@+id/ll_input"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp">
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
 
                         <ImageButton
                             android:id="@+id/btnBold"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:src="@drawable/ic_baseline_format_bold_24"
                             android:layout_margin="5dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
@@ -105,8 +107,9 @@
 
                         <ImageButton
                             android:id="@+id/btnItalic"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:src="@drawable/ic_baseline_format_italic_24"
                             android:layout_margin="5dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
@@ -114,8 +117,9 @@
 
                         <ImageButton
                             android:id="@+id/btnUploadImage"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:src="@drawable/ic_baseline_image_24"
                             android:layout_margin="5dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
@@ -123,8 +127,9 @@
 
                         <ImageButton
                             android:id="@+id/btnUploadFile"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:src="@drawable/ic_baseline_attach_file_24"
                             android:layout_margin="5dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
