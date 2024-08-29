@@ -31,6 +31,8 @@ class JawabTugasItemsAdapter(
     private val items: ArrayList<JawabanTugas>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private var onClickListener: JawabTugasItemsAdapter.OnClickListener? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MyViewHolder(
             LayoutInflater.from(context).inflate(
@@ -48,6 +50,13 @@ class JawabTugasItemsAdapter(
             holder.tvTanggalUpload.text = formatDate(model.uploadedDate)
             holder.tvNilai.text = model.nilai ?: "Belum dinilai"
         }
+
+        holder.itemView.setOnClickListener {
+            val index = items.indexOf(model)
+            if (onClickListener != null && index != -1) {
+                onClickListener!!.onClick(index, model)
+            }
+        }
     }
 
     override fun getItemCount(): Int {
@@ -57,6 +66,14 @@ class JawabTugasItemsAdapter(
     private fun formatDate(timestamp: Long): String {
         val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
         return sdf.format(Date(timestamp))
+    }
+
+    interface OnClickListener {
+        fun onClick(position: Int, model: JawabanTugas)
+    }
+
+    fun setOnClickListener(onClickListener: JawabTugasItemsAdapter.OnClickListener) {
+        this.onClickListener = onClickListener
     }
 
     private class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {

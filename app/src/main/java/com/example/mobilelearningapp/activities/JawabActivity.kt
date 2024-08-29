@@ -13,6 +13,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
@@ -22,6 +23,7 @@ import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -38,6 +40,7 @@ import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 
 class JawabActivity : BaseActivity() {
@@ -48,8 +51,9 @@ class JawabActivity : BaseActivity() {
     private var mMateriListPosition = -1
     private var mTugasListPosition = -1
     private var mJawabListPosition = -1
+    private var isUpdate = false
 
-    private var mSelectedDueDateMilliSeconds : Long = 0
+    private var mUloadedJawaban : Long = 0
     private var mSelectedImageFileUri : Uri? = null
     private var mMateriImageURL: String = ""
 
@@ -72,6 +76,31 @@ class JawabActivity : BaseActivity() {
         setupActionBar()
         getIntentData()
         mStorageReference = FirebaseStorage.getInstance().reference
+
+        val currentUserID = FirestoreClass().getCurrentUserID()
+        if (currentUserID.isNotEmpty()) {
+            FirestoreClass().getUserRole(currentUserID) { role ->
+                if (role == "siswa") {
+                    if (isUpdate){
+                        binding?.btnKumpulTugas?.text = "Update Tugas"
+                        setUpDataTugas()
+                    }else{
+                        binding?.btnKumpulTugas?.text = "Buat Tugas"
+                    }
+                    binding?.etNilai?.inputType = InputType.TYPE_NULL
+
+                }else{
+                    binding?.btnKumpulTugas?.text = "Beri Nilai"
+                    binding?.tvJawaban?.visibility = View.VISIBLE
+                    binding?.tvJawaban?.text = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].jawaban
+                    binding?.etNamaPenjawab?.visibility = View.GONE
+                    binding?.etNamaPenjawab?.inputType = InputType.TYPE_NULL
+                    binding?.llInput?.visibility = View.GONE
+                    showProgressDialog(resources.getString(R.string.mohon_tunggu))
+                    setUpDataTugas()
+                }
+            }
+        }
 
         binding?.btnBold?.setOnClickListener { applyStyle(Typeface.BOLD) }
         binding?.btnItalic?.setOnClickListener { applyStyle(Typeface.ITALIC)}
@@ -121,6 +150,10 @@ class JawabActivity : BaseActivity() {
             mJawabListPosition = intent.getIntExtra(Constants.JAWAB_LIST_ITEM_POSITION, -1)
             Log.e("JAWAB_ITEM_POSITION", mJawabListPosition.toString())
         }
+        if (intent.hasExtra(Constants.IS_UPDATE)) {
+            isUpdate = intent.getBooleanExtra(Constants.IS_UPDATE, false)
+            Log.e("TOCOURSE ", isUpdate.toString())
+        }
     }
 
     private fun setupActionBar(){
@@ -140,6 +173,53 @@ class JawabActivity : BaseActivity() {
         binding?.toolbarJawab?.setNavigationOnClickListener {
             onBackPressed()
         }
+    }
+
+    private fun setUpDataTugas() {
+
+        val currentJawaban = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition]
+        val currentUserID = FirestoreClass().getCurrentUserID()
+        if (currentUserID.isNotEmpty()) {
+            FirestoreClass().getUserRole(currentUserID) { role ->
+                if (role == "siswa") {
+                    binding?.etNamaPenjawab?.setText(currentJawaban.namaPenjawab)
+                    binding?.etJawab?.setText(currentJawaban.jawaban)
+                }else{
+
+                }
+            }
+        }
+
+        mUloadedJawaban = currentJawaban.uploadedDate
+
+
+
+        // Load existing PDF information
+        if (currentJawaban.pdfUrl.isNotEmpty()) {
+            mDatabasePdf = currentJawaban.pdfUrl.toUri()
+            selectedPdfFileName = currentJawaban.pdfUrlName
+            binding?.tvNamaFile?.text = selectedPdfFileName
+            binding?.cvFile?.visibility = View.VISIBLE
+
+            binding?.cvFile?.setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = mDatabasePdf
+                startActivity(intent)
+            }
+        }
+
+        if (currentJawaban.imageJawaban.isNotEmpty()) {
+            binding?.llImageJawab?.visibility = View.VISIBLE
+            Glide
+                .with(this@JawabActivity)
+                .load(currentJawaban.imageJawaban)
+                .centerCrop()
+                .placeholder(R.drawable.ic_board_place_holder)
+                .into(binding?.ivImageJawab!!)
+        } else {
+            binding?.llImageJawab?.visibility = View.GONE
+        }
+
     }
 
 
