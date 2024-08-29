@@ -126,7 +126,20 @@ class JawabActivity : BaseActivity() {
         }
 
         binding?.btnKumpulTugas?.setOnClickListener {
-            createJawaban()
+
+            if (currentUserID.isNotEmpty()) {
+                FirestoreClass().getUserRole(currentUserID) { role ->
+                    if (role == "siswa") {
+                        if (isUpdate){
+                            updateJawaban()
+                        }else{
+                            createJawaban()
+                        }
+                    }else {
+                        updateJawaban()
+                    }
+                }
+            }
         }
     }
 
@@ -390,13 +403,12 @@ class JawabActivity : BaseActivity() {
         val assignedUserArrayList: ArrayList<String> = ArrayList()
         assignedUserArrayList.add(FirestoreClass().getCurrentUserID())
 
+
         if (namaPenjawab.isEmpty()) {
             Toast.makeText(this, "Mohon masukkan nama anda", Toast.LENGTH_SHORT).show()
             return
         }
-
-        //TODO UPDATE TUGAS BELUM
-//        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+//
 
         val jawab = JawabanTugas(
 
@@ -426,6 +438,56 @@ class JawabActivity : BaseActivity() {
         Toast.makeText(this, " tugas berhasil ditambah", Toast.LENGTH_SHORT).show()
         finish()
 
+    }
+
+    private fun updateJawaban() {
+        val namaPenjawab = binding?.etNamaPenjawab?.text.toString().trim()
+        val deskripsiJawaban = binding?.etJawab?.text.toString().trim()
+        val PdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else ""
+        val assignedUserArrayList: ArrayList<String> = ArrayList()
+        assignedUserArrayList.add(FirestoreClass().getCurrentUserID())
+
+        if (namaPenjawab.isEmpty()) {
+            Toast.makeText(this, "Mohon masukkan nama anda", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
+        // Preserve existing PDF information if not changed
+        val currentJawaban = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition]
+        val updatedPdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else currentJawaban.pdfUrl
+        val updatedPdfUrlName = if (selectedPdfFileName.isNotEmpty()) selectedPdfFileName else currentJawaban.pdfUrlName
+
+        val updatedJawaban = JawabanTugas(
+            id = currentJawaban.id,
+            namaPenjawab = namaPenjawab,
+            jawaban = deskripsiJawaban,
+            imageJawaban = if (mMateriImageURL.isNotEmpty()) mMateriImageURL else currentJawaban.imageJawaban,
+            uploadedDate = mUloadedJawaban,
+            createdBy = FirestoreClass().getCurrentUserID(),
+            pdfUrl = updatedPdfUrl,
+            pdfUrlName = updatedPdfUrlName,
+            assignedTo = currentJawaban.assignedTo
+        )
+
+        // Update the tugas in the mKelasDetails
+        mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition] = updatedJawaban
+
+        // Update in Firestore
+        FirestoreClass().updateJawabInMateri(
+            this,
+            mKelasDocumentId,
+            mMateriListPosition,
+            mTugasListPosition,
+            mJawabListPosition,
+            updatedJawaban
+        )
+    }
+
+    fun jawabUpdateSuccess(){
+        hideProgressDialog()
+        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
     }
 
 
