@@ -307,6 +307,8 @@ class JawabActivity : BaseActivity() {
         val namaPenjawab = binding?.etNamaPenjawab?.text.toString().trim()
         val deskripsiTugas = binding?.etJawab?.text.toString().trim()
         val PdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else ""
+        val assignedUserArrayList: ArrayList<String> = ArrayList()
+        assignedUserArrayList.add(FirestoreClass().getCurrentUserID())
 
         if (namaPenjawab.isEmpty()) {
             Toast.makeText(this, "Mohon masukkan nama anda", Toast.LENGTH_SHORT).show()
@@ -317,6 +319,7 @@ class JawabActivity : BaseActivity() {
 //        showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
         val jawab = JawabanTugas(
+
             id = UUID.randomUUID().toString(),
             namaPenjawab = namaPenjawab,
             jawaban = deskripsiTugas,
@@ -324,6 +327,7 @@ class JawabActivity : BaseActivity() {
             uploadedDate =  System.currentTimeMillis(),
             createdBy = FirestoreClass().getCurrentUserID(),
             pdfUrl =  PdfUrl,
+            assignedTo =  assignedUserArrayList,
             pdfUrlName= selectedPdfFileName,
         )
 

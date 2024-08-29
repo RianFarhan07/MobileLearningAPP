@@ -25,9 +25,11 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.mobilelearningapp.JawabTugasItemsAdapter
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.adapters.JawabItemsAdapter
 import com.example.mobilelearningapp.adapters.MateriFileItemsAdapter
@@ -39,6 +41,7 @@ import com.example.mobilelearningapp.models.JawabanTugas
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Tugas
 import com.example.mobilelearningapp.utils.Constants
+import com.example.mobilelearningapp.utils.SwipeToDeleteCallback
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
@@ -82,7 +85,7 @@ class TugasActivity : BaseActivity() {
         getIntentData()
         setupActionBar()
         mStorageReference = FirebaseStorage.getInstance().reference
-        populateJawabListToUI(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab)
+
 
         val currentUserID = FirestoreClass().getCurrentUserID()
         if (currentUserID.isNotEmpty()) {
@@ -162,6 +165,7 @@ class TugasActivity : BaseActivity() {
     private fun setUpDataTugas() {
 
         val currentTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition]
+        populateJawabListToUI(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab)
         val currentUserID = FirestoreClass().getCurrentUserID()
         if (currentUserID.isNotEmpty()) {
             FirestoreClass().getUserRole(currentUserID) { role ->
@@ -428,6 +432,12 @@ class TugasActivity : BaseActivity() {
                 e.printStackTrace()
             }
         }
+        if (requestCode == REQUEST_CODE_JAWAB_DETAILS && resultCode == RESULT_OK) {
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
+            FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+
+        }
     }
 
     private fun showDatePicker(){
@@ -562,7 +572,8 @@ class TugasActivity : BaseActivity() {
 
     fun kelasDetails(kelas: Kelas){
         mKelasDetails = kelas
-//        hideProgressDialog()
+        populateJawabListToUI(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab)
+        hideProgressDialog()
 
     }
 
@@ -577,29 +588,64 @@ class TugasActivity : BaseActivity() {
         FirestoreClass().addUpdateMateriList(this, mKelasDetails)
     }
 
-    fun populateJawabListToUI(jawabList: java.util.ArrayList<JawabanTugas>){
+    fun populateJawabListToUI(jawabList: ArrayList<JawabanTugas>) {
         mJawabList = jawabList
 
-        val rvJawabList : RecyclerView = findViewById(R.id.rv_jawaban)
+        val rvJawabList: RecyclerView = findViewById(R.id.rv_jawaban)
 
-
-        if (jawabList.isNotEmpty()){
+        if (jawabList.isNotEmpty()) {
             rvJawabList.visibility = View.VISIBLE
-
             rvJawabList.layoutManager = LinearLayoutManager(this)
             rvJawabList.setHasFixedSize(true)
 
-            val adapter = JawabItemsAdapter(jawabList)
+            val adapter = JawabTugasItemsAdapter(this, jawabList)
             rvJawabList.adapter = adapter
 
-//            adapter.setOnClickListener(object: JawabItemsAdapter.OnClickListener{
-//                override fun onClick(position: Int, model: File) {
-//
-//                }
-//            })
+            val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val position = viewHolder.adapterPosition
+                    val jawabToDelete = jawabList[position]
+                    showProgressDialog(resources.getString(R.string.mohon_tunggu))
+                    FirestoreClass().deleteJawabTugas(
+                        this@TugasActivity,
+                        mKelasDocumentId,
+                        mMateriListPosition,
+                        mTugasListPosition,
+                        jawabToDelete.id
+                    )
+                }
+            }
+
+            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+            deleteItemTouchHelper.attachToRecyclerView(rvJawabList)
         } else {
             rvJawabList.visibility = View.GONE
         }
     }
 
+    fun jawabTugasDeleteSuccess() {
+        hideProgressDialog()
+        Toast.makeText(this, "Jawaban tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
+        FirestoreClass().getKelasDetails(this, mKelasDocumentId) // Refresh data
+    }
 }
+
+
+
+//    private fun deleteJawaban() {
+//        val kelompokList: ArrayList<JawabanTugas> = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab
+//        kelompokList.removeAt(mKelompokListPosition)
+//
+//        // Remove the topic only if there are no more kelompok in it
+////        if (kelompokList.isEmpty()) {
+////            mCourseDetails.topicList.removeAt(mTopicListPosition)
+////        } else {
+//        // Update the kelompok list for the specific topic
+//        mCourseDetails.topicList[mTopicListPosition].kelompok = kelompokList
+////        }
+//
+//        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+//        FirestoreClass().addUpdateTopicList(this, mCourseDetails)
+//    }
+//
+//}

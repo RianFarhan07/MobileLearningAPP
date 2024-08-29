@@ -16,6 +16,7 @@ data class JawabanTugas(
     val pdfUrl: String = "",
     val pdfUrlName: String = "",
     var uploadedDate: Long = 0,
+    val assignedTo: ArrayList<String> = ArrayList(),
     var nilai: String = "",
 
 //    var hasil : ArrayList<HasilTugas> = ArrayList(),

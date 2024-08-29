@@ -560,26 +560,72 @@ class FirestoreClass {
             .addOnSuccessListener { document ->
                 val kelas = document.toObject(Kelas::class.java)
                 kelas?.let {
-                    // Update the specific tugas in the materi
                     it.materiList[materiPosition].tugas[tugasPosition] = updatedTugas
-
-                    // Update the entire kelas document
                     mFireStore.collection(Constants.KELAS)
                         .document(kelasDocumentId)
                         .set(it, SetOptions.merge())
                         .addOnSuccessListener {
-                            activity.hideProgressDialog()
                             activity.tugasUpdateSuccess()
                         }
                         .addOnFailureListener { e ->
                             activity.hideProgressDialog()
-                            Log.e(activity.javaClass.simpleName, "Error updating tugas", e)
+                            Log.e(activity.javaClass.simpleName, "Error while updating tugas", e)
                         }
                 }
             }
             .addOnFailureListener { e ->
                 activity.hideProgressDialog()
-                Log.e(activity.javaClass.simpleName, "Error getting kelas document", e)
+                Log.e(activity.javaClass.simpleName, "Error while getting kelas details", e)
+            }
+    }
+
+    fun deleteJawabTugas(
+        activity: TugasActivity,
+        kelasDocumentId: String,
+        materiPosition: Int,
+        tugasPosition: Int,
+        jawabId: String
+    ) {
+        mFireStore.collection(Constants.KELAS).document(kelasDocumentId)
+            .get()
+            .addOnSuccessListener { document ->
+                val kelasDetails = document.toObject(Kelas::class.java)
+                kelasDetails?.let { kelas ->
+                    if (materiPosition < kelas.materiList.size &&
+                        tugasPosition < kelas.materiList[materiPosition].tugas.size) {
+
+                        val currentTugas = kelas.materiList[materiPosition].tugas[tugasPosition]
+                        val updatedJawabList = currentTugas.jawab.filter { it.id != jawabId }
+
+                        // Create a new Tugas object with the updated jawab list
+                        val updatedTugas = currentTugas.copy(jawab = ArrayList(updatedJawabList))
+
+                        // Update the Tugas in the Materi
+                        kelas.materiList[materiPosition].tugas[tugasPosition] = updatedTugas
+
+                        // Update the entire Kelas object in Firestore
+                        mFireStore.collection(Constants.KELAS)
+                            .document(kelasDocumentId)
+                            .set(kelas)
+                            .addOnSuccessListener {
+                                activity.jawabTugasDeleteSuccess()
+                            }
+                            .addOnFailureListener { e ->
+                                activity.hideProgressDialog()
+                                Log.e(activity.javaClass.simpleName, "Error while deleting jawab tugas", e)
+                            }
+                    } else {
+                        activity.hideProgressDialog()
+                        Log.e(activity.javaClass.simpleName, "Invalid materi or tugas position")
+                    }
+                } ?: run {
+                    activity.hideProgressDialog()
+                    Log.e(activity.javaClass.simpleName, "Kelas details are null")
+                }
+            }
+            .addOnFailureListener { e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error while fetching kelas details", e)
             }
     }
 

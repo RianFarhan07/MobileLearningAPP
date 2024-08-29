@@ -40,9 +40,17 @@ class JawabItemsAdapter(private val jawabList: ArrayList<JawabanTugas>) :
         return sdf.format(Date(timestamp))
     }
 
+    fun removeAt(position: Int) {
+        jawabList.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+
     interface OnClickListener {
         fun onClick(position: Int, model: JawabanTugas)
     }
+
+
 
     private var onClickListener: OnClickListener? = null
 
