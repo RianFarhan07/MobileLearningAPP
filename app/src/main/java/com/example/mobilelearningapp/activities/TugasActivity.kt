@@ -23,6 +23,8 @@ import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.Button
@@ -231,6 +233,24 @@ class TugasActivity : BaseActivity() {
             binding?.llImageSoal?.visibility = View.GONE
         }
         hideProgressDialog()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_delete_tugas, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.action_delete_card -> {
+                showAlertDialogToDeleteTugas(
+                    mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas!!)
+            }
+
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun getIntentData() {
@@ -696,6 +716,40 @@ class TugasActivity : BaseActivity() {
         startActivityForResult(intent, REQUEST_CODE_JAWAB_DETAILS)
 
     }
+
+    private fun showAlertDialogToDeleteTugas(tugasName: String) {
+
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setTitle("DELETE")
+        builder.setMessage("Apakah anda yakin ingin menghapus tugas $tugasName")
+        builder.setIcon(android.R.drawable.ic_dialog_alert)
+
+        builder.setPositiveButton("Iya") { dialogInterface, _ ->
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+            deleteTugas()
+            dialogInterface.dismiss()
+        }
+
+        builder.setNegativeButton("Tidak") { dialogInterface, _ ->
+            dialogInterface.dismiss()
+        }
+
+        val alertDialog: androidx.appcompat.app.AlertDialog = builder.create()
+
+        alertDialog.setCancelable(false)
+        alertDialog.show()
+    }
+
+    private fun deleteTugas() {
+        val tugasList: ArrayList<Tugas> = mKelasDetails.materiList[mMateriListPosition].tugas
+        tugasList.removeAt(mTugasListPosition)
+
+        mKelasDetails.materiList[mMateriListPosition].tugas = tugasList
+
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+    }
+
 }
 
 
