@@ -600,14 +600,14 @@ class MateriDetailsActivity : BaseActivity() {
             }
         }
 //
-//        btnBuatKuis.setOnClickListener {
-//            val intent = Intent(this,TugasActivity::class.java)
+        btnBuatKuis.setOnClickListener {
+            val intent = Intent(this,CreateQuizActivity::class.java)
 //            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
 //            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
 //            intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
-//            startActivityForResult(intent,REQUEST_CODE_TUGAS_DETAILS)
-//            dialog.dismiss()
-//        }
+            startActivityForResult(intent,REQUEST_CODE_TUGAS_DETAILS)
+            dialog.dismiss()
+        }
 
         dialog.show()
     }

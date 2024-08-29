@@ -1,5 +1,9 @@
 package com.example.mobilelearningapp.models
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class Question(
     val id : Int,
     val question : String,
@@ -9,4 +13,4 @@ data class Question(
     val optionThree : String,
     val optionFour : String,
     val correctAnswer : Int
-)
+) :Parcelable
