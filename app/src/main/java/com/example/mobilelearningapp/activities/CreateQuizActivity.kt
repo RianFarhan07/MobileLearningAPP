@@ -1,5 +1,6 @@
 package com.example.mobilelearningapp.activities
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -18,6 +19,9 @@ class CreateQuizActivity : AppCompatActivity() {
         binding = ActivityCreateQuizBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding?.root)
+
+        setupListeners()
+        setupActionBar()
     }
 
 //    private fun setupRecyclerView() {
@@ -28,9 +32,24 @@ class CreateQuizActivity : AppCompatActivity() {
 //        }
 //    }
 
+    private fun setupActionBar(){
+        setSupportActionBar(binding?.toolbarCreateQuiz)
+        val toolbar = supportActionBar
+        if (toolbar != null){
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+
+        }
+        binding?.toolbarCreateQuiz?.setNavigationOnClickListener {
+            onBackPressed()
+        }
+    }
+
     private fun setupListeners() {
         binding?.btnTambahPertanyaan?.setOnClickListener {
-            addNewQuestion()
+//              addNewQuestion()
+            val intent = Intent(this,CreateQuestionActivity::class.java)
+            startActivity(intent)
         }
 
         binding?.btnSimpanKuis?.setOnClickListener {

@@ -41,7 +41,7 @@
             android:id="@+id/btn_buat_kuis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Buat Tugas"
+            android:text="Buat Kuis"
             android:backgroundTint="@color/bluePrimary"
             android:textColor="@color/white"/>
 
