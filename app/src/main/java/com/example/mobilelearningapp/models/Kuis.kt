@@ -7,11 +7,9 @@ import kotlin.collections.ArrayList
 @Parcelize
 data class Kuis(
     var id: String = "",
-    var nama: String = "",
+    var namaKuis: String = "",
     var createdBy: String = "",
     var desc : String = "",
-    var file : ArrayList<File> = ArrayList(),
-    var image: String = "",
-//    var tugas : ArrayList<Tugas> = ArrayList(),
-//    var kuis : ArrayList<Kuis> = ArrayList()
+    val dueDate: Long = 0,
+    var question : ArrayList<Question> = ArrayList()
 ) : Parcelable

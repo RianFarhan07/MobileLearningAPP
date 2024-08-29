@@ -30,16 +30,14 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.mobilelearningapp.KuisItemsAdapter
 import com.example.mobilelearningapp.MateriItemsAdapter
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.TugasItemsAdapter
 import com.example.mobilelearningapp.adapters.MateriFileItemsAdapter
 import com.example.mobilelearningapp.databinding.ActivityMateriDetailsBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
-import com.example.mobilelearningapp.models.Kelas
-import com.example.mobilelearningapp.models.File
-import com.example.mobilelearningapp.models.Materi
-import com.example.mobilelearningapp.models.Tugas
+import com.example.mobilelearningapp.models.*
 import com.example.mobilelearningapp.utils.Constants
 import com.example.mobilelearningapp.utils.SwipeToDeleteCallback
 import com.google.firebase.storage.FirebaseStorage
@@ -139,6 +137,10 @@ class MateriDetailsActivity : BaseActivity() {
 
         binding?.btnTugas?.setOnClickListener {
             showTugasDialog()
+        }
+
+        binding?.btnKuis?.setOnClickListener {
+            showQuizDialog()
         }
     }
 
@@ -555,6 +557,59 @@ class MateriDetailsActivity : BaseActivity() {
 
     }
 
+    private fun showQuizDialog() {
+        val quizList = mKelasDetails.materiList[mMateriListPosition].kuis
+        val dialogView = layoutInflater.inflate(R.layout.dialog_kuis, null)
+        val dialogBuilder = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
 
+        val dialog = dialogBuilder.create()
+
+        val rvKuisList = dialogView.findViewById<RecyclerView>(R.id.rv_kuis_list)
+        val btnBuatKuis = dialogView.findViewById<Button>(R.id.btn_buat_kuis)
+
+        if (quizList.size >0){
+            rvKuisList.visibility = View.VISIBLE
+
+            rvKuisList.layoutManager = LinearLayoutManager(this)
+            rvKuisList.setHasFixedSize(true)
+
+            val adapter = KuisItemsAdapter(this@MateriDetailsActivity,quizList)
+            rvKuisList.adapter = adapter
+
+            adapter.setOnClickListener(object: KuisItemsAdapter.OnClickListener{
+                override fun onClick(position: Int, model: Kuis) {
+//                    tugasDetails(position)
+//                    dialog.dismiss()
+                }
+            })
+
+        }else{
+            rvKuisList.visibility = View.GONE
+
+        }
+
+        // Tampilkan atau sembunyikan tombol "Buat Tugas" berdasarkan peran pengguna
+        val currentUserID = FirestoreClass().getCurrentUserID()
+        if (currentUserID.isNotEmpty()) {
+            FirestoreClass().getUserRole(currentUserID) { role ->
+                if (role == "siswa") {
+                    btnBuatKuis?.visibility = View.GONE
+                }
+            }
+        }
+//
+//        btnBuatKuis.setOnClickListener {
+//            val intent = Intent(this,TugasActivity::class.java)
+//            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+//            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+//            intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
+//            startActivityForResult(intent,REQUEST_CODE_TUGAS_DETAILS)
+//            dialog.dismiss()
+//        }
+
+        dialog.show()
+    }
 
 }

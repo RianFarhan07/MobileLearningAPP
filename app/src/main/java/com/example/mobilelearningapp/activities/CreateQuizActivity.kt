@@ -1,0 +1,14 @@
+package com.example.mobilelearningapp.activities
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import com.example.mobilelearningapp.databinding.ActivityCreateQuizBinding
+
+class CreateQuizActivity : AppCompatActivity() {
+    private var binding : ActivityCreateQuizBinding? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        binding = ActivityCreateQuizBinding.inflate(layoutInflater)
+        super.onCreate(savedInstanceState)
+        setContentView(binding?.root)
+    }
+}
