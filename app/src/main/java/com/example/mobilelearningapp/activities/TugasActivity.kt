@@ -3,13 +3,16 @@ package com.example.mobilelearningapp.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,8 +22,11 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.webkit.MimeTypeMap
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -591,28 +597,62 @@ class TugasActivity : BaseActivity() {
     fun populateJawabListToUI(jawabList: ArrayList<JawabanTugas>) {
         mJawabList = jawabList
 
-        val rvJawabList: RecyclerView = findViewById(R.id.rv_jawaban)
+        //hanya jawaban yang dibuat yang muncul
+        val filteredJawabanList = ArrayList<JawabanTugas>()
 
-        if (jawabList.isNotEmpty()) {
+        val currentUserID = FirestoreClass().getCurrentUserID()
+
+        for (jawaban in jawabList) {
+            if (jawaban.assignedTo.contains(currentUserID)) {
+                filteredJawabanList.add(jawaban)
+            }
+        }
+
+
+        val rvJawabList: RecyclerView = findViewById(R.id.rv_jawaban)
+        val btnKumpul : Button = findViewById(R.id.btn_kumpulTugas)
+
+        if (filteredJawabanList.isNotEmpty()) {
             rvJawabList.visibility = View.VISIBLE
+            btnKumpul.visibility = View.GONE
             rvJawabList.layoutManager = LinearLayoutManager(this)
             rvJawabList.setHasFixedSize(true)
 
-            val adapter = JawabTugasItemsAdapter(this, jawabList)
+            val adapter = JawabTugasItemsAdapter(this, filteredJawabanList)
             rvJawabList.adapter = adapter
 
             val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val position = viewHolder.adapterPosition
                     val jawabToDelete = jawabList[position]
-                    showProgressDialog(resources.getString(R.string.mohon_tunggu))
-                    FirestoreClass().deleteJawabTugas(
-                        this@TugasActivity,
-                        mKelasDocumentId,
-                        mMateriListPosition,
-                        mTugasListPosition,
-                        jawabToDelete.id
-                    )
+
+                    val dialogView = LayoutInflater.from(this@TugasActivity).inflate(R.layout.dialog_confirm_delete, null)
+                    val dialog = AlertDialog.Builder(this@TugasActivity)
+                        .setView(dialogView)
+                        .create()
+
+                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    dialog.show()
+
+                    val tvYa = dialogView.findViewById<TextView>(R.id.tv_ya)
+                    val tvTidak = dialogView.findViewById<TextView>(R.id.tv_tidak)
+
+                    tvYa.setOnClickListener {
+                        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+                        FirestoreClass().deleteJawabTugas(
+                            this@TugasActivity,
+                            mKelasDocumentId,
+                            mMateriListPosition,
+                            mTugasListPosition,
+                            jawabToDelete.id
+                        )
+                        dialog.dismiss()
+                    }
+
+                    tvTidak.setOnClickListener {
+                        dialog.dismiss()
+                    }
+
                 }
             }
 
@@ -620,6 +660,7 @@ class TugasActivity : BaseActivity() {
             deleteItemTouchHelper.attachToRecyclerView(rvJawabList)
         } else {
             rvJawabList.visibility = View.GONE
+            btnKumpul.visibility = View.VISIBLE
         }
     }
 
