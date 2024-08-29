@@ -161,9 +161,17 @@ class TugasActivity : BaseActivity() {
                     }else{
                         createTugas()
                     }
-
                 }
             }
+        }
+
+        binding?.btnLihatHasilTugas?.setOnClickListener {
+            val intent = Intent(this,JawabanListActivity::class.java)
+            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+            intent.putExtra(Constants.TUGAS_LIST_ITEM_POSITION,mTugasListPosition)
+            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+            intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
+            startActivityForResult(intent,REQUEST_CODE_JAWAB_DETAILS)
         }
 
     }
