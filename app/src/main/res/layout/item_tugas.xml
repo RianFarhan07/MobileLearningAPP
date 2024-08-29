@@ -68,7 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="3dp"
                 android:textColor="@color/onPrimary"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 tools:text="sisa waktu : 0 hari 10 jam" />
 
         </LinearLayout>

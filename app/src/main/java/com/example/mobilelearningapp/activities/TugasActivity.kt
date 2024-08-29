@@ -245,11 +245,25 @@ class TugasActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.action_delete_card -> {
-                showAlertDialogToDeleteTugas(
-                    mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas!!)
-            }
+                val currentUserID = FirestoreClass().getCurrentUserID()
+                if (currentUserID.isNotEmpty()) {
+                    FirestoreClass().getUserRole(currentUserID) { role ->
+                        if (role == "siswa") {
+                            sequenceOf(
+                                Toast.makeText(this@TugasActivity,
+                                    "siswa tidak bisa menghapus tugas",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            )
+                        }else{
+                            showAlertDialogToDeleteTugas(
+                                mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas!!)
+                            }
 
-        }
+                        }
+                    }
+                }
+            }
         return super.onOptionsItemSelected(item)
     }
 
