@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Typeface
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.InputType
@@ -24,23 +23,16 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.R
-import com.example.mobilelearningapp.adapters.JawabItemsAdapter
-import com.example.mobilelearningapp.adapters.MateriFileItemsAdapter
 import com.example.mobilelearningapp.databinding.ActivityJawabBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
-import com.example.mobilelearningapp.models.File
 import com.example.mobilelearningapp.models.JawabanTugas
 import com.example.mobilelearningapp.models.Kelas
-import com.example.mobilelearningapp.models.Tugas
 import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.*
 
 class JawabActivity : BaseActivity() {
@@ -83,7 +75,7 @@ class JawabActivity : BaseActivity() {
                 if (role == "siswa") {
                     if (isUpdate){
                         binding?.btnKumpulTugas?.text = "Update Tugas"
-                        setUpDataTugas()
+                        setUpDataJawaban()
                     }else{
                         binding?.btnKumpulTugas?.text = "Buat Tugas"
                     }
@@ -93,11 +85,9 @@ class JawabActivity : BaseActivity() {
                     binding?.btnKumpulTugas?.text = "Beri Nilai"
                     binding?.tvJawaban?.visibility = View.VISIBLE
                     binding?.tvJawaban?.text = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].jawaban
-                    binding?.etNamaPenjawab?.visibility = View.GONE
                     binding?.etNamaPenjawab?.inputType = InputType.TYPE_NULL
                     binding?.llInput?.visibility = View.GONE
-                    showProgressDialog(resources.getString(R.string.mohon_tunggu))
-                    setUpDataTugas()
+                    setUpDataJawaban()
                 }
             }
         }
@@ -188,21 +178,22 @@ class JawabActivity : BaseActivity() {
         }
     }
 
-    private fun setUpDataTugas() {
+    private fun setUpDataJawaban() {
+
 
         val currentJawaban = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition]
         val currentUserID = FirestoreClass().getCurrentUserID()
         if (currentUserID.isNotEmpty()) {
             FirestoreClass().getUserRole(currentUserID) { role ->
                 if (role == "siswa") {
-                    binding?.etNamaPenjawab?.setText(currentJawaban.namaPenjawab)
-                    binding?.etJawab?.setText(currentJawaban.jawaban)
-                }else{
 
                 }
             }
         }
 
+        binding?.etNamaPenjawab?.setText(currentJawaban.namaPenjawab)
+        binding?.etJawab?.setText(currentJawaban.jawaban)
+        binding?.etNilai?.setText(currentJawaban.nilai)
         mUloadedJawaban = currentJawaban.uploadedDate
 
 
@@ -399,6 +390,7 @@ class JawabActivity : BaseActivity() {
     private fun createJawaban() {
         val namaPenjawab = binding?.etNamaPenjawab?.text.toString().trim()
         val deskripsiTugas = binding?.etJawab?.text.toString().trim()
+        val nilai = binding?.etNilai?.text.toString().trim()
         val PdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else ""
         val assignedUserArrayList: ArrayList<String> = ArrayList()
         assignedUserArrayList.add(FirestoreClass().getCurrentUserID())
@@ -443,6 +435,8 @@ class JawabActivity : BaseActivity() {
     private fun updateJawaban() {
         val namaPenjawab = binding?.etNamaPenjawab?.text.toString().trim()
         val deskripsiJawaban = binding?.etJawab?.text.toString().trim()
+        val nilai = binding?.etNilai?.text.toString().trim()
+
         val PdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else ""
         val assignedUserArrayList: ArrayList<String> = ArrayList()
         assignedUserArrayList.add(FirestoreClass().getCurrentUserID())
@@ -468,7 +462,8 @@ class JawabActivity : BaseActivity() {
             createdBy = FirestoreClass().getCurrentUserID(),
             pdfUrl = updatedPdfUrl,
             pdfUrlName = updatedPdfUrlName,
-            assignedTo = currentJawaban.assignedTo
+            assignedTo = currentJawaban.assignedTo,
+            nilai = nilai
         )
 
         // Update the tugas in the mKelasDetails

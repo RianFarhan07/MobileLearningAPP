@@ -1,9 +1,12 @@
 package com.example.mobilelearningapp.activities
 
+import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +18,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.JawabTugasItemsAdapter
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityJawabanListBinding
@@ -23,6 +27,8 @@ import com.example.mobilelearningapp.models.JawabanTugas
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.utils.Constants
 import com.example.mobilelearningapp.utils.SwipeToDeleteCallback
+import com.google.firebase.storage.StorageReference
+import java.io.IOException
 
 class JawabanListActivity : BaseActivity() {
 
@@ -33,6 +39,10 @@ class JawabanListActivity : BaseActivity() {
     private var mTugasListPosition = -1
 
     private lateinit var mJawabList: java.util.ArrayList<JawabanTugas>
+
+    companion object {
+        const val REQUEST_CODE_JAWAB_DETAILS = 22
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityJawabanListBinding.inflate(layoutInflater)
@@ -76,6 +86,16 @@ class JawabanListActivity : BaseActivity() {
         }
         binding?.toolbarJawabanListActivity?.setNavigationOnClickListener {
             onBackPressed()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_JAWAB_DETAILS && resultCode == RESULT_OK) {
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
+            FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+
         }
     }
 
@@ -169,7 +189,7 @@ class JawabanListActivity : BaseActivity() {
         intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
         intent.putExtra(Constants.IS_UPDATE, true)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
-        startActivityForResult(intent, TugasActivity.REQUEST_CODE_JAWAB_DETAILS)
+        startActivityForResult(intent, REQUEST_CODE_JAWAB_DETAILS)
 
     }
 }
