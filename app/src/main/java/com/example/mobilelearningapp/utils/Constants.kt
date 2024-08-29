@@ -25,6 +25,7 @@ object Constants {
     const val MATERI_LIST : String = "materiList"
 
     const val IS_UPDATE : String = "isUpdate"
+    const val QUESTION_SIZE : String = "questionSize"
 
     const val MATERI_LIST_ITEM_POSITION: String = "topic_list_item_position"
     const val TUGAS_LIST_ITEM_POSITION: String = "tugas_list_item_position"

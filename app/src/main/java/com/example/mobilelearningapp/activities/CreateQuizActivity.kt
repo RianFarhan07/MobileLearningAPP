@@ -4,9 +4,13 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mobilelearningapp.adapters.QuestionItemsAdapter
 import com.example.mobilelearningapp.databinding.ActivityCreateQuizBinding
 import com.example.mobilelearningapp.models.Kuis
 import com.example.mobilelearningapp.models.Question
+import com.example.mobilelearningapp.utils.Constants
+import kotlinx.android.synthetic.main.activity_create_quiz.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -14,6 +18,11 @@ class CreateQuizActivity : AppCompatActivity() {
 
     private var binding : ActivityCreateQuizBinding? = null
     private val questions = ArrayList<Question>()
+    private lateinit var questionAdapter: QuestionItemsAdapter
+
+    companion object {
+        private const val REQUEST_CREATE_QUESTION = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityCreateQuizBinding.inflate(layoutInflater)
@@ -22,6 +31,7 @@ class CreateQuizActivity : AppCompatActivity() {
 
         setupListeners()
         setupActionBar()
+        setupRecyclerView()
     }
 
 //    private fun setupRecyclerView() {
@@ -45,11 +55,21 @@ class CreateQuizActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupRecyclerView() {
+        questionAdapter = QuestionItemsAdapter(questions) { question ->
+            // Handle click on existing question if needed
+        }
+        rvQuestions.apply {
+            layoutManager = LinearLayoutManager(this@CreateQuizActivity)
+            adapter = questionAdapter
+        }
+    }
+
     private fun setupListeners() {
         binding?.btnTambahPertanyaan?.setOnClickListener {
-//              addNewQuestion()
-            val intent = Intent(this,CreateQuestionActivity::class.java)
-            startActivity(intent)
+            val intent = Intent(this, CreateQuestionActivity::class.java)
+            intent.putExtra(Constants.QUESTION_SIZE,questions.size)
+            startActivityForResult(intent, REQUEST_CREATE_QUESTION)
         }
 
         binding?.btnSimpanKuis?.setOnClickListener {
@@ -102,5 +122,15 @@ class CreateQuizActivity : AppCompatActivity() {
 
         Toast.makeText(this, "Kuis berhasil disimpan", Toast.LENGTH_SHORT).show()
         finish()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CREATE_QUESTION && resultCode == RESULT_OK) {
+            data?.getParcelableExtra<Question>("question")?.let { newQuestion ->
+                questions.add(newQuestion)
+                questionAdapter.notifyItemInserted(questions.size - 1)
+            }
+        }
     }
 }
