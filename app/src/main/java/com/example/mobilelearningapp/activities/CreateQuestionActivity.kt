@@ -23,9 +23,9 @@ import java.io.IOException
 
 class CreateQuestionActivity : BaseActivity() {
 
-    private var binding : ActivityCreateQuestionBinding? = null
-    private var mQuestionSize : Int = -1
-    private var mSelectedImageFileUri : Uri? = null
+    private var binding: ActivityCreateQuestionBinding? = null
+    private var mQuestionSize: Int = -1
+    private var mSelectedImageFileUri: Uri? = null
     private var mMateriImageURL: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,16 +37,18 @@ class CreateQuestionActivity : BaseActivity() {
         setupListeners()
 
         if (intent.hasExtra(Constants.QUESTION_SIZE)) {
-            mQuestionSize = intent.getIntExtra(Constants.QUESTION_SIZE,-1)
-                Log.e("QUESTIONSIZE ", mQuestionSize.toString())
+            mQuestionSize = intent.getIntExtra(Constants.QUESTION_SIZE, -1)
+            Log.e("QUESTIONSIZE ", mQuestionSize.toString())
         }
 
-        binding?.btnUploadImage?.setOnClickListener{
+        binding?.btnUploadImage?.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED){
+                    this, Manifest.permission.READ_EXTERNAL_STORAGE
+                )
+                == PackageManager.PERMISSION_GRANTED
+            ) {
                 Constants.showImageChooser(this)
-            }else{
+            } else {
                 ActivityCompat.requestPermissions(
                     this,
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -57,10 +59,10 @@ class CreateQuestionActivity : BaseActivity() {
 
     }
 
-    private fun setupActionBar(){
+    private fun setupActionBar() {
         setSupportActionBar(binding?.toolbarAddQuestion)
         val toolbar = supportActionBar
-        if (toolbar != null){
+        if (toolbar != null) {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         }
@@ -72,13 +74,19 @@ class CreateQuestionActivity : BaseActivity() {
     private fun setupListeners() {
         btnSaveQuestion.setOnClickListener {
             val question = createQuestionFromInput()
-            val resultIntent = Intent().apply {
-                putExtra("question", question)
+
+            if (question != null) {
+                val resultIntent = Intent().apply {
+                    putExtra("question", question)
+                }
+                setResult(Activity.RESULT_OK, resultIntent)
+                finish()
+            } else {
+//                Toast.makeText(this, "Pertanyaan tidak valid, mohon lengkapi semua field.", Toast.LENGTH_SHORT).show()
             }
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
         }
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -141,22 +149,42 @@ class CreateQuestionActivity : BaseActivity() {
         }
     }
 
-    private fun createQuestionFromInput(): Question {
-        return Question(
-            id = mQuestionSize + 1, // This is just a simple way to generate an ID
-            question = etQuestion.text.toString(),
-            image = mMateriImageURL, // Assume no image for simplicity
-            optionOne = etOption1.text.toString(),
-            optionTwo = etOption2.text.toString(),
-            optionThree = etOption3.text.toString(),
-            optionFour = etOption4.text.toString(),
-            correctAnswer = when {
-                rbOption1.isChecked -> 1
-                rbOption2.isChecked -> 2
-                rbOption3.isChecked -> 3
-                rbOption4.isChecked -> 4
-                else -> 0 // Handle error case
+    private fun createQuestionFromInput(): Question? {
+        val pertanyaan = binding?.etQuestion?.text.toString()
+        val option1 = binding?.etOption1?.text.toString()
+        val option2 = binding?.etOption2?.text.toString()
+        val option3 = binding?.etOption3?.text.toString()
+        val option4 = binding?.etOption4?.text.toString()
+
+        // Cek jika ada field yang kosong
+        if (pertanyaan.isEmpty() || option1.isEmpty() || option2.isEmpty() || option3.isEmpty() || option4.isEmpty()) {
+            Toast.makeText(this, "Mohon lengkapi semua field", Toast.LENGTH_SHORT).show()
+            return null
+        }
+
+        // Cek jika tidak ada jawaban yang dipilih
+        val correctAnswer = when {
+            binding?.rbOption1?.isChecked == true -> 1
+            binding?.rbOption2?.isChecked == true -> 2
+            binding?.rbOption3?.isChecked == true -> 3
+            binding?.rbOption4?.isChecked == true -> 4
+            else -> {
+                Toast.makeText(this, "Mohon pilih jawaban yang benar", Toast.LENGTH_SHORT).show()
+                return null
             }
+        }
+
+        // Kembalikan objek Question baru jika semua validasi berhasil
+        return Question(
+            id = mQuestionSize + 1, // Misalnya cara sederhana untuk menghasilkan ID
+            question = pertanyaan,
+            image = mMateriImageURL, // Asumsikan tidak ada gambar untuk kesederhanaan
+            optionOne = option1,
+            optionTwo = option2,
+            optionThree = option3,
+            optionFour = option4,
+            correctAnswer = correctAnswer
         )
     }
+
 }

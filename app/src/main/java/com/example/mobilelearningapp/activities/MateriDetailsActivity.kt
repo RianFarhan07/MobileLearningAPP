@@ -66,6 +66,7 @@ class MateriDetailsActivity : BaseActivity() {
 
     companion object{
         const val REQUEST_CODE_TUGAS_DETAILS = 8
+        const val REQUEST_CODE_QUIZ_DETAILS = 9
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -217,7 +218,11 @@ class MateriDetailsActivity : BaseActivity() {
             showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
             FirestoreClass().getKelasDetails(this, mKelasDocumentId)
-//            showTugasDialog()
+        }
+        if (requestCode == REQUEST_CODE_QUIZ_DETAILS && resultCode == RESULT_OK) {
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
+            FirestoreClass().getKelasDetails(this, mKelasDocumentId)
         }
     }
 
@@ -602,10 +607,10 @@ class MateriDetailsActivity : BaseActivity() {
 //
         btnBuatKuis.setOnClickListener {
             val intent = Intent(this,CreateQuizActivity::class.java)
-//            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
-//            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
-//            intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
-            startActivityForResult(intent,REQUEST_CODE_TUGAS_DETAILS)
+            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+            intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
+            startActivityForResult(intent,REQUEST_CODE_QUIZ_DETAILS)
             dialog.dismiss()
         }
 

@@ -433,6 +433,9 @@ class FirestoreClass {
                     is JawabActivity -> {
                         activity.addUpdateMateriListSuccess()
                     }
+                    is CreateQuizActivity -> {
+                        activity.addUpdateMateriListSuccess()
+                    }
 
                 }
             }

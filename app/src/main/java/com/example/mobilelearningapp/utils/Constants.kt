@@ -30,7 +30,7 @@ object Constants {
     const val MATERI_LIST_ITEM_POSITION: String = "topic_list_item_position"
     const val TUGAS_LIST_ITEM_POSITION: String = "tugas_list_item_position"
     const val JAWAB_LIST_ITEM_POSITION: String = "jawab_list_item_position"
-    const val TASK_COURSE_LIST_ITEM_POSITION: String = "task_list_item_position"
+    const val QUIZ_LIST_ITEM_POSITION: String = "quiz_list_item_position"
 
     const val READ_STORAGE_PERMISSION_CODE = 1
     const val PICK_IMAGE_REQUEST_CODE = 2

@@ -5,12 +5,12 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Question(
-    val id : Int,
-    val question : String,
-    val image : String,
-    val optionOne : String,
-    val optionTwo : String,
-    val optionThree : String,
-    val optionFour : String,
-    val correctAnswer : Int
-) :Parcelable
+    var id: Int = 0,
+    var question: String = "",
+    var image: String = "",
+    var optionOne: String = "",
+    var optionTwo: String = "",
+    var optionThree: String = "",
+    var optionFour: String = "",
+    var correctAnswer: Int = 0
+) : Parcelable
