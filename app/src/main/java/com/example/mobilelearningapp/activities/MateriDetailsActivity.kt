@@ -567,6 +567,17 @@ class MateriDetailsActivity : BaseActivity() {
 
     }
 
+    fun quizDetailsForSiswa(quizPosition: Int){
+        val intent = Intent(this, QuizJawabActivity::class.java)
+        intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+        intent.putExtra(Constants.QUIZ_LIST_ITEM_POSITION,quizPosition)
+        intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+        intent.putExtra(Constants.IS_UPDATE, true)
+        intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
+        startActivityForResult(intent, REQUEST_CODE_QUIZ_DETAILS)
+
+    }
+
     fun addUpdateMateriListSuccess(){
         setResult(RESULT_OK)
         Toast.makeText(this, " tugas berhasil ditambah", Toast.LENGTH_SHORT).show()
@@ -596,8 +607,19 @@ class MateriDetailsActivity : BaseActivity() {
 
             adapter.setOnClickListener(object: KuisItemsAdapter.OnClickListener{
                 override fun onClick(position: Int, model: Kuis) {
-                    quizDetails(position)
-                    dialog.dismiss()
+                    val currentUserID = FirestoreClass().getCurrentUserID()
+                    if (currentUserID.isNotEmpty()) {
+                        FirestoreClass().getUserRole(currentUserID) { role ->
+                            if (role == "siswa") {
+                                quizDetailsForSiswa(position)
+                                dialog.dismiss()
+                            }else{
+                                quizDetails(position)
+                                dialog.dismiss()
+                            }
+                        }
+                    }
+
                 }
             })
 

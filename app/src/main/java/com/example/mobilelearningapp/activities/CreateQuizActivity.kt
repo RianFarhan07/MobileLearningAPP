@@ -9,6 +9,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -97,8 +99,9 @@ class CreateQuizActivity : BaseActivity() {
         val toolbar = supportActionBar
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-
+        if (isUpdate){
+            supportActionBar?.title = "Update Quiz ${mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].namaKuis}"
+        }
         }
         binding?.toolbarCreateQuiz?.setNavigationOnClickListener {
             onBackPressed()
@@ -177,6 +180,42 @@ class CreateQuizActivity : BaseActivity() {
 //        questions.add(newQuestion)
 //        questionAdapter.notifyItemInserted(questions.size - 1)
 //    }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_delete, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.action_delete_card -> {
+                val currentUserID = FirestoreClass().getCurrentUserID()
+                if (currentUserID.isNotEmpty()) {
+                    FirestoreClass().getUserRole(currentUserID) { role ->
+                        if (role == "siswa") {
+                            sequenceOf(
+                                Toast.makeText(this@CreateQuizActivity,
+                                    "siswa tidak bisa menghapus tugas",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            )
+                        }else{
+                            if (isUpdate){
+                                showAlertDialogToDeleteKuis(
+                                    mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].namaKuis!!)
+                            }else{
+                                Toast.makeText(this@CreateQuizActivity,
+                                "belum ada kuis",Toast.LENGTH_LONG
+                                ).show()
+                            }
+
+                        }
+
+                    }
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
     private fun saveKuis() {
         val namaKuis = binding?.etNamaKuis?.text.toString()
@@ -391,8 +430,39 @@ class CreateQuizActivity : BaseActivity() {
         setupActionBar()
         populateQuestionListToUI(mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].question)
         hideProgressDialog()
-
-
-
     }
+
+    private fun showAlertDialogToDeleteKuis(kuisName: String) {
+
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setTitle("DELETE")
+        builder.setMessage("Apakah anda yakin ingin menghapus kuis $kuisName")
+        builder.setIcon(android.R.drawable.ic_dialog_alert)
+
+        builder.setPositiveButton("Iya") { dialogInterface, _ ->
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+            deleteKuis()
+            dialogInterface.dismiss()
+        }
+
+        builder.setNegativeButton("Tidak") { dialogInterface, _ ->
+            dialogInterface.dismiss()
+        }
+
+        val alertDialog: androidx.appcompat.app.AlertDialog = builder.create()
+
+        alertDialog.setCancelable(false)
+        alertDialog.show()
+    }
+
+    private fun deleteKuis() {
+        val kuisList: ArrayList<Kuis> = mKelasDetails.materiList[mMateriListPosition].kuis
+        kuisList.removeAt(mQuizListPosition)
+
+        mKelasDetails.materiList[mMateriListPosition].kuis = kuisList
+
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+    }
+
 }

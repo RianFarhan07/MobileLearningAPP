@@ -11,5 +11,6 @@ data class Kuis(
     var createdBy: String = "",
     var desc : String = "",
     val dueDate: Long = 0,
-    var question : ArrayList<Question> = ArrayList()
+    var question : ArrayList<Question> = ArrayList(),
+    var jawab :  ArrayList<JawabanKuis> = ArrayList()
 ) : Parcelable

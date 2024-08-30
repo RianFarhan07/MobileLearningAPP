@@ -230,7 +230,7 @@ class TugasActivity : BaseActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_delete_tugas, menu)
+        menuInflater.inflate(R.menu.menu_delete, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -250,8 +250,16 @@ class TugasActivity : BaseActivity() {
                                 ).show()
                             )
                         }else{
-                            showAlertDialogToDeleteTugas(
-                                mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas!!)
+                            if (isUpdate){
+                                showAlertDialogToDeleteTugas(
+                                    mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas!!)
+                            }
+                            else{
+                                Toast.makeText(this@TugasActivity,
+                                    "belum ada Tugas",Toast.LENGTH_LONG
+                                ).show()
+                            }
+
                             }
 
                         }
