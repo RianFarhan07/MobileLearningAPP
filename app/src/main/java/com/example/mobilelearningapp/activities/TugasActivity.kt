@@ -14,7 +14,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.InputType
@@ -39,12 +38,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.JawabTugasItemsAdapter
 import com.example.mobilelearningapp.R
-import com.example.mobilelearningapp.adapters.JawabItemsAdapter
-import com.example.mobilelearningapp.adapters.MateriFileItemsAdapter
-import com.example.mobilelearningapp.databinding.ActivityMainGuruBinding
 import com.example.mobilelearningapp.databinding.ActivityTugasBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
-import com.example.mobilelearningapp.models.File
 import com.example.mobilelearningapp.models.JawabanTugas
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Tugas
@@ -389,7 +384,7 @@ class TugasActivity : BaseActivity() {
         mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition] = updatedTugas
 
         // Update in Firestore
-        FirestoreClass().updateTugasInMateri(
+        FirestoreClass().updateKuisInMateri(
             this,
             mKelasDocumentId,
             mMateriListPosition,

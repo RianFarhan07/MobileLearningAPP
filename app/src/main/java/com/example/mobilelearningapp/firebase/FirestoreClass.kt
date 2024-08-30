@@ -604,7 +604,7 @@ class FirestoreClass {
             }
     }
 
-    fun updateTugasInMateri(
+    fun updateKuisInMateri(
         activity: TugasActivity,
         kelasDocumentId: String,
         materiPosition: Int,
@@ -769,7 +769,7 @@ class FirestoreClass {
             }
     }
 
-    fun updateTugasInMateri(
+    fun updateKuisInMateri(
         activity: CreateQuizActivity,
         kelasDocumentId: String,
         materiPosition: Int,

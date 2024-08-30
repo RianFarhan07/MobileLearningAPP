@@ -7,18 +7,14 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.mobilelearningapp.JawabTugasItemsAdapter
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.adapters.QuestionItemsAdapter
 import com.example.mobilelearningapp.databinding.ActivityCreateQuizBinding
@@ -209,6 +205,15 @@ class CreateQuizActivity : BaseActivity() {
         finish()
     }
 
+    private fun updateQuestionList() {
+        // Refresh the RecyclerView
+        questionAdapter.notifyDataSetChanged()
+
+        // Update any other UI elements that show the question count
+        // For example, if you have a TextView showing the number of questions:
+        // binding?.tvQuestionCount?.text = "Total Questions: ${questions.size}"
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CREATE_QUESTION && resultCode == RESULT_OK) {
@@ -216,9 +221,14 @@ class CreateQuizActivity : BaseActivity() {
                 questions.add(newQuestion)
                 questionAdapter.notifyItemInserted(questions.size - 1)
 
-                Log.e("TOCOURSE ", isUpdate.toString())
-                if (isUpdate){
+                // Update the UI regardless of whether it's an update or new quiz
+                updateQuestionList()
+
+
+                // If it's an update, also update the mKelasDetails
+                if (isUpdate) {
                     mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].question = ArrayList(questions)
+                    populateQuestionListToUI( mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].question)
                 }
             }
         }
@@ -245,20 +255,22 @@ class CreateQuizActivity : BaseActivity() {
             desc = deskripsi,
             dueDate = mSelectedDueDateMilliSeconds,
             createdBy = FirestoreClass().getCurrentUserID(),
-            question = ArrayList(questions) // Preserve existing jawab data
+            question = ArrayList(questions) // Use the current questions list
         )
 
         // Update the tugas in the mKelasDetails
         mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition] = updatedKuis
 
         // Update in Firestore
-        FirestoreClass().updateTugasInMateri(
+        FirestoreClass().updateKuisInMateri(
             this,
             mKelasDocumentId,
             mMateriListPosition,
             mQuizListPosition,
             updatedKuis
         )
+
+        updateQuestionList()
     }
 
     private fun showDatePicker(){
@@ -367,9 +379,10 @@ class CreateQuizActivity : BaseActivity() {
         FirestoreClass().getKelasDetails(this, mKelasDocumentId) // Refresh data
     }
 
-    fun kuisUpdateSuccess(){
+    fun kuisUpdateSuccess() {
         hideProgressDialog()
         FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        updateQuestionList() // Update the UI after successful Firestore update
     }
 
     fun kelasDetails(kelas: Kelas){
@@ -378,6 +391,8 @@ class CreateQuizActivity : BaseActivity() {
         setupActionBar()
         populateQuestionListToUI(mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].question)
         hideProgressDialog()
+
+
 
     }
 }
