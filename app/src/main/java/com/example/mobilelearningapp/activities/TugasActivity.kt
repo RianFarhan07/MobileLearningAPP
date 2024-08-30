@@ -115,7 +115,6 @@ class TugasActivity : BaseActivity() {
                     }else{
                         binding?.btnKumpulTugas?.text = "Buat Tugas"
                     }
-
                 }
             }
         }

@@ -1,26 +1,37 @@
 package com.example.mobilelearningapp.activities
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.net.toUri
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.mobilelearningapp.JawabTugasItemsAdapter
+import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.adapters.QuestionItemsAdapter
 import com.example.mobilelearningapp.databinding.ActivityCreateQuizBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
-import com.example.mobilelearningapp.models.Kelas
-import com.example.mobilelearningapp.models.Kuis
-import com.example.mobilelearningapp.models.Question
+import com.example.mobilelearningapp.models.*
 import com.example.mobilelearningapp.utils.Constants
+import com.example.mobilelearningapp.utils.SwipeToDeleteCallback
 import kotlinx.android.synthetic.main.activity_create_quiz.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class CreateQuizActivity : AppCompatActivity() {
+class CreateQuizActivity : BaseActivity() {
 
     private var binding : ActivityCreateQuizBinding? = null
     private val questions = ArrayList<Question>()
@@ -35,6 +46,8 @@ class CreateQuizActivity : AppCompatActivity() {
     private var mSelectedImageFileUri : Uri? = null
     private var mMateriImageURL: String = ""
 
+    private lateinit var mQuestionList: ArrayList<Question>
+
     companion object {
         private const val REQUEST_CREATE_QUESTION = 1
     }
@@ -48,6 +61,31 @@ class CreateQuizActivity : AppCompatActivity() {
         setupListeners()
         setupActionBar()
         setupRecyclerView()
+
+        if (isUpdate){
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+            setUpDataQuiz()
+        }
+    }
+
+    private fun setUpDataQuiz() {
+
+        val currentKuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
+        populateQuestionListToUI(currentKuis.question)
+        setupRecyclerView()
+
+        binding?.etNamaKuis?.setText(currentKuis.namaKuis)
+        binding?.etDeskripsi?.setText(currentKuis.desc)
+
+        mSelectedDueDateMilliSeconds = currentKuis.dueDate
+
+        if (mSelectedDueDateMilliSeconds > 0) {
+            val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+            val selectedDate = simpleDateFormat.format(Date(mSelectedDueDateMilliSeconds))
+            binding?.tvDueDate?.text = selectedDate
+        }
+
+        hideProgressDialog()
     }
 
 //    private fun setupRecyclerView() {
@@ -82,6 +120,12 @@ class CreateQuizActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        if (isUpdate){
+            binding?.btnSimpanKuis?.text = "Update Kuis"
+        }else{
+            binding?.btnSimpanKuis?.text = "Buat Kuis"
+        }
+
         binding?.btnTambahPertanyaan?.setOnClickListener {
             val intent = Intent(this, CreateQuestionActivity::class.java)
             intent.putExtra(Constants.QUESTION_SIZE,questions.size)
@@ -89,7 +133,11 @@ class CreateQuizActivity : AppCompatActivity() {
         }
 
         binding?.btnSimpanKuis?.setOnClickListener {
-            saveKuis()
+            if(isUpdate){
+                updateKuis()
+            }else{
+                saveKuis()
+            }
         }
 
         binding?.ivCalendarIcon?.setOnClickListener {
@@ -107,7 +155,7 @@ class CreateQuizActivity : AppCompatActivity() {
         }
         if (intent.hasExtra(Constants.QUIZ_LIST_ITEM_POSITION)) {
             mQuizListPosition = intent.getIntExtra(Constants.QUIZ_LIST_ITEM_POSITION, -1)
-            Log.e("TUGAS_ITEM_POSITION", mQuizListPosition.toString())
+            Log.e("QUIZ_ITEM_POSITION", mQuizListPosition.toString())
         }
         if (intent.hasExtra(Constants.DOCUMENT_ID)) {
             mKelasDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID).toString()
@@ -167,8 +215,50 @@ class CreateQuizActivity : AppCompatActivity() {
             data?.getParcelableExtra<Question>("question")?.let { newQuestion ->
                 questions.add(newQuestion)
                 questionAdapter.notifyItemInserted(questions.size - 1)
+
+                Log.e("TOCOURSE ", isUpdate.toString())
+                if (isUpdate){
+                    mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].question = ArrayList(questions)
+                }
             }
         }
+    }
+
+    private fun updateKuis() {
+        val namaKuis = binding?.etNamaKuis?.text.toString()
+        val deskripsi = binding?.etDeskripsi?.text.toString()
+        val dueDateString = binding?.tvDueDate?.text.toString()
+
+        if (namaKuis.isEmpty() || deskripsi.isEmpty() || dueDateString.isEmpty() || questions.isEmpty()) {
+            Toast.makeText(this, "Mohon lengkapi semua field", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
+        // Preserve existing PDF information if not changed
+        val currentTugas = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
+
+        val updatedKuis = Kuis(
+            id = currentTugas.id,
+            namaKuis = namaKuis,
+            desc = deskripsi,
+            dueDate = mSelectedDueDateMilliSeconds,
+            createdBy = FirestoreClass().getCurrentUserID(),
+            question = ArrayList(questions) // Preserve existing jawab data
+        )
+
+        // Update the tugas in the mKelasDetails
+        mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition] = updatedKuis
+
+        // Update in Firestore
+        FirestoreClass().updateTugasInMateri(
+            this,
+            mKelasDocumentId,
+            mMateriListPosition,
+            mQuizListPosition,
+            updatedKuis
+        )
     }
 
     private fun showDatePicker(){
@@ -203,6 +293,91 @@ class CreateQuizActivity : AppCompatActivity() {
         setResult(RESULT_OK)
         Toast.makeText(this, " kuis berhasil ditambah", Toast.LENGTH_SHORT).show()
         finish()
+
+    }
+
+    private fun populateQuestionListToUI(questionList: ArrayList<Question>) {
+        questions.clear()
+        questions.addAll(questionList)
+
+        val rvQuestionList: RecyclerView = findViewById(R.id.rvQuestions)
+
+        if (questions.isNotEmpty()) {
+            rvQuestionList.visibility = View.VISIBLE
+            rvQuestionList.layoutManager = LinearLayoutManager(this)
+            rvQuestionList.setHasFixedSize(true)
+
+            questionAdapter = QuestionItemsAdapter(questions) { question ->
+                // Handle click on existing question if needed
+                // For example, you could open an edit question activity:
+                // val intent = Intent(this, EditQuestionActivity::class.java)
+                // intent.putExtra("QUESTION", question)
+                // startActivityForResult(intent, REQUEST_EDIT_QUESTION)
+            }
+            rvQuestionList.adapter = questionAdapter
+
+            val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val position = viewHolder.adapterPosition
+                    val questionToDelete = questions[position]
+
+                    val dialogView = LayoutInflater.from(this@CreateQuizActivity).inflate(R.layout.dialog_confirm_delete, null)
+                    val dialog = AlertDialog.Builder(this@CreateQuizActivity)
+                        .setView(dialogView)
+                        .create()
+
+                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    dialog.show()
+
+                    val tvYa = dialogView.findViewById<TextView>(R.id.tv_ya)
+                    val tvTidak = dialogView.findViewById<TextView>(R.id.tv_tidak)
+
+                    tvYa.setOnClickListener {
+                        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+                        FirestoreClass().deleteQuestion(
+                            this@CreateQuizActivity,
+                            mKelasDocumentId,
+                            mMateriListPosition,
+                            mQuizListPosition,
+                            questionToDelete.id.toString()
+                        )
+                        dialog.dismiss()
+                    }
+
+                    tvTidak.setOnClickListener {
+                        dialog.dismiss()
+                        // Restore the item if the user cancels the delete action
+                        questionAdapter.notifyItemChanged(position)
+                    }
+                }
+            }
+
+            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+            deleteItemTouchHelper.attachToRecyclerView(rvQuestionList)
+
+        } else {
+            rvQuestionList.visibility = View.GONE
+        }
+    }
+
+    fun jawabTugasDeleteSuccess() {
+        setResult(RESULT_OK)
+        hideProgressDialog()
+        Toast.makeText(this, "Jawaban tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
+        FirestoreClass().getKelasDetails(this, mKelasDocumentId) // Refresh data
+    }
+
+    fun kuisUpdateSuccess(){
+        hideProgressDialog()
+        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+    }
+
+    fun kelasDetails(kelas: Kelas){
+        mKelasDetails = kelas
+
+        setupActionBar()
+        populateQuestionListToUI(mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].question)
+        hideProgressDialog()
 
     }
 }
