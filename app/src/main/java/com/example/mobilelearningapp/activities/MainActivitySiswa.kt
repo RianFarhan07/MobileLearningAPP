@@ -115,6 +115,11 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
                 startActivityForResult(intent, MY_PROFILE_REQUEST_CODE)
             }
 
+            R.id.nav_tugas -> {
+                val intent = Intent(this, TugasSayaActivity::class.java)
+                startActivity(intent)
+            }
+
             R.id.nav_kuis -> {
 
             }

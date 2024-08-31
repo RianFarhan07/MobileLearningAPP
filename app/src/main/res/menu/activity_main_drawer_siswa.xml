@@ -13,8 +13,13 @@
             android:title="Profile"></item>
 
         <item
-            android:id="@+id/nav_kuis"
+            android:id="@+id/nav_tugas"
             android:icon="@drawable/ic_baseline_task_24"
+            android:title="Daftar Tugas"></item>
+
+        <item
+            android:id="@+id/nav_kuis"
+            android:icon="@drawable/ic_baseline_quiz_24"
             android:title="Daftar Kuis"></item>
 
         <item

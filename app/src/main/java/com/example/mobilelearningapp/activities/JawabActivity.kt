@@ -404,6 +404,7 @@ class JawabActivity : BaseActivity() {
         val jawab = JawabanTugas(
 
             id = UUID.randomUUID().toString(),
+            namaTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas,
             namaPenjawab = namaPenjawab,
             jawaban = deskripsiTugas,
             imageJawaban = mMateriImageURL,

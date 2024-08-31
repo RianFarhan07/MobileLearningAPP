@@ -11,7 +11,10 @@ object Constants {
     const val SISWA: String = "siswa"
     const val GURU: String = "guru"
     const val KELAS: String = "kelas"
-    const val Materi: String = "materi"
+    const val MATERI: String = "materi"
+    const val TUGAS: String = "tugas"
+    const val JAWABAN_TUGAS: String = "jawabanTugas"
+    const val KUIS: String = "kuis"
     const val MATERIFILE: String = "materiFile"
 
 

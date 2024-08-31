@@ -6,6 +6,7 @@ import android.widget.Toast
 import com.example.mobilelearningapp.activities.*
 import com.example.mobilelearningapp.models.*
 import com.example.mobilelearningapp.utils.Constants
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -895,5 +896,23 @@ class FirestoreClass {
                 Log.e(activity.javaClass.simpleName, "Error while fetching kelas details", e)
             }
     }
+
+//    fun getTaskList(activity: TugasSayaActivity) {
+//        mFireStore.collection(Constants.KELAS)
+//            .whereArrayContains(Constants.ASSIGNED_TO, getCurrentUserID())
+//            .get()
+//            .addOnSuccessListener { documents ->
+//                val taskList: ArrayList<Task> = ArrayList()
+//                for (document in documents) {
+//                    val kelompok = document.toObject(Kelompok::class.java)
+//                    taskList.addAll(kelompok.taskList.filter { task -> getCurrentUserID() in task.assignedTo })
+//                }
+//                activity.populateTaskListToUI(taskList)
+//            }
+//            .addOnFailureListener { exception ->
+//                activity.hideProgressDialog()
+//                Log.e(activity.javaClass.simpleName, "Error fetching assigned task list: ${exception.message}")
+//            }
+//    }
 
 }
