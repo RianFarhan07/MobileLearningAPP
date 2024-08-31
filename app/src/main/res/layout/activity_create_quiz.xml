@@ -157,6 +157,19 @@
                 android:paddingBottom="8dp"
                 android:textSize="18sp" />
 
+            <com.example.kelomproapp.utils.MBLButton
+                android:id="@+id/btn_liat_jawaban"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Lihat Hasil"
+                android:textColor="@color/onPrimary"
+                android:background="@drawable/shape_button_rounded_outline"
+                android:foreground="?attr/selectableItemBackground"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textSize="18sp" />
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>

@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        tools:context=".activities.MateriListActivity">
+        tools:context=".activities.JawabanKuisListActivity">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_jawaban_list_activity"
@@ -24,14 +24,14 @@
                 android:gravity="center"
                 android:paddingStart="25dp"
                 android:paddingEnd="0dp"
-                android:text="DAFTAR JAWABAN TUGAS"
+                android:text="DAFTAR JAWABAN KUIS"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
         </androidx.appcompat.widget.Toolbar>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_jawaban_list"
+            android:id="@+id/rv_jawaban_kuis_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
@@ -46,7 +46,7 @@
             android:paddingTop="250dp"
             android:layout_gravity="center"
             android:textSize="24dp"
-            android:text="Belum ada Materi!!!!"
+            android:text="Belum ada Kuis!!!!"
             android:textColor="@color/dark_grey"/>
 
 

@@ -333,6 +333,9 @@ class FirestoreClass {
                     is CreateQuizActivity -> {
                         activity.kelasDetails(kelas!!)
                     }
+                    is JawabanKuisListActivity -> {
+                        activity.kelasDetails(kelas!!)
+                    }
                 }
             }
             .addOnFailureListener { e ->

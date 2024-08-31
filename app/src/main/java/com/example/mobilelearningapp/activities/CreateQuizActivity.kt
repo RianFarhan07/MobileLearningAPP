@@ -139,6 +139,15 @@ class CreateQuizActivity : BaseActivity() {
             }
         }
 
+        binding?.btnLiatJawaban?.setOnClickListener {
+            val intent = Intent(this,JawabanKuisListActivity::class.java)
+            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+            intent.putExtra(Constants.QUIZ_LIST_ITEM_POSITION,mQuizListPosition)
+            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+            intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
+            startActivity(intent)
+        }
+
         binding?.ivCalendarIcon?.setOnClickListener {
             showDatePicker()
         }

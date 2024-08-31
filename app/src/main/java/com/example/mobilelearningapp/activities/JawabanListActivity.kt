@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.JawabTugasItemsAdapter
 import com.example.mobilelearningapp.R
-import com.example.mobilelearningapp.databinding.ActivityJawabanListBinding
+import com.example.mobilelearningapp.databinding.ActivityJawabanTugasListBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.JawabanTugas
 import com.example.mobilelearningapp.models.Kelas
@@ -32,7 +32,7 @@ import java.io.IOException
 
 class JawabanListActivity : BaseActivity() {
 
-    private var binding : ActivityJawabanListBinding? = null
+    private var binding : ActivityJawabanTugasListBinding? = null
     private lateinit var mKelasDetails : Kelas
     lateinit var mKelasDocumentId : String
     private var mMateriListPosition = -1
@@ -45,7 +45,7 @@ class JawabanListActivity : BaseActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        binding = ActivityJawabanListBinding.inflate(layoutInflater)
+        binding = ActivityJawabanTugasListBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding?.root)
 
