@@ -34,7 +34,7 @@ class jawabanKuisItemsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MyViewHolder(
             LayoutInflater.from(context).inflate(
-                R.layout.item_jawab,
+                R.layout.item_jawaban_kuis,
                 parent,
                 false
             )

@@ -31,6 +31,7 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
     private var isUpdate = false
     private lateinit var mUsername : String
     private lateinit var mScore : String
+    private var isQuizFinished = false
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -46,6 +47,7 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(binding?.root)
 
         getIntentData()
+        isQuizFinished = false
         kuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
         setQuestion()
 
@@ -54,6 +56,14 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
         binding?.tvOptionThree?.setOnClickListener(this)
         binding?.tvOptionFour?.setOnClickListener(this)
         binding?.btnSubmitKuis?.setOnClickListener(this)
+    }
+
+    override fun onBackPressed() {
+        if (isQuizFinished) {
+            super.onBackPressed()
+        } else {
+            Toast.makeText(this, "Anda harus menyelesaikan kuis terlebih dahulu!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun getIntentData() {
@@ -87,7 +97,8 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
 
         val question: Question = kuis.question[mCurrentPosition - 1]
 
-        binding?.progressBar?.progress = mCurrentPosition
+        val progress = (mCurrentPosition * 100 / kuis.question.size)
+        binding?.progressBar?.progress = progress
         binding?.tvProgress?.text = "$mCurrentPosition/${kuis.question.size}"
 
         binding?.tvQuestion?.text = question.question
@@ -214,6 +225,7 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
         setResult(RESULT_OK)
         Toast.makeText(this, " kuis berhasil ditambah", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, ResultKuisActivity::class.java)
+        isQuizFinished = true
         intent.putExtra(Constants.USER_NAME, mUsername)
         intent.putExtra(Constants.CORRECT_ANSWER, mCorrectAnswers)
         intent.putExtra(Constants.TOTAL_QUESTION, kuis.question.size)

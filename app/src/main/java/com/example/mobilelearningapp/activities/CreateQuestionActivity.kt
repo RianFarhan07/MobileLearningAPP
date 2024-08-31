@@ -64,6 +64,7 @@ class CreateQuestionActivity : BaseActivity() {
         val toolbar = supportActionBar
         if (toolbar != null) {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
 
         }
         binding?.toolbarAddQuestion?.setNavigationOnClickListener {

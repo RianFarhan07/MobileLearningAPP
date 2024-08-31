@@ -99,6 +99,7 @@ class CreateQuizActivity : BaseActivity() {
         val toolbar = supportActionBar
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
         if (isUpdate){
             supportActionBar?.title = "Update Quiz ${mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].namaKuis}"
         }

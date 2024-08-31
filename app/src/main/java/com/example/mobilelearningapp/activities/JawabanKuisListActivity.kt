@@ -68,6 +68,7 @@ class JawabanKuisListActivity : BaseActivity() {
         val toolbar = supportActionBar
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
 
             supportActionBar?.title = "Tugas ${mKelasDetails.materiList[mMateriListPosition].kuis[mKuisListPosition].namaKuis}"
 

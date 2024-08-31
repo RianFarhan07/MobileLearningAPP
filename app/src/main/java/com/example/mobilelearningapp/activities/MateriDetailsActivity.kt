@@ -287,43 +287,56 @@ class MateriDetailsActivity : BaseActivity() {
                 }
             })
 
-            val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    val position = viewHolder.adapterPosition
-                    val fileToDelete = fileList[position]
+            val currentUserID = FirestoreClass().getCurrentUserID()
+            if (currentUserID.isNotEmpty()) {
+                FirestoreClass().getUserRole(currentUserID) { role ->
+                    if (role == "guru") {
+                        val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {
+                            override fun onSwiped(
+                                viewHolder: RecyclerView.ViewHolder,
+                                direction: Int
+                            ) {
+                                val position = viewHolder.adapterPosition
+                                val fileToDelete = fileList[position]
 
-                    val dialogView = LayoutInflater.from(this@MateriDetailsActivity).inflate(R.layout.dialog_confirm_delete, null)
-                    val dialog = AlertDialog.Builder(this@MateriDetailsActivity)
-                        .setView(dialogView)
-                        .create()
+                                val dialogView = LayoutInflater.from(this@MateriDetailsActivity)
+                                    .inflate(R.layout.dialog_confirm_delete, null)
+                                val dialog = AlertDialog.Builder(this@MateriDetailsActivity)
+                                    .setView(dialogView)
+                                    .create()
 
-                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                    dialog.show()
+                                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                                dialog.show()
 
-                    val tvYa = dialogView.findViewById<TextView>(R.id.tv_ya)
-                    val tvTidak = dialogView.findViewById<TextView>(R.id.tv_tidak)
+                                val tvYa = dialogView.findViewById<TextView>(R.id.tv_ya)
+                                val tvTidak = dialogView.findViewById<TextView>(R.id.tv_tidak)
 
-                    tvYa.setOnClickListener {
-                        showProgressDialog(resources.getString(R.string.mohon_tunggu))
-                        FirestoreClass().deleteFileMateri(
-                            this@MateriDetailsActivity,
-                            mKelasDocumentId,
-                            mMateriListPosition,
-                            fileToDelete.id
-                        )
+                                tvYa.setOnClickListener {
+                                    showProgressDialog(resources.getString(R.string.mohon_tunggu))
+                                    FirestoreClass().deleteFileMateri(
+                                        this@MateriDetailsActivity,
+                                        mKelasDocumentId,
+                                        mMateriListPosition,
+                                        fileToDelete.id
+                                    )
 
-                        dialog.dismiss()
+                                    dialog.dismiss()
+                                }
+
+                                tvTidak.setOnClickListener {
+                                    dialog.dismiss()
+                                }
+
+                            }
+                        }
+
+                        val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+                        deleteItemTouchHelper.attachToRecyclerView(rvMateriFileList)
                     }
-
-                    tvTidak.setOnClickListener {
-                        dialog.dismiss()
-                    }
-
                 }
             }
 
-            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
-            deleteItemTouchHelper.attachToRecyclerView(rvMateriFileList)
+
 
         } else {
             rvMateriFileList.visibility = View.GONE

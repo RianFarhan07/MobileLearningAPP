@@ -108,6 +108,7 @@ class TugasActivity : BaseActivity() {
                     if (isUpdate){
                         binding?.btnKumpulTugas?.text = "Update Tugas"
                     }else{
+                        binding?.btnLihatHasilTugas?.visibility = View.GONE
                         binding?.btnKumpulTugas?.text = "Buat Tugas"
                     }
                 }
@@ -297,6 +298,7 @@ class TugasActivity : BaseActivity() {
         val toolbar = supportActionBar
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
             if (isUpdate){
                 supportActionBar?.title = "Tugas ${mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas}"
             }else{
@@ -304,6 +306,7 @@ class TugasActivity : BaseActivity() {
             }
 
         }
+
         binding?.toolbarTugas?.setNavigationOnClickListener {
             onBackPressed()
         }
