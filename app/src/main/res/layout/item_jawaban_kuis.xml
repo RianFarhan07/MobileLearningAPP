@@ -61,7 +61,24 @@
                         android:layout_marginTop="4dp"/>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="16dp">
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nama Kuis"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tv_nama_kuis"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"

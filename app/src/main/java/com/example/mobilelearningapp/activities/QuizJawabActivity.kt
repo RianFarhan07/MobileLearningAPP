@@ -213,7 +213,8 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
             id = UUID.randomUUID().toString(),
             createdBy = FirestoreClass().getCurrentUserID(),
             nilai = score.toString(),
-            namaPenjawab = mUsername
+            namaPenjawab = mUsername,
+            namaKuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].namaKuis,
         )
 
         kuis.jawab.add(quizResult)

@@ -121,7 +121,8 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             R.id.nav_kuis -> {
-
+                val intent = Intent(this, KuisSayaActivity::class.java)
+                startActivity(intent)
             }
 
             R.id.nav_sign_out -> {

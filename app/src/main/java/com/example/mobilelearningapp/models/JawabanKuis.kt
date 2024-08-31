@@ -8,6 +8,6 @@
         var id: String = "",
         var createdBy: String = "",
         var namaPenjawab: String = "",
-    //    val selectedAnswer: Int,
+        var namaKuis : String = "",
         var nilai: String = "",
     ) : Parcelable

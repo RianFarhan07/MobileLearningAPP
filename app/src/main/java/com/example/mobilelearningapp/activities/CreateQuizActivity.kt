@@ -123,6 +123,7 @@ class CreateQuizActivity : BaseActivity() {
         if (isUpdate){
             binding?.btnSimpanKuis?.text = "Update Kuis"
         }else{
+            binding?.btnLiatJawaban?.visibility = View.GONE
             binding?.btnSimpanKuis?.text = "Buat Kuis"
         }
 

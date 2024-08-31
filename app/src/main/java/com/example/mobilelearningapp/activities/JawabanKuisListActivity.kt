@@ -1,27 +1,18 @@
 package com.example.mobilelearningapp.activities
 
-import android.app.AlertDialog
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mobilelearningapp.JawabTugasItemsAdapter
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityJawabanKuisListBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
-import com.example.mobilelearningapp.jawabanKuisItemsAdapter
+import com.example.mobilelearningapp.JawabanKuisItemsAdapter
 import com.example.mobilelearningapp.models.JawabanKuis
-import com.example.mobilelearningapp.models.JawabanTugas
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.utils.Constants
-import com.example.mobilelearningapp.utils.SwipeToDeleteCallback
 
 class JawabanKuisListActivity : BaseActivity() {
 
@@ -99,7 +90,7 @@ class JawabanKuisListActivity : BaseActivity() {
             rvJawabList.layoutManager = LinearLayoutManager(this)
             rvJawabList.setHasFixedSize(true)
 
-            val adapter = jawabanKuisItemsAdapter(this, mJawabList)
+            val adapter = JawabanKuisItemsAdapter(this, mJawabList)
             rvJawabList.adapter = adapter
 
 //            val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {

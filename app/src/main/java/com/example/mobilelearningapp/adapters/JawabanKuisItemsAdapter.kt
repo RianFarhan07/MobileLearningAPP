@@ -1,35 +1,23 @@
 package com.example.mobilelearningapp
 
-import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.mobilelearningapp.activities.MateriDetailsActivity
-import com.example.mobilelearningapp.databinding.ItemJawabBinding
 
-import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.*
-import com.example.mobilelearningapp.utils.Constants
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class jawabanKuisItemsAdapter(
+class JawabanKuisItemsAdapter(
     private val context: Context,
     private val items: ArrayList<JawabanKuis>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var onClickListener: jawabanKuisItemsAdapter.OnClickListener? = null
+    private var onClickListener: JawabanKuisItemsAdapter.OnClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MyViewHolder(
@@ -53,7 +41,7 @@ class jawabanKuisItemsAdapter(
 
             holder.tvNamaPenjawab.text = model.namaPenjawab
             holder.tvNilai.text = model.nilai ?: "Belum dinilai"
-
+            holder.tvNamaKuis.text = model.namaKuis
         }
 
         holder.itemView.setOnClickListener {
@@ -77,12 +65,13 @@ class jawabanKuisItemsAdapter(
         fun onClick(position: Int, model: JawabanKuis)
     }
 
-    fun setOnClickListener(onClickListener: jawabanKuisItemsAdapter.OnClickListener) {
+    fun setOnClickListener(onClickListener: JawabanKuisItemsAdapter.OnClickListener) {
         this.onClickListener = onClickListener
     }
 
     private class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvNamaPenjawab: TextView = view.findViewById(R.id.tvNamaPenjawab)
         val tvNilai: TextView = view.findViewById(R.id.tvNilai)
+        val tvNamaKuis: TextView = view.findViewById(R.id.tv_nama_kuis)
     }
 }
