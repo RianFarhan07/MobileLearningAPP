@@ -611,7 +611,7 @@ class MateriDetailsActivity : BaseActivity() {
                     if (currentUserID.isNotEmpty()) {
                         FirestoreClass().getUserRole(currentUserID) { role ->
                             if (role == "siswa") {
-                                quizDetailsForSiswa(position)
+                                checkQuizCompletion(currentUserID, position, model)
                                 dialog.dismiss()
                             }else{
                                 quizDetails(position)
@@ -648,6 +648,25 @@ class MateriDetailsActivity : BaseActivity() {
         }
 
         dialog.show()
+    }
+
+    private fun checkQuizCompletion(userID: String, position: Int, quiz: Kuis) {
+        // Check if the user has already completed the quiz
+        val userJawaban = quiz.jawab.find { it.createdBy == userID }
+
+        if (userJawaban != null) {
+            // User has already completed the quiz, redirect to ResultActivity
+            val intent = Intent(this, ResultKuisActivity::class.java)
+            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION, mMateriListPosition)
+            intent.putExtra(Constants.QUIZ_LIST_ITEM_POSITION, position)
+            intent.putExtra(Constants.KELAS_DETAIL, mKelasDetails)
+            intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
+            intent.putExtra(Constants.IS_UPDATE, true)
+            startActivity(intent)
+        } else {
+            // User hasn't completed the quiz yet, proceed to QuizJawabActivity
+            quizDetailsForSiswa(position)
+        }
     }
 
 }

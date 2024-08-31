@@ -32,7 +32,11 @@ class ResultKuisActivity : AppCompatActivity() {
         getIntentData()
 
         if (isUpdate){
-
+            val currentUserId = FirestoreClass().getCurrentUserID()
+            val currentKuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
+            val userJawaban = currentKuis.jawab.find { it.createdBy == currentUserId }
+            binding?.tvScore?.text = "Your Score is  ${userJawaban?.nilai.toString()}"
+            binding?.tvName?.text = userJawaban?.namaPenjawab
         }else{
             binding?.tvScore?.text = "Your Score is  $mScore ($mCorrectAnswers of $mTotalQuestion)"
             binding?.tvName?.text = mUsername
@@ -63,11 +67,14 @@ class ResultKuisActivity : AppCompatActivity() {
         if (intent.hasExtra(Constants.CORRECT_ANSWER)) {
             mCorrectAnswers = intent.getIntExtra(Constants.CORRECT_ANSWER,0)
         }
-        if (intent.hasExtra(Constants.IS_UPDATE)) {
+        if (intent.hasExtra(Constants.TOTAL_QUESTION)) {
             mTotalQuestion = intent.getIntExtra(Constants.TOTAL_QUESTION, 0)
         }
         if (intent.hasExtra(Constants.SCORE)) {
             mScore = intent.getStringExtra(Constants.SCORE).toString()
+        }
+        if (intent.hasExtra(Constants.IS_UPDATE)) {
+            isUpdate = intent.getBooleanExtra(Constants.IS_UPDATE, false)
         }
     }
 
