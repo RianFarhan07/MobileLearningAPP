@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -16,32 +17,102 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar_jawaban_list_activity"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@drawable/app_gradient_color_background">
-
-                <TextView
-                    android:id="@+id/tv_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:paddingStart="25dp"
-                    android:paddingEnd="0dp"
-                    android:text="KUIS"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </androidx.appcompat.widget.Toolbar>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_kuis_jawab"
+            <TextView
+                android:id="@+id/tv_question"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp" />
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:textSize="22sp"
+                android:textColor="@color/black"
+                tools:text="What country does this flag belong to?" />
+
+            <ImageView
+                android:id="@+id/iv_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:contentDescription="Quiz Image"
+                tools:src="@drawable/logosmk" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="0dp"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:max="9"
+                    android:indeterminate="false"
+                    android:minHeight="50dp"
+                    android:progress="4" />
+
+                <TextView
+                    android:id="@+id/tv_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="15dp"
+                    android:textSize="14sp"
+                    tools:text="0/9" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_option_one"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/default_option_border_bg"
+                android:gravity="center"
+                android:padding="15dp"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                tools:text="Apple" />
+
+            <TextView
+                android:id="@+id/tv_option_two"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/default_option_border_bg"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:padding="15dp"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                tools:text="Apple" />
+
+            <TextView
+                android:id="@+id/tv_option_three"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/default_option_border_bg"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:padding="15dp"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                tools:text="Apple" />
+
+            <TextView
+                android:id="@+id/tv_option_four"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/default_option_border_bg"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:padding="15dp"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                tools:text="Apple" />
         </LinearLayout>
     </ScrollView>
 
@@ -59,5 +130,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,13 +1,12 @@
 package com.example.mobilelearningapp.activities
 
-import JawabKuisItemsAdapter
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
+import android.view.View
 import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityQuizJawabBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
@@ -20,15 +19,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
-class QuizJawabActivity : AppCompatActivity() {
+class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
 
     private var binding: ActivityQuizJawabBinding? = null
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var quizAdapter: JawabKuisItemsAdapter
     private lateinit var kuis: Kuis
-
     private lateinit var mKelasDetails: Kelas
-    lateinit var mKelasDocumentId: String
+    private lateinit var mKelasDocumentId: String
     private var mMateriListPosition = -1
     private var mQuizListPosition = -1
     private var isUpdate = false
@@ -36,30 +32,24 @@ class QuizJawabActivity : AppCompatActivity() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        binding = ActivityQuizJawabBinding.inflate(layoutInflater)
-        super.onCreate(savedInstanceState)
-        setContentView(binding?.root)
+    private var mCurrentPosition: Int = 1
+    private var mSelectedOptionPosition: Int = 0
+    private var mCorrectAnswers: Int = 0
 
-        recyclerView = findViewById(R.id.rv_kuis_jawab)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityQuizJawabBinding.inflate(layoutInflater)
+        setContentView(binding?.root)
 
         getIntentData()
         kuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
-        setupRecyclerView()
-        setupSubmitButton()
-        setupActionBar()
-    }
+        setQuestion()
 
-    private fun setupActionBar() {
-        setSupportActionBar(binding?.toolbarJawabanListActivity)
-        val toolbar = supportActionBar
-        if (toolbar != null) {
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.title = "Quiz ${kuis.namaKuis}"
-        }
-        binding?.toolbarJawabanListActivity?.setNavigationOnClickListener {
-            onBackPressed()
-        }
+        binding?.tvOptionOne?.setOnClickListener(this)
+        binding?.tvOptionTwo?.setOnClickListener(this)
+        binding?.tvOptionThree?.setOnClickListener(this)
+        binding?.tvOptionFour?.setOnClickListener(this)
+        binding?.btnSubmitKuis?.setOnClickListener(this)
     }
 
     private fun getIntentData() {
@@ -80,26 +70,94 @@ class QuizJawabActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupRecyclerView() {
-        quizAdapter = JawabKuisItemsAdapter(kuis.question) { questionId, selectedAnswer ->
-//            updateAnswer(questionId, selectedAnswer)
-            val question = kuis.question.find { it.id == questionId }
-            question?.selectedAnswer = selectedAnswer
+    private fun setQuestion() {
+        defaultOptionView()
+
+        val question: Question = kuis.question[mCurrentPosition - 1]
+
+        binding?.progressBar?.progress = mCurrentPosition
+        binding?.tvProgress?.text = "$mCurrentPosition/${kuis.question.size}"
+
+        binding?.tvQuestion?.text = question.question
+        if (question.image.isNotEmpty()) {
+            Glide.with(this).load(question.image).into(binding?.ivImage!!)
+            binding?.ivImage?.visibility = View.VISIBLE
+        } else {
+            binding?.ivImage?.visibility = View.GONE
         }
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = quizAdapter
+        binding?.tvOptionOne?.text = question.optionOne
+        binding?.tvOptionTwo?.text = question.optionTwo
+        binding?.tvOptionThree?.text = question.optionThree
+        binding?.tvOptionFour?.text = question.optionFour
+
+        if (mCurrentPosition == kuis.question.size) {
+            binding?.btnSubmitKuis?.text = "FINISH"
+        } else {
+            binding?.btnSubmitKuis?.text = "SUBMIT"
+        }
     }
 
-    private fun updateAnswer(questionId: Int, selectedAnswer: Int) {
-        val question = kuis.question.find { it.id == questionId }
-        question?.let {
-            it.selectedAnswer = selectedAnswer
+    private fun defaultOptionView() {
+        val options = ArrayList<View>()
+        binding?.tvOptionOne?.let { options.add(it) }
+        binding?.tvOptionTwo?.let { options.add(it) }
+        binding?.tvOptionThree?.let { options.add(it) }
+        binding?.tvOptionFour?.let { options.add(it) }
+
+        for (option in options) {
+            option.setBackgroundResource(R.drawable.default_option_border_bg)
+//            option.setTextColor(resources.getColor(R.color.text_secondary))
         }
     }
 
-    private fun setupSubmitButton() {
-        binding?.btnSubmitKuis?.setOnClickListener {
-            submitQuiz()
+    private fun selectedOptionView(view: View, selectedOptionNum: Int) {
+        defaultOptionView()
+        mSelectedOptionPosition = selectedOptionNum
+        view.setBackgroundResource(R.drawable.selected_option_border_bg)
+//        view.setTextColor(resources.getColor(R.color.text_primary))
+    }
+
+    override fun onClick(view: View?) {
+        when (view?.id) {
+            R.id.tv_option_one -> selectedOptionView(binding?.tvOptionOne!!, 1)
+            R.id.tv_option_two -> selectedOptionView(binding?.tvOptionTwo!!, 2)
+            R.id.tv_option_three -> selectedOptionView(binding?.tvOptionThree!!, 3)
+            R.id.tv_option_four -> selectedOptionView(binding?.tvOptionFour!!, 4)
+            R.id.btn_Submit_kuis
+            -> {
+                if (mSelectedOptionPosition == 0) {
+                    mCurrentPosition++
+                    when {
+                        mCurrentPosition <= kuis.question.size -> setQuestion()
+                        else -> submitQuiz()
+                    }
+                } else {
+                    val question = kuis.question[mCurrentPosition - 1]
+                    if (question.correctAnswer != mSelectedOptionPosition) {
+                        answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
+                    } else {
+                        mCorrectAnswers++
+                    }
+                    answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
+
+                    if (mCurrentPosition == kuis.question.size) {
+                        binding?.btnSubmitKuis?.text = "FINISH"
+                    } else {
+                        binding?.btnSubmitKuis?.text = "GO TO NEXT QUESTION"
+                    }
+                    question.selectedAnswer = mSelectedOptionPosition
+                    mSelectedOptionPosition = 0
+                }
+            }
+        }
+    }
+
+    private fun answerView(answer: Int, drawableView: Int) {
+        when (answer) {
+            1 -> binding?.tvOptionOne?.background = ContextCompat.getDrawable(this, drawableView)
+            2 -> binding?.tvOptionTwo?.background = ContextCompat.getDrawable(this, drawableView)
+            3 -> binding?.tvOptionThree?.background = ContextCompat.getDrawable(this, drawableView)
+            4 -> binding?.tvOptionFour?.background = ContextCompat.getDrawable(this, drawableView)
         }
     }
 
@@ -109,29 +167,7 @@ class QuizJawabActivity : AppCompatActivity() {
             return
         }
 
-//        if (kuis.question.any { it.selectedAnswer == -1 }) {
-//            Toast.makeText(this, "Please answer all questions", Toast.LENGTH_SHORT).show()
-//            return
-//        }
-
-        if (kuis.question.any { it.selectedAnswer == -1 }) {
-            // Log the state of each question
-            kuis.question.forEachIndexed { index, question ->
-                Log.d("QuizSubmit", "Question $index: selectedAnswer = ${question.selectedAnswer}")
-            }
-            Toast.makeText(this, "Please answer all questions", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        var correctAnswers = 0
-
-        for (question in kuis.question) {
-            if (question.selectedAnswer == question.correctAnswer) {
-                correctAnswers++
-            }
-        }
-
-        val score = (correctAnswers.toFloat() / kuis.question.size) * 100
+        val score = (mCorrectAnswers.toFloat() / kuis.question.size) * 100
 
         val quizResult = JawabanKuis(
             id = UUID.randomUUID().toString(),
