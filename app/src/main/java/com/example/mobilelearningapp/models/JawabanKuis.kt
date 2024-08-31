@@ -1,10 +1,12 @@
-package com.example.mobilelearningapp.models
+    package com.example.mobilelearningapp.models
 
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+    import android.os.Parcelable
+    import kotlinx.android.parcel.Parcelize
 
-@Parcelize
-data class JawabanKuis(
-    val questionId: Int,
-    val selectedAnswer: Int
-) : Parcelable
+    @Parcelize
+    data class JawabanKuis(
+        var id: String = "",
+        var createdBy: String = "",
+    //    val selectedAnswer: Int,
+        var nilai: String = "",
+    ) : Parcelable

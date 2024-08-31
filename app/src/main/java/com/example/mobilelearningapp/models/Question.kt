@@ -12,5 +12,7 @@ data class Question(
     var optionTwo: String = "",
     var optionThree: String = "",
     var optionFour: String = "",
-    var correctAnswer: Int = 0
+    val correctAnswer : Int = -1,
+    var selectedAnswer: Int = -1,
+//    var jawab :  ArrayList<JawabanKuis> = ArrayList(),
 ) : Parcelable

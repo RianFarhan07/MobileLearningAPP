@@ -49,17 +49,27 @@ class JawabKuisItemsAdapter(
             }
 
             // Restore previously selected answer
-            answers[question.id]?.let { selectedAnswer ->
-                options[selectedAnswer - 1].setBackgroundResource(R.drawable.selected_option_border_bg)
+            if (question.selectedAnswer != -1) {
+                options[question.selectedAnswer - 1].setBackgroundResource(R.drawable.selected_option_border_bg)
             }
         }
-
         private fun selectOption(questionId: Int, selectedAnswer: Int, options: List<TextView>) {
             options.forEach { it.setBackgroundResource(R.drawable.default_option_border_bg) }
             options[selectedAnswer - 1].setBackgroundResource(R.drawable.selected_option_border_bg)
-            answers[questionId] = selectedAnswer
+
+            // Update the Question object
+            questions.find { it.id == questionId }?.selectedAnswer = selectedAnswer
+
+            // Notify the activity
             onAnswerSelected(questionId, selectedAnswer)
         }
+
+//        private fun selectOption(questionId: Int, selectedAnswer: Int, options: List<TextView>) {
+//            options.forEach { it.setBackgroundResource(R.drawable.default_option_border_bg) }
+//            options[selectedAnswer - 1].setBackgroundResource(R.drawable.selected_option_border_bg)
+//            answers[questionId] = selectedAnswer
+//            onAnswerSelected(questionId, selectedAnswer)
+//        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuizViewHolder {
@@ -73,7 +83,19 @@ class JawabKuisItemsAdapter(
 
     override fun getItemCount() = questions.size
 
-    fun getAnswers(): List<JawabanKuis> {
-        return answers.map { (questionId, selectedAnswer) -> JawabanKuis(questionId, selectedAnswer) }
+//    private fun selectOption(questionId: Int, selectedAnswer: Int, options: List<TextView>) {
+//        options.forEach { it.setBackgroundResource(R.drawable.default_option_border_bg) }
+//        options[selectedAnswer - 1].setBackgroundResource(R.drawable.selected_option_border_bg)
+//        answers[questionId] = selectedAnswer
+//        questions.find { it.id == questionId }?.selectedAnswer = selectedAnswer
+//        onAnswerSelected(questionId, selectedAnswer)
+//    }
+
+    fun updateAnswer(questionId: Int, selectedAnswer: Int) {
+        val index = questions.indexOfFirst { it.id == questionId }
+        if (index != -1) {
+            questions[index].selectedAnswer = selectedAnswer
+            notifyItemChanged(index)
+        }
     }
 }
