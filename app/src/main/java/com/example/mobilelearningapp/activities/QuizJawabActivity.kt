@@ -1,5 +1,6 @@
 package com.example.mobilelearningapp.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -28,6 +29,8 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
     private var mMateriListPosition = -1
     private var mQuizListPosition = -1
     private var isUpdate = false
+    private lateinit var mUsername : String
+    private lateinit var mScore : String
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -35,6 +38,7 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
     private var mCurrentPosition: Int = 1
     private var mSelectedOptionPosition: Int = 0
     private var mCorrectAnswers: Int = 0
+    private var isAnswerSubmitted: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,10 +72,18 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
         if (intent.hasExtra(Constants.IS_UPDATE)) {
             isUpdate = intent.getBooleanExtra(Constants.IS_UPDATE, false)
         }
+        FirestoreClass().getUsername { username ->
+            if (username != null) {
+                mUsername = username
+            } else {
+                println("Failed to retrieve username")
+            }
+        }
     }
 
     private fun setQuestion() {
         defaultOptionView()
+        isAnswerSubmitted = false
 
         val question: Question = kuis.question[mCurrentPosition - 1]
 
@@ -106,48 +118,38 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
 
         for (option in options) {
             option.setBackgroundResource(R.drawable.default_option_border_bg)
-//            option.setTextColor(resources.getColor(R.color.text_secondary))
+            option.isClickable = true
         }
     }
 
     private fun selectedOptionView(view: View, selectedOptionNum: Int) {
-        defaultOptionView()
-        mSelectedOptionPosition = selectedOptionNum
-        view.setBackgroundResource(R.drawable.selected_option_border_bg)
-//        view.setTextColor(resources.getColor(R.color.text_primary))
+        if (!isAnswerSubmitted) {
+            defaultOptionView()
+            mSelectedOptionPosition = selectedOptionNum
+            view.setBackgroundResource(R.drawable.selected_option_border_bg)
+        }
     }
 
     override fun onClick(view: View?) {
-        when (view?.id) {
-            R.id.tv_option_one -> selectedOptionView(binding?.tvOptionOne!!, 1)
-            R.id.tv_option_two -> selectedOptionView(binding?.tvOptionTwo!!, 2)
-            R.id.tv_option_three -> selectedOptionView(binding?.tvOptionThree!!, 3)
-            R.id.tv_option_four -> selectedOptionView(binding?.tvOptionFour!!, 4)
-            R.id.btn_Submit_kuis
-            -> {
-                if (mSelectedOptionPosition == 0) {
-                    mCurrentPosition++
-                    when {
-                        mCurrentPosition <= kuis.question.size -> setQuestion()
-                        else -> submitQuiz()
-                    }
-                } else {
-                    val question = kuis.question[mCurrentPosition - 1]
-                    if (question.correctAnswer != mSelectedOptionPosition) {
-                        answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
+        if (!isAnswerSubmitted) {
+            when (view?.id) {
+                R.id.tv_option_one -> selectedOptionView(binding?.tvOptionOne!!, 1)
+                R.id.tv_option_two -> selectedOptionView(binding?.tvOptionTwo!!, 2)
+                R.id.tv_option_three -> selectedOptionView(binding?.tvOptionThree!!, 3)
+                R.id.tv_option_four -> selectedOptionView(binding?.tvOptionFour!!, 4)
+                R.id.btn_Submit_kuis -> {
+                    if (mSelectedOptionPosition == 0) {
+                        Toast.makeText(this, "Please select an answer", Toast.LENGTH_SHORT).show()
                     } else {
-                        mCorrectAnswers++
+                        checkAnswer()
                     }
-                    answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
-
-                    if (mCurrentPosition == kuis.question.size) {
-                        binding?.btnSubmitKuis?.text = "FINISH"
-                    } else {
-                        binding?.btnSubmitKuis?.text = "GO TO NEXT QUESTION"
-                    }
-                    question.selectedAnswer = mSelectedOptionPosition
-                    mSelectedOptionPosition = 0
                 }
+            }
+        } else if (view?.id == R.id.btn_Submit_kuis) {
+            mCurrentPosition++
+            when {
+                mCurrentPosition <= kuis.question.size -> setQuestion()
+                else -> submitQuiz()
             }
         }
     }
@@ -161,6 +163,30 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    private fun checkAnswer() {
+        isAnswerSubmitted = true
+        val question = kuis.question[mCurrentPosition - 1]
+        if (question.correctAnswer != mSelectedOptionPosition) {
+            answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
+        } else {
+            mCorrectAnswers++
+        }
+        answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
+
+        if (mCurrentPosition == kuis.question.size) {
+            binding?.btnSubmitKuis?.text = "FINISH"
+        } else {
+            binding?.btnSubmitKuis?.text = "NEXT QUESTION"
+        }
+        question.selectedAnswer = mSelectedOptionPosition
+
+        // Disable clicking on options after submitting
+        binding?.tvOptionOne?.isClickable = false
+        binding?.tvOptionTwo?.isClickable = false
+        binding?.tvOptionThree?.isClickable = false
+        binding?.tvOptionFour?.isClickable = false
+    }
+
     private fun submitQuiz() {
         val userId = auth.currentUser?.uid ?: run {
             Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
@@ -168,23 +194,32 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         val score = (mCorrectAnswers.toFloat() / kuis.question.size) * 100
+        mScore = score.toString()
+
+
 
         val quizResult = JawabanKuis(
             id = UUID.randomUUID().toString(),
             createdBy = FirestoreClass().getCurrentUserID(),
-            nilai = score.toString()
+            nilai = score.toString(),
+            namaPenjawab = mUsername
         )
 
         kuis.jawab.add(quizResult)
 
-        firestore.collection("kelas").document(mKelasDocumentId)
-            .update("materiList.${mMateriListPosition}.kuis.${mQuizListPosition}", kuis)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Quiz submitted successfully. Your score: $score%", Toast.LENGTH_LONG).show()
-                finish()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Failed to submit quiz: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+    }
+
+    fun addUpdateMateriListSuccess(){
+        setResult(RESULT_OK)
+        Toast.makeText(this, " kuis berhasil ditambah", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, ResultKuisActivity::class.java)
+        intent.putExtra(Constants.USER_NAME, mUsername)
+        intent.putExtra(Constants.CORRECT_ANSWER, mCorrectAnswers)
+        intent.putExtra(Constants.TOTAL_QUESTION, kuis.question.size)
+        intent.putExtra(Constants.SCORE, mScore)
+        startActivity(intent)
+        finish()
+
     }
 }

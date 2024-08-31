@@ -24,6 +24,45 @@ class FirestoreClass {
         return currentUserID
     }
 
+    fun getUsername(onComplete: (String?) -> Unit) {
+        val currentUserID = getCurrentUserID()
+        if (currentUserID.isEmpty()) {
+            onComplete(null)
+            return
+        }
+
+        getUserRole(currentUserID) { role ->
+            val collection = when (role) {
+                Constants.SISWA -> Constants.SISWA
+                Constants.GURU -> Constants.GURU
+                else -> {
+                    onComplete(null)
+                    return@getUserRole
+                }
+            }
+
+            FirebaseFirestore.getInstance().collection(collection)
+                .document(currentUserID)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        val username = when (role) {
+                            Constants.SISWA -> document.toObject(Siswa::class.java)?.name
+                            Constants.GURU -> document.toObject(Guru::class.java)?.name
+                            else -> null
+                        }
+                        onComplete(username)
+                    } else {
+                        onComplete(null)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("FirestoreClass", "Error getting username: ${e.message}", e)
+                    onComplete(null)
+                }
+        }
+    }
+
     fun getUserRole(userId: String, onComplete: (String?) -> Unit) {
         mFireStore.collection(Constants.SISWA)
             .document(userId)
@@ -437,6 +476,9 @@ class FirestoreClass {
                         activity.addUpdateMateriListSuccess()
                     }
                     is CreateQuizActivity -> {
+                        activity.addUpdateMateriListSuccess()
+                    }
+                    is QuizJawabActivity -> {
                         activity.addUpdateMateriListSuccess()
                     }
 

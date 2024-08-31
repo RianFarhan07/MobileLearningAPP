@@ -7,6 +7,7 @@
     data class JawabanKuis(
         var id: String = "",
         var createdBy: String = "",
+        var namaPenjawab: String = "",
     //    val selectedAnswer: Int,
         var nilai: String = "",
     ) : Parcelable

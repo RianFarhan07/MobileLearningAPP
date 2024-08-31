@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.ResultKuisActivity"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/ic_bg_kuis_resutl"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Result"
+        android:gravity="center"
+        android:textSize="24dp"
+        android:layout_marginBottom="100dp"
+        android:textColor="@color/bg"
+        android:textStyle="bold"
+
+        />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:src="@drawable/ic_trophy" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hey, Congratulations!"
+        android:gravity="center"
+        android:layout_marginTop="30dp"
+        android:textSize="24dp"
+
+        android:textColor="@color/bg"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Rian"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:textSize="24dp"
+        android:textColor="@color/bg"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/tv_score"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Score is 0 out of 9."
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:textSize="16dp"
+        android:textColor="@color/black"
+        />
+
+    <Button
+        android:id="@+id/btn_finish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="FINISH"
+        android:textSize="16dp"
+        android:textColor="@color/black"
+        android:backgroundTint="@color/design_default_color_on_primary"
+        />
+
+</LinearLayout>
