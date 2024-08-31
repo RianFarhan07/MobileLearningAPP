@@ -6,7 +6,6 @@ import android.widget.Toast
 import com.example.mobilelearningapp.activities.*
 import com.example.mobilelearningapp.models.*
 import com.example.mobilelearningapp.utils.Constants
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -876,7 +875,7 @@ class FirestoreClass {
                             .document(kelasDocumentId)
                             .set(kelas)
                             .addOnSuccessListener {
-                                activity.jawabTugasDeleteSuccess()
+                                activity.jawabKuisDeleteSuccess()
                             }
                             .addOnFailureListener { e ->
                                 activity.hideProgressDialog()

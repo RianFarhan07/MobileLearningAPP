@@ -1,5 +1,6 @@
 package com.example.mobilelearningapp.activities
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
@@ -252,7 +253,6 @@ class CreateQuizActivity : BaseActivity() {
         FirestoreClass().addUpdateMateriList(this, mKelasDetails)
 
         Toast.makeText(this, "Kuis berhasil disimpan", Toast.LENGTH_SHORT).show()
-        finish()
     }
 
     private fun updateQuestionList() {
@@ -283,6 +283,19 @@ class CreateQuizActivity : BaseActivity() {
             }
         }
     }
+
+    // TODO ini oke diatas juga oke
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if (requestCode == REQUEST_CREATE_QUESTION && resultCode == Activity.RESULT_OK) {
+//            val newQuestion = data?.getParcelableExtra<Question>("question")
+//            if (newQuestion != null) {
+//                questions.add(newQuestion)
+//                // Update UI jika perlu, misalnya refresh RecyclerView
+//                questionAdapter.notifyDataSetChanged()
+//            }
+//        }
+//    }
 
     private fun updateKuis() {
         val namaKuis = binding?.etNamaKuis?.text.toString()
@@ -422,7 +435,7 @@ class CreateQuizActivity : BaseActivity() {
         }
     }
 
-    fun jawabTugasDeleteSuccess() {
+    fun jawabKuisDeleteSuccess() {
         setResult(RESULT_OK)
         hideProgressDialog()
         Toast.makeText(this, "Jawaban tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
