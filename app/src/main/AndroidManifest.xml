@@ -19,6 +19,24 @@
         android:theme="@style/Theme.MobileLearningAPP"
         tools:targetApi="31">
         <activity
+            android:name=".activities.GuruTugasSayaActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".activities.GuruKuisSayaActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".activities.KuisSayaActivity"
             android:exported="false"
             android:screenOrientation="portrait"

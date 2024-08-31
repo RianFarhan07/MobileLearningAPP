@@ -132,12 +132,14 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
                 startActivityForResult(intent, GURU_PROFILE_REQUEST_CODE)
             }
 
-            R.id.materi -> {
-
+            R.id.tugas -> {
+                val intent = Intent(this, GuruTugasSayaActivity::class.java)
+                startActivity(intent)
             }
 
             R.id.nav_kuis -> {
-
+                val intent = Intent(this,GuruKuisSayaActivity::class.java)
+                startActivity(intent)
             }
 
             R.id.nav_sign_out -> {
