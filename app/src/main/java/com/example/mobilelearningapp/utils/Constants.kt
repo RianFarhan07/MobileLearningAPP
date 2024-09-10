@@ -40,6 +40,7 @@ object Constants {
     const val READ_STORAGE_PERMISSION_CODE = 1
     const val PICK_IMAGE_REQUEST_CODE = 2
     const val PICK_FILE_REQUEST_CODE = 3
+    const val PICK_VIDEO_REQUEST_CODE = 4
 
     const val USER_NAME: String = "user_name"
     const val TOTAL_QUESTION: String = "total_question"
@@ -53,6 +54,14 @@ object Constants {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
 
         activity.startActivityForResult(galleryIntent,PICK_IMAGE_REQUEST_CODE)
+    }
+
+    fun showVideoChooser(activity: Activity){
+        val galleryIntent = Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+
+        activity.startActivityForResult(galleryIntent, PICK_VIDEO_REQUEST_CODE)
     }
 
     fun getFileExtension(activity: Activity, uri: Uri): String?{

@@ -12,6 +12,7 @@ data class Materi(
     var desc : String = "",
     var file : ArrayList<File> = ArrayList(),
     var image: String = "",
+    var video: String = "",
     var tugas : ArrayList<Tugas> = ArrayList(),
     var kuis : ArrayList<Kuis> = ArrayList()
 ) : Parcelable

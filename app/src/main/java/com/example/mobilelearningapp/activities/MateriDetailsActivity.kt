@@ -60,6 +60,9 @@ class MateriDetailsActivity : BaseActivity() {
     private var mSelectedImageFileUri : Uri? = null
     private var mMateriImageURL: String = ""
 
+    private var mSelectedVideoFileUri : Uri? = null
+    private var mMateriVideoURL: String = ""
+
     private var mSelectedFileUri: Uri? = null
     private var mFileType: String? = ""
     private var mFileName: String? = ""
@@ -135,6 +138,20 @@ class MateriDetailsActivity : BaseActivity() {
             FirestoreClass().getKelasDetails(this,mKelasDocumentId)
             populateMateriFileListToUI(mKelasDetails.materiList[mMateriListPosition].file)
 
+        }
+
+        binding?.btnUploadVideo?.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED){
+                Constants.showVideoChooser(this)
+            }else{
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    Constants.READ_STORAGE_PERMISSION_CODE
+                )
+            }
         }
 
         binding?.btnTugas?.setOnClickListener {
@@ -222,6 +239,29 @@ class MateriDetailsActivity : BaseActivity() {
         if (requestCode == REQUEST_CODE_QUIZ_DETAILS && resultCode == RESULT_OK) {
             showProgressDialog(resources.getString(R.string.mohon_tunggu))
             FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+        }
+
+        if (resultCode == Activity.RESULT_OK
+            && requestCode == Constants.PICK_VIDEO_REQUEST_CODE
+            && data!!.data != null
+        ) {
+            showProgressDialog("Uploading Video")
+            mSelectedVideoFileUri = data.data
+
+            try {
+                Glide
+                    .with(this@MateriDetailsActivity)
+                    .load(mSelectedVideoFileUri)
+                    .centerCrop()
+                    .placeholder(R.drawable.ic_board_place_holder)
+                    .into(binding?.ivVideoMateri!!)
+
+                binding?.llVideoMateri?.visibility = View.VISIBLE
+
+                uploadMateriVideo()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -381,6 +421,18 @@ class MateriDetailsActivity : BaseActivity() {
             binding?.llImageMateri?.visibility = View.GONE
         }
 
+        if (mKelasDetails.materiList[mMateriListPosition].video.isNotEmpty()) {
+            binding?.llVideoMateri?.visibility = View.VISIBLE
+            Glide
+                .with(this@MateriDetailsActivity)
+                .load(mKelasDetails.materiList[mMateriListPosition].video)
+                .centerCrop()
+                .placeholder(R.drawable.ic_board_place_holder)
+                .into(binding?.ivVideoMateri!!)
+        } else {
+            binding?.llVideoMateri?.visibility = View.GONE
+        }
+
         materiUpdateSuccess()
     }
 
@@ -419,6 +471,44 @@ class MateriDetailsActivity : BaseActivity() {
 
     private fun updateMateriWithImage() {
         mKelasDetails.materiList[mMateriListPosition].image = mMateriImageURL
+        updateMateriInFirestore()
+    }
+
+    private fun uploadMateriVideo() {
+
+        if (mSelectedVideoFileUri != null) {
+            val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
+                "MATERI_VIDEO" + System.currentTimeMillis() + "."
+                        + Constants.getFileExtension(this, mSelectedVideoFileUri!!)
+            )
+
+            sRef.putFile(mSelectedVideoFileUri!!).addOnSuccessListener { taskSnapshot ->
+                Log.e(
+                    "Firebase Video URL",
+                    taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
+                )
+
+                taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
+                    Log.e("Downloadable Video URL", uri.toString())
+                    mMateriVideoURL = uri.toString()
+                    hideProgressDialog()
+
+                    // Update Materi dengan URL gambar baru
+                    updateMateriWithVideo()
+                }
+            }.addOnFailureListener { exception ->
+                Toast.makeText(
+                    this@MateriDetailsActivity,
+                    exception.message,
+                    Toast.LENGTH_LONG
+                ).show()
+                hideProgressDialog()
+            }
+        }
+    }
+
+    private fun updateMateriWithVideo() {
+        mKelasDetails.materiList[mMateriListPosition].video = mMateriVideoURL
         updateMateriInFirestore()
     }
 
