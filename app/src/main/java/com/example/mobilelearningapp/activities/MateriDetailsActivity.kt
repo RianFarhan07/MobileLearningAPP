@@ -78,7 +78,7 @@ class MateriDetailsActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding?.root)
 
-
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
         getIntentData()
         setupActionBar()
         FirestoreClass().getKelasDetails(this,mKelasDocumentId)
@@ -94,6 +94,7 @@ class MateriDetailsActivity : BaseActivity() {
                     binding?.btnItalic?.visibility = View.GONE
                     binding?.btnUploadImage?.visibility = View.GONE
                     binding?.btnUpdateText?.visibility = View.GONE
+                    binding?.btnUploadVideo?.visibility = View.GONE
                     binding?.btnUploadFile?.visibility = View.GONE
                     binding?.tvMateri?.visibility = View.VISIBLE
 
@@ -160,6 +161,14 @@ class MateriDetailsActivity : BaseActivity() {
 
         binding?.btnKuis?.setOnClickListener {
             showQuizDialog()
+        }
+
+        binding?.llVideoMateri?.setOnClickListener {
+            if (mKelasDetails.materiList[mMateriListPosition].video.isNotEmpty()) {
+                val intent = Intent(this, VideoPlayerActivity::class.java)
+                intent.putExtra("VIDEO_URL", mKelasDetails.materiList[mMateriListPosition].video)
+                startActivity(intent)
+            }
         }
     }
 
@@ -406,7 +415,7 @@ class MateriDetailsActivity : BaseActivity() {
     }
 
     fun populateMateriDesc() {
-        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+        hideProgressDialog()
         binding?.etMateri?.setText(mKelasDetails.materiList[mMateriListPosition].desc)
 
         if (mKelasDetails.materiList[mMateriListPosition].image.isNotEmpty()) {

@@ -89,6 +89,36 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/ll_video_materi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rv_item_image_background"
+                        android:padding="2dp"
+                        android:layout_marginTop="20dp"
+                        android:visibility="gone">
+
+                        <FrameLayout
+                            android:layout_width="330dp"
+                            android:layout_height="200dp">
+
+                            <ImageView
+                                android:id="@+id/iv_video_materi"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="fitXY" />
+
+                            <ImageView
+                                android:id="@+id/iv_play_icon"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:layout_gravity="center"
+                                android:layout_marginRight="10dp"
+                                android:src="@drawable/ic_baseline_play_circle_24"
+                                android:alpha="0.7"/>
+                        </FrameLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:id="@+id/ll_input"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -131,6 +161,16 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:src="@drawable/ic_baseline_attach_file_24"
+                            android:layout_margin="5dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Upload Image"/>
+
+                        <ImageButton
+                            android:id="@+id/btnUploadVideo"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:src="@drawable/ic_baseline_video_file_24"
                             android:layout_margin="5dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="Upload Image"/>

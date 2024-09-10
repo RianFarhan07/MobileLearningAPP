@@ -16,6 +16,7 @@ data class JawabanTugas(
     var namaKelas : String = "",
     var jawaban : String = "",
     var imageJawaban: String = "",
+    var videoJawaban: String = "",
     val pdfUrl: String = "",
     val pdfUrlName: String = "",
     var uploadedDate: Long = 0,

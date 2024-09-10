@@ -94,11 +94,25 @@
                         android:padding="2dp"
                         android:layout_marginTop="20dp">
 
-                        <ImageView
-                            android:id="@+id/iv_video_materi"
+                        <FrameLayout
                             android:layout_width="330dp"
-                            android:layout_height="200dp"
-                            android:scaleType="fitXY" />
+                            android:layout_height="200dp">
+
+                            <ImageView
+                                android:id="@+id/iv_video_materi"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="fitXY" />
+
+                            <ImageView
+                                android:id="@+id/iv_play_icon"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:layout_gravity="center"
+                                android:layout_marginRight="10dp"
+                                android:src="@drawable/ic_baseline_play_circle_24"
+                                android:alpha="0.7"/>
+                        </FrameLayout>
                     </LinearLayout>
 
                     <LinearLayout

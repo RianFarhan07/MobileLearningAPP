@@ -49,7 +49,8 @@ class JawabActivity : BaseActivity() {
     private var mSelectedImageFileUri : Uri? = null
     private var mMateriImageURL: String = ""
 
-
+    private var mSelectedVideoFileUri : Uri? = null
+    private var mMateriVideoURL: String = ""
 
     private var mSelectedFileUri: Uri? = null
     private var mFileType: String? = ""
@@ -109,7 +110,19 @@ class JawabActivity : BaseActivity() {
             }
         }
 
-
+        binding?.btnUploadVideo?.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED){
+                Constants.showVideoChooser(this)
+            }else{
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    Constants.READ_STORAGE_PERMISSION_CODE
+                )
+            }
+        }
 
         binding?.btnUploadFile?.setOnClickListener {
             selectFile()
@@ -144,6 +157,15 @@ class JawabActivity : BaseActivity() {
         } else {
             binding?.llImageSoal?.visibility = View.GONE
         }
+
+        binding?.llVideoMateri?.setOnClickListener {
+            if (mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban.isNotEmpty()) {
+                val intent = Intent(this, VideoPlayerActivity::class.java)
+                intent.putExtra("VIDEO_URL", mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban)
+                startActivity(intent)
+            }
+        }
+
     }
 
     private fun getIntentData() {
@@ -236,7 +258,17 @@ class JawabActivity : BaseActivity() {
         } else {
             binding?.llImageJawab?.visibility = View.GONE
         }
-
+        if (currentJawaban.videoJawaban.isNotEmpty()) {
+            binding?.llVideoMateri?.visibility = View.VISIBLE
+            Glide
+                .with(this@JawabActivity)
+                .load(currentJawaban.videoJawaban)
+                .centerCrop()
+                .placeholder(R.drawable.ic_board_place_holder)
+                .into(binding?.ivVideoMateri!!)
+        } else {
+            binding?.llVideoMateri?.visibility = View.GONE
+        }
     }
 
 
@@ -323,7 +355,29 @@ class JawabActivity : BaseActivity() {
 
                 // Panggil fungsi untuk upload gambar
                 showProgressDialog("Uploading Image")
-                uploadMateriImage()
+                uploadJawabanImage()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        if (resultCode == Activity.RESULT_OK
+            && requestCode == Constants.PICK_VIDEO_REQUEST_CODE
+            && data!!.data != null
+        ) {
+            showProgressDialog("Uploading Video")
+            mSelectedVideoFileUri = data.data
+
+            try {
+                Glide
+                    .with(this@JawabActivity)
+                    .load(mSelectedVideoFileUri)
+                    .centerCrop()
+                    .placeholder(R.drawable.ic_board_place_holder)
+                    .into(binding?.ivVideoMateri!!)
+
+                binding?.llVideoMateri?.visibility = View.VISIBLE
+
+                uploadJawabanVideo()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -365,7 +419,7 @@ class JawabActivity : BaseActivity() {
         return result
     }
 
-    private fun uploadMateriImage() {
+    private fun uploadJawabanImage() {
 
         if (mSelectedImageFileUri != null) {
             val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
@@ -383,6 +437,41 @@ class JawabActivity : BaseActivity() {
                     hideProgressDialog()
                     Log.e("Downloadable Image URL", uri.toString())
                     mMateriImageURL = uri.toString()
+
+//                    //TODO GANTI INI KALAU IMAGE TIDAK MAU MUNCUL SAAT BUAT TUGAS PERTAMA KALI HILANGKAN ISUPDATE
+//                    if (isUpdate){
+//                        mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal = mMateriImageURL
+//                    }
+                }
+            }.addOnFailureListener { exception ->
+                Toast.makeText(
+                    this,
+                    exception.message,
+                    Toast.LENGTH_LONG
+                ).show()
+                hideProgressDialog()
+            }
+        }
+    }
+
+    private fun uploadJawabanVideo() {
+
+        if (mSelectedVideoFileUri != null) {
+            val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
+                "JAWABAN_VIDEO" + System.currentTimeMillis() + "."
+                        + Constants.getFileExtension(this, mSelectedVideoFileUri!!)
+            )
+
+            sRef.putFile(mSelectedVideoFileUri!!).addOnSuccessListener { taskSnapshot ->
+                Log.e(
+                    "Firebase Video URL",
+                    taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
+                )
+
+                taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
+                    hideProgressDialog()
+                    Log.e("Downloadable Video URL", uri.toString())
+                    mMateriVideoURL = uri.toString()
 
 //                    //TODO GANTI INI KALAU IMAGE TIDAK MAU MUNCUL SAAT BUAT TUGAS PERTAMA KALI HILANGKAN ISUPDATE
 //                    if (isUpdate){
@@ -423,6 +512,7 @@ class JawabActivity : BaseActivity() {
             namaKelas = mKelasDetails.nama,
             jawaban = deskripsiTugas,
             imageJawaban = mMateriImageURL,
+            videoJawaban = mMateriVideoURL,
             uploadedDate =  System.currentTimeMillis(),
             createdBy = FirestoreClass().getCurrentUserID(),
             pdfUrl =  PdfUrl,
@@ -476,6 +566,7 @@ class JawabActivity : BaseActivity() {
             namaKelas = mKelasDetails.nama,
             jawaban = deskripsiJawaban,
             imageJawaban = if (mMateriImageURL.isNotEmpty()) mMateriImageURL else currentJawaban.imageJawaban,
+            videoJawaban = if (mMateriVideoURL.isNotEmpty()) mMateriVideoURL else currentJawaban.videoJawaban,
             uploadedDate = mUloadedJawaban,
             createdBy = FirestoreClass().getCurrentUserID(),
             pdfUrl = updatedPdfUrl,
