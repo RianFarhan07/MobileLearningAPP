@@ -91,6 +91,7 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
         setSupportActionBar(toolbar)
 
         toolbar.setNavigationIcon(R.drawable.ic_action_navigation_menu)
+        toolbar.title = "Mobile Learning SMAN 4 Jeneponto"
 
         toolbar.setNavigationOnClickListener {
             toogleDrawer()
@@ -132,7 +133,7 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
                 startActivityForResult(intent, GURU_PROFILE_REQUEST_CODE)
             }
 
-            R.id.tugas -> {
+            R.id.nav_tugas -> {
                 val intent = Intent(this, GuruTugasSayaActivity::class.java)
                 startActivity(intent)
             }

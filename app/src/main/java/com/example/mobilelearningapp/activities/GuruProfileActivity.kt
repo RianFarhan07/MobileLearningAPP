@@ -107,12 +107,10 @@ class GuruProfileActivity : BaseActivity() {
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_beranda -> {
-                    // Navigasi ke halaman beranda
                     startActivity(Intent(this, MainGuruActivity::class.java))
                     finish()
                 }
                 R.id.nav_my_profile -> {
-                    // Sudah di halaman profil, mungkin refresh data?
                     FirestoreClass().getGuruDetails(this)
                 }
 
@@ -120,7 +118,22 @@ class GuruProfileActivity : BaseActivity() {
                     Toast.makeText(this,"Silahkan kembali ke beranda untuk membuat tugas",
                     Toast.LENGTH_LONG).show()
                 }
-                // Tambahkan item menu lainnya sesuai kebutuhan
+                R.id.nav_kuis ->{
+                    startActivity(Intent(this, GuruKuisSayaActivity::class.java))
+                    finish()
+                }
+                R.id.nav_tugas->{
+                    startActivity(Intent(this, GuruTugasSayaActivity::class.java))
+                    finish()
+                }
+                R.id.nav_sign_out->{
+                    FirebaseAuth.getInstance().signOut()
+
+                    val intent = Intent(this, UserChooseActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(intent)
+                    finish()
+                }
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true

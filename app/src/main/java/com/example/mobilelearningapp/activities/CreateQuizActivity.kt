@@ -1,6 +1,5 @@
 package com.example.mobilelearningapp.activities
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
@@ -178,20 +177,7 @@ class CreateQuizActivity : BaseActivity() {
         }
     }
 
-//    private fun addNewQuestion() {
-//        val newQuestion = Question(
-//            id = questions.size + 1,
-//            question = "",
-//            image = 0,
-//            optionOne = "",
-//            optionTwo = "",
-//            optionThree = "",
-//            optionFour = "",
-//            correctAnswer = 0
-//        )
-//        questions.add(newQuestion)
-//        questionAdapter.notifyItemInserted(questions.size - 1)
-//    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_delete, menu)
         return super.onCreateOptionsMenu(menu)
@@ -243,6 +229,9 @@ class CreateQuizActivity : BaseActivity() {
         val kuis = Kuis(
             id = UUID.randomUUID().toString(),
             namaKuis = namaKuis,
+            namaKelas = mKelasDetails.nama,
+            namaMataPelajaran = mKelasDetails.course,
+            namaMateri = mKelasDetails.materiList[mMateriListPosition].nama,
             createdBy = FirestoreClass().getCurrentUserID(),
             desc = deskripsi,
             dueDate = mSelectedDueDateMilliSeconds,
@@ -253,6 +242,7 @@ class CreateQuizActivity : BaseActivity() {
         FirestoreClass().addUpdateMateriList(this, mKelasDetails)
 
         Toast.makeText(this, "Kuis berhasil disimpan", Toast.LENGTH_SHORT).show()
+//        finish()
     }
 
     private fun updateQuestionList() {
@@ -310,11 +300,14 @@ class CreateQuizActivity : BaseActivity() {
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
         // Preserve existing PDF information if not changed
-        val currentTugas = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
+        val currentKuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
 
         val updatedKuis = Kuis(
-            id = currentTugas.id,
+            id = currentKuis.id,
             namaKuis = namaKuis,
+            namaMateri = currentKuis.namaMateri,
+            namaKelas = currentKuis.namaKelas,
+            namaMataPelajaran = currentKuis.namaMataPelajaran,
             desc = deskripsi,
             dueDate = mSelectedDueDateMilliSeconds,
             createdBy = FirestoreClass().getCurrentUserID(),

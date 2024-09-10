@@ -10,6 +10,9 @@ import kotlin.collections.ArrayList
 data class Tugas(
     var id: String = "",
     var namaTugas : String = "",
+    var namaMateri : String = "",
+    var namaKelas : String = "",
+    var namaMapel: String = "",
     var createdBy: String = "",
     var soal : String = "",
     var imageSoal: String = "",

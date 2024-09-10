@@ -18,7 +18,7 @@
             android:title="Buat Kelas"></item>
 
         <item
-            android:id="@+id/tugas"
+            android:id="@+id/nav_tugas"
             android:icon="@drawable/ic_baseline_menu_book_24"
             android:title="Tugas Saya"></item>
 

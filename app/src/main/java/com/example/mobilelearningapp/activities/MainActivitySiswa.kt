@@ -79,6 +79,7 @@ class MainActivitySiswa : BaseActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         toolbar.setNavigationIcon(R.drawable.ic_action_navigation_menu)
+        toolbar.title = "Mobile Learning SMAN 4 Jeneponto"
 
         toolbar.setNavigationOnClickListener {
             toogleDrawer()

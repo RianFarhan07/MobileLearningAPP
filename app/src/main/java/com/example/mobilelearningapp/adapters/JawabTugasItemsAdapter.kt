@@ -59,6 +59,8 @@ class JawabTugasItemsAdapter(
             holder.tvTanggalUpload.text = formatDate(model.uploadedDate)
             holder.tvNilai.text = model.nilai ?: "Belum dinilai"
             holder.tvNamaTugas.text = model.namaTugas
+            holder.tvKelas.text = model.namaKelas
+            holder.tvMateri.text = model.namaMateri
 
         }
 
@@ -99,5 +101,7 @@ class JawabTugasItemsAdapter(
         val tvTanggalUpload: TextView = view.findViewById(R.id.tvTanggalUpload)
         val tvNilai: TextView = view.findViewById(R.id.tvNilai)
         val tvNamaTugas: TextView = view.findViewById(R.id.tvNamaTugas)
+        val tvKelas: TextView = view.findViewById(R.id.tvNamaKelas)
+        val tvMateri: TextView = view.findViewById(R.id.tvNamaMateri)
     }
 }

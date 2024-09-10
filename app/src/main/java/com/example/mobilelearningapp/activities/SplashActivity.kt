@@ -21,7 +21,7 @@ class SplashActivity : BaseActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        val typeFaceMontserrat: Typeface = Typeface.createFromAsset(assets, "Montserrat-Regular.ttf")
+        val typeFaceMontserrat: Typeface = Typeface.createFromAsset(assets, "Montserrat-Bold.ttf")
 
 
         binding?.tvSchoolName?.typeface = typeFaceMontserrat

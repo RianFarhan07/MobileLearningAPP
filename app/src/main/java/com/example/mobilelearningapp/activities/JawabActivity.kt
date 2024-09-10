@@ -74,7 +74,7 @@ class JawabActivity : BaseActivity() {
             FirestoreClass().getUserRole(currentUserID) { role ->
                 if (role == "siswa") {
                     if (isUpdate){
-                        binding?.btnKumpulTugas?.text = "Update Tugas"
+                        binding?.btnKumpulTugas?.text = "Update Jawaban"
                         setUpDataJawaban()
                     }else{
                         binding?.btnKumpulTugas?.text = "Buat Tugas"
@@ -130,6 +130,19 @@ class JawabActivity : BaseActivity() {
                     }
                 }
             }
+        }
+
+        binding?.tvSoal?.text = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].soal
+        if ( mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal.isNotEmpty()) {
+            binding?.llImageSoal?.visibility = View.VISIBLE
+            Glide
+                .with(this@JawabActivity)
+                .load(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal)
+                .centerCrop()
+                .placeholder(R.drawable.ic_board_place_holder)
+                .into(binding?.ivImageSoal!!)
+        } else {
+            binding?.llImageSoal?.visibility = View.GONE
         }
     }
 
@@ -406,6 +419,8 @@ class JawabActivity : BaseActivity() {
             id = UUID.randomUUID().toString(),
             namaTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas,
             namaPenjawab = namaPenjawab,
+            namaMateri  = mKelasDetails.materiList[mMateriListPosition].nama,
+            namaKelas = mKelasDetails.nama,
             jawaban = deskripsiTugas,
             imageJawaban = mMateriImageURL,
             uploadedDate =  System.currentTimeMillis(),
@@ -456,6 +471,9 @@ class JawabActivity : BaseActivity() {
         val updatedJawaban = JawabanTugas(
             id = currentJawaban.id,
             namaPenjawab = namaPenjawab,
+            namaTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas,
+            namaMateri  = mKelasDetails.materiList[mMateriListPosition].nama,
+            namaKelas = mKelasDetails.nama,
             jawaban = deskripsiJawaban,
             imageJawaban = if (mMateriImageURL.isNotEmpty()) mMateriImageURL else currentJawaban.imageJawaban,
             uploadedDate = mUloadedJawaban,
@@ -478,6 +496,7 @@ class JawabActivity : BaseActivity() {
             mJawabListPosition,
             updatedJawaban
         )
+
     }
 
     fun jawabUpdateSuccess(){

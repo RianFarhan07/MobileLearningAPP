@@ -35,10 +35,10 @@ class ResultKuisActivity : AppCompatActivity() {
             val currentUserId = FirestoreClass().getCurrentUserID()
             val currentKuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
             val userJawaban = currentKuis.jawab.find { it.createdBy == currentUserId }
-            binding?.tvScore?.text = "Your Score is  ${userJawaban?.nilai.toString()}"
+            binding?.tvScore?.text = "Nilai anda  ${userJawaban?.nilai.toString()}"
             binding?.tvName?.text = userJawaban?.namaPenjawab
         }else{
-            binding?.tvScore?.text = "Your Score is  $mScore ($mCorrectAnswers of $mTotalQuestion)"
+            binding?.tvScore?.text = "Nilai Kamu  $mScore ($mCorrectAnswers benar dari $mTotalQuestion soal)"
             binding?.tvName?.text = mUsername
         }
 

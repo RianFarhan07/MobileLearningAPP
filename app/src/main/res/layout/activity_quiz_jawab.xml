@@ -120,7 +120,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:background="@drawable/app_gradient_color_background"
-        android:text="SUBMIT"
+        android:text="MASUKKAN JAWABAN"
         android:textColor="@color/onPrimary"
         android:textSize="18sp"
         android:textStyle="bold"

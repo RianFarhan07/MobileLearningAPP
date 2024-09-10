@@ -44,7 +44,10 @@ class KuisItemsAdapter(
     override fun onBindViewHolder(holder: KuisViewHolder, position: Int) {
         val model = list[position]
 
-        holder.binding.tvName.text = model.namaKuis
+        holder.binding.tvNamaKuis.text = model.namaKuis
+        holder.binding.tvKelas.text = "Kelas : ${model.namaKelas}"
+        holder.binding.tvMateri.text = "Materi : ${model.namaMateri}"
+        holder.binding.tvMapel.text = "Mata Pelajaran : ${model.namaMataPelajaran}"
 
         val currentDate = Calendar.getInstance()
         val dueDate = Calendar.getInstance()

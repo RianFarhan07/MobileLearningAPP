@@ -42,6 +42,8 @@ class JawabanKuisItemsAdapter(
             holder.tvNamaPenjawab.text = model.namaPenjawab
             holder.tvNilai.text = model.nilai ?: "Belum dinilai"
             holder.tvNamaKuis.text = model.namaKuis
+            holder.tvNamaMateri.text = model.namaMateri
+            holder.tvNamaKelas.text = model.namaKelas
         }
 
         holder.itemView.setOnClickListener {
@@ -73,5 +75,7 @@ class JawabanKuisItemsAdapter(
         val tvNamaPenjawab: TextView = view.findViewById(R.id.tvNamaPenjawab)
         val tvNilai: TextView = view.findViewById(R.id.tvNilai)
         val tvNamaKuis: TextView = view.findViewById(R.id.tv_nama_kuis)
+        val tvNamaMateri: TextView = view.findViewById(R.id.tv_nama_materi)
+        val tvNamaKelas: TextView = view.findViewById(R.id.tv_nama_kelas)
     }
 }

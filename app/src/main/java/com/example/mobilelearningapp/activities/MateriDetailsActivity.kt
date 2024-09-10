@@ -20,6 +20,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
+import android.view.WindowManager
 import android.webkit.MimeTypeMap
 import android.widget.Button
 import android.widget.TextView
@@ -509,6 +510,11 @@ class MateriDetailsActivity : BaseActivity() {
             .setCancelable(true)
 
         val dialog = dialogBuilder.create()
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+
 
         val rvTugasList = dialogView.findViewById<RecyclerView>(R.id.rv_tugas_list)
         val btnBuatTugas = dialogView.findViewById<Button>(R.id.btn_buat_tugas)

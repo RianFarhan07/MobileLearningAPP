@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_logo"
-        android:icon="@drawable/logosmk"
+        android:icon="@drawable/logosmkcrop"
         android:title="Logo"
         android:orderInCategory="100"
         app:showAsAction="always" />

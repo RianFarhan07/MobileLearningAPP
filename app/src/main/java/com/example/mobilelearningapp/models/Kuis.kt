@@ -8,6 +8,9 @@ import kotlin.collections.ArrayList
 data class Kuis(
     var id: String = "",
     var namaKuis: String = "",
+    var namaMateri : String = "",
+    var namaKelas : String = "",
+    var namaMataPelajaran : String = "",
     var createdBy: String = "",
     var desc : String = "",
     val dueDate: Long = 0,

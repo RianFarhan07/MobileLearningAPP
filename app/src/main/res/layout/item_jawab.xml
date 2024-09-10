@@ -24,7 +24,8 @@
 
         <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="#e9ecef">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -70,11 +71,11 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tanggal Upload"
+                        android:text="Nama Tugas"
                         android:textStyle="bold"/>
 
                     <TextView
-                        android:id="@+id/tvTanggalUpload"
+                        android:id="@+id/tvNamaTugas"
                         android:layout_width="120dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"/>
@@ -89,11 +90,49 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Nama Tugas"
+                        android:text="Kelas"
                         android:textStyle="bold"/>
 
                     <TextView
-                        android:id="@+id/tvNamaTugas"
+                        android:id="@+id/tvNamaKelas"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Materi"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tvNamaMateri"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tanggal Upload"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tvTanggalUpload"
                         android:layout_width="120dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"/>

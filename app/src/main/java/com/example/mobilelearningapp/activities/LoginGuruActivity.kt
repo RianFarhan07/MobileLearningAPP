@@ -1,6 +1,7 @@
 package com.example.mobilelearningapp.activities
 
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -29,6 +30,10 @@ class LoginGuruActivity : BaseActivity(), View.OnClickListener {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
         }
+
+        val typeFaceArco: Typeface = Typeface.createFromAsset(assets, "ARCO.ttf")
+        binding?.tvLogin?.typeface = typeFaceArco
+        binding?.tvTitle?.typeface = typeFaceArco
 
         binding?.btnLogin?.setOnClickListener(this)
         binding?.tvRegister?.setOnClickListener(this)

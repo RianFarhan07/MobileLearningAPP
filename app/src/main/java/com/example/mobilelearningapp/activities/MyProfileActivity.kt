@@ -102,15 +102,30 @@ class MyProfileActivity : BaseActivity() {
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_beranda -> {
-                    // Navigasi ke halaman beranda
                     startActivity(Intent(this, MainActivitySiswa::class.java))
                     finish()
                 }
                 R.id.nav_my_profile -> {
-                    // Sudah di halaman profil, mungkin refresh data?
-                    FirestoreClass().getSiswaDetails(this)
+                    val intent = Intent(this, MyProfileActivity::class.java)
+                    startActivity(intent)
                 }
-                // Tambahkan item menu lainnya sesuai kebutuhan
+                R.id.nav_tugas -> {
+                    val intent = Intent(this, TugasSayaActivity::class.java)
+                    startActivity(intent)
+                }
+
+                R.id.nav_kuis -> {
+                    val intent = Intent(this, KuisSayaActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.nav_sign_out -> {
+                    FirebaseAuth.getInstance().signOut()
+
+                    val intent = Intent(this, UserChooseActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(intent)
+                    finish()
+                }
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true

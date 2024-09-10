@@ -12,6 +12,8 @@ data class JawabanTugas(
     var createdBy: String = "",
     var namaPenjawab : String = "",
     var namaTugas : String = "",
+    var namaMateri : String = "",
+    var namaKelas : String = "",
     var jawaban : String = "",
     var imageJawaban: String = "",
     val pdfUrl: String = "",

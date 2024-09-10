@@ -3,6 +3,12 @@ package com.example.mobilelearningapp.activities
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mobilelearningapp.KuisItemsAdapter
 import com.example.mobilelearningapp.R
@@ -12,6 +18,8 @@ import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Kuis
 import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.utils.Constants
+import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 
@@ -23,6 +31,8 @@ class GuruKuisSayaActivity : BaseActivity() {
     private var kelasList: ArrayList<Kelas> = ArrayList()
     private lateinit var kuisAdapter: KuisItemsAdapter
     private var allKuis: ArrayList<Kuis> = ArrayList()
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var toggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityGuruKuisSayaBinding.inflate(layoutInflater)
@@ -35,19 +45,74 @@ class GuruKuisSayaActivity : BaseActivity() {
         fetchUserKuis()
     }
 
-    private fun setupActionBar(){
-        setSupportActionBar(binding?.toolbarMyKuisGuruListActivity)
-        val toolbar = supportActionBar
-        if (toolbar != null){
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
+    private fun setupActionBar() {
+        val toolbar: Toolbar = findViewById(R.id.toolbar_my_kuis_guru_list_activity)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_action_navigation_menu) // Ganti dengan icon menu Anda
+        supportActionBar?.setDisplayShowTitleEnabled(false) // Sembunyikan judul default
+        supportActionBar?.title = "DAFTAR KUIS"
+        toolbar.title = "DAFTAR KUIS"
+    }
 
-            supportActionBar?.title = "Daftar Kuis Anda"
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        return true
+    }
 
+    private fun setupNavigationDrawer() {
+        drawerLayout = binding?.drawerLayout!!
+        val navView: NavigationView = binding!!.navView
+
+        toggle = ActionBarDrawerToggle(
+            this, drawerLayout, binding!!.toolbarMyKuisGuruListActivity,
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_beranda -> {
+                    startActivity(Intent(this, MainGuruActivity::class.java))
+                    finish()
+                }
+                R.id.nav_guru_profile -> {
+                    val intent = Intent(this, GuruProfileActivity::class.java)
+                    startActivityForResult(intent, MainGuruActivity.GURU_PROFILE_REQUEST_CODE)
+                }
+
+                R.id.nav_buat_kelas ->{
+                    Toast.makeText(this,"Silahkan kembali ke beranda untuk membuat tugas",
+                        Toast.LENGTH_LONG).show()
+                }
+                R.id.nav_kuis ->{
+                    startActivity(Intent(this, GuruKuisSayaActivity::class.java))
+                    finish()
+                }
+                R.id.nav_tugas->{
+                    startActivity(Intent(this, GuruTugasSayaActivity::class.java))
+                    finish()
+                }
+                R.id.nav_sign_out->{
+                    FirebaseAuth.getInstance().signOut()
+
+                    val intent = Intent(this, UserChooseActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(intent)
+                    finish()
+                }
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
         }
+    }
 
-        binding?.toolbarMyKuisGuruListActivity?.setNavigationOnClickListener {
-            onBackPressed()
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
         }
     }
 
@@ -95,8 +160,9 @@ class GuruKuisSayaActivity : BaseActivity() {
                 Log.d("KuisSayaActivity", "Added jawaban for user: ${kuis.namaKuis}")
             }
         }
-    setupRecyclerView()
-    setupActionBar()
+        setupRecyclerView()
+        setupActionBar()
+        setupNavigationDrawer()
     }
 
     private fun onKuisClicked(position: Int, kuis: Kuis) {

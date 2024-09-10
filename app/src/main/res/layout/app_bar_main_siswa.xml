@@ -15,8 +15,10 @@
             android:id="@+id/toolbar_main_activity"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:title="Mobile Learning SMKN 4 Jeneponto"
             android:background="@drawable/app_gradient_color_background"
-            app:popupTheme="@style/AppBarOverlay" />
+            app:popupTheme="@style/AppBarOverlay"
+            app:titleTextAppearance="@style/CustomToolbarTitleText" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

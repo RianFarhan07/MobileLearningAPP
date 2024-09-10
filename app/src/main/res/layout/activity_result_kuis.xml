@@ -13,7 +13,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Result"
+        android:text="Hasil"
         android:gravity="center"
         android:textSize="24dp"
         android:layout_marginBottom="100dp"
@@ -30,7 +30,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hey, Congratulations!"
+        android:text="Hey, Selamat!"
         android:gravity="center"
         android:layout_marginTop="30dp"
         android:textSize="24dp"
@@ -67,7 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="FINISH"
+        android:text="SELESAI"
         android:textSize="16dp"
         android:textColor="@color/black"
         android:backgroundTint="@color/design_default_color_on_primary"

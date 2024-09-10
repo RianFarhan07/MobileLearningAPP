@@ -114,9 +114,9 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
         binding?.tvOptionFour?.text = question.optionFour
 
         if (mCurrentPosition == kuis.question.size) {
-            binding?.btnSubmitKuis?.text = "FINISH"
+            binding?.btnSubmitKuis?.text = "SELESAI"
         } else {
-            binding?.btnSubmitKuis?.text = "SUBMIT"
+            binding?.btnSubmitKuis?.text = "MASUKKAN JAWABAN"
         }
     }
 
@@ -150,7 +150,7 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
                 R.id.tv_option_four -> selectedOptionView(binding?.tvOptionFour!!, 4)
                 R.id.btn_Submit_kuis -> {
                     if (mSelectedOptionPosition == 0) {
-                        Toast.makeText(this, "Please select an answer", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Tolong Masukkan Jawaban", Toast.LENGTH_SHORT).show()
                     } else {
                         checkAnswer()
                     }
@@ -185,9 +185,9 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
         answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
 
         if (mCurrentPosition == kuis.question.size) {
-            binding?.btnSubmitKuis?.text = "FINISH"
+            binding?.btnSubmitKuis?.text = "SELESAI"
         } else {
-            binding?.btnSubmitKuis?.text = "NEXT QUESTION"
+            binding?.btnSubmitKuis?.text = "PERTANYAAN BERIKUTNYA"
         }
         question.selectedAnswer = mSelectedOptionPosition
 
@@ -215,6 +215,8 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
             nilai = score.toString(),
             namaPenjawab = mUsername,
             namaKuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].namaKuis,
+            namaKelas = mKelasDetails.nama,
+            namaMateri = mKelasDetails.materiList[mMateriListPosition].nama
         )
 
         kuis.jawab.add(quizResult)

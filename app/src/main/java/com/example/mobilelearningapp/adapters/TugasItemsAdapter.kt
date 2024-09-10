@@ -42,7 +42,10 @@ class TugasItemsAdapter(
     override fun onBindViewHolder(holder: TugasViewHolder, position: Int) {
         val model = list[position]
 
-        holder.binding.tvName.text = model.namaTugas
+        holder.binding.tvNamaTugas.text = model.namaTugas
+        holder.binding.tvKelas.text = "Kelas : ${model.namaKelas}"
+        holder.binding.tvMateri.text = "Materi : ${model.namaMateri}"
+        holder.binding.tvMapel.text = "Mata Pelajaran : ${model.namaMapel}"
 
         val currentDate = Calendar.getInstance()
         val dueDate = Calendar.getInstance()
@@ -51,14 +54,21 @@ class TugasItemsAdapter(
         val diffInDays = diffInMillis / (1000 * 60 * 60 * 24)
         val diffInHours = (diffInMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
 
-        holder.binding.tvSisaWaktu.text = "Sisa waktu: $diffInDays hari $diffInHours jam"
-
-        if (diffInMillis < 0) {
-            holder.binding.tvSisaWaktu.setTextColor(ContextCompat.getColor(context, R.color.colorSnackBarError))
-            holder.binding.tvSisaWaktu.text = "Waktu telah lewat"
-        } else {
+        if (model.dueDate == 0L){
+            holder.binding.tvSisaWaktu.text = "Belum ada tenggat waktu"
+        }else{
             holder.binding.tvSisaWaktu.text = "Sisa waktu: $diffInDays hari $diffInHours jam"
+
+            if (diffInMillis < 0) {
+                holder.binding.tvSisaWaktu.setTextColor(ContextCompat.getColor(context, R.color.colorSnackBarError))
+                holder.binding.tvSisaWaktu.text = "Waktu telah lewat"
+            } else {
+                holder.binding.tvSisaWaktu.setTextColor(ContextCompat.getColor(context, R.color.colorSnackBarSuccess))
+                holder.binding.tvSisaWaktu.text = "Sisa waktu: $diffInDays hari $diffInHours jam"
+            }
+
         }
+
 
         holder.itemView.setOnClickListener {
             val index = list.indexOf(model)

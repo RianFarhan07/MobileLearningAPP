@@ -60,7 +60,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:background="@android:color/transparent"
-                        android:hint="Ketik materi di sini..."
+                        android:hint="Ketik Tugas di sini..."
                         android:inputType="textMultiLine"
                         android:minLines="3"/>
 
@@ -201,6 +201,7 @@
                 app:cardElevation="4dp"
                 android:visibility="gone">
 
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -243,8 +244,16 @@
                         <!-- Informasi Tambahan -->
 
                     </LinearLayout>
-
                 </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btn_delete_file"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_baseline_delete_24"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Delete File"/>
             </androidx.cardview.widget.CardView>
 
             <androidx.recyclerview.widget.RecyclerView

@@ -60,6 +60,7 @@ class TugasActivity : BaseActivity() {
     private var mMateriListPosition = -1
     private var mTugasListPosition = -1
     private var isUpdate = false
+    private var isDeleteFile = false
 
     private var mSelectedDueDateMilliSeconds : Long = 0
     private var mSelectedImageFileUri : Uri? = null
@@ -142,6 +143,29 @@ class TugasActivity : BaseActivity() {
            selectFile()
         }
 
+        binding?.btnDeleteFile?.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Hapus File")
+                .setMessage("Apakah Anda yakin ingin menghapus file ini?")
+                .setPositiveButton("Ya") { dialog, _ ->
+                    // Logika untuk menghapus file dari tampilan dan database
+                    binding?.cvFile?.visibility = View.GONE
+                    mUploadedPdfUri = null
+                    selectedPdfFileName = ""
+                    isDeleteFile = true
+                    Log.e("SELECTED UPLOADED PDF URI",mUploadedPdfUri.toString())
+                    Log.e("selectedPdfname",selectedPdfFileName.toString())
+
+
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Tidak") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
+
+
 
 
         binding?.btnDueDate?.setOnClickListener {
@@ -185,6 +209,7 @@ class TugasActivity : BaseActivity() {
                     binding?.tvSoal?.visibility = View.VISIBLE
                     binding?.etNamaSoal?.inputType = InputType.TYPE_NULL
                     binding?.llInput?.visibility = View.GONE
+                    binding?.tvSoal?.text = currentTugas.soal
                     binding?.btnDueDate?.visibility = View.INVISIBLE
                 }else{
                     binding?.etNamaSoal?.setText(currentTugas.namaTugas)
@@ -192,6 +217,8 @@ class TugasActivity : BaseActivity() {
                 }
             }
         }
+
+
 
         mSelectedDueDateMilliSeconds = currentTugas.dueDate
 
@@ -345,6 +372,9 @@ class TugasActivity : BaseActivity() {
         val tugas = Tugas(
             id = UUID.randomUUID().toString(),
             namaTugas = namaTugas,
+            namaMateri = mKelasDetails.materiList[mMateriListPosition].nama,
+            namaKelas = mKelasDetails.nama,
+            namaMapel = mKelasDetails.course,
             soal = deskripsiTugas,
             imageSoal = mMateriImageURL,
             dueDate = mSelectedDueDateMilliSeconds,
@@ -376,12 +406,27 @@ class TugasActivity : BaseActivity() {
 
         // Preserve existing PDF information if not changed
         val currentTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition]
-        val updatedPdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else currentTugas.pdfUrl
-        val updatedPdfUrlName = if (selectedPdfFileName.isNotEmpty()) selectedPdfFileName else currentTugas.pdfUrlName
+//        val updatedPdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else currentTugas.pdfUrl
+//        val updatedPdfUrlName = if (selectedPdfFileName.isNotEmpty()) selectedPdfFileName else currentTugas.pdfUrlName
+
+        val updatedPdfUrl = if (isDeleteFile) {
+            "" // or "" if null is not acceptable
+        } else {
+            if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else currentTugas.pdfUrl
+        }
+
+        val updatedPdfUrlName = if (isDeleteFile) {
+            "" // or "" if null is not acceptable
+        } else {
+            if (selectedPdfFileName.isNotEmpty()) selectedPdfFileName else currentTugas.pdfUrlName
+        }
 
         val updatedTugas = Tugas(
             id = currentTugas.id,
             namaTugas = namaTugas,
+            namaMateri = currentTugas.namaMateri,
+            namaKelas = currentTugas.namaKelas,
+            namaMapel = currentTugas.namaMapel,
             soal = deskripsiTugas,
             imageSoal = if (mMateriImageURL.isNotEmpty()) mMateriImageURL else currentTugas.imageSoal,
             dueDate = mSelectedDueDateMilliSeconds,
@@ -390,6 +435,11 @@ class TugasActivity : BaseActivity() {
             pdfUrlName = updatedPdfUrlName,
             jawab = currentTugas.jawab // Preserve existing jawab data
         )
+
+        Log.e("SELECTED UPLOADED PDF URI",mUploadedPdfUri.toString())
+        Log.e("selectedPdfname",selectedPdfFileName.toString())
+        Log.e("Updatedpdfurl",updatedPdfUrl.toString())
+        Log.e("updatedpdfname",updatedPdfUrlName.toString())
 
         // Update the tugas in the mKelasDetails
         mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition] = updatedTugas
@@ -454,6 +504,8 @@ class TugasActivity : BaseActivity() {
                                 editor.putString("pdf_file_name", selectedPdfFileName)
                                 editor.putString("pdf_uri", mUploadedPdfUri.toString())
                                 editor.apply()
+
+                                isDeleteFile = false
                             }
                         }
                     }
@@ -489,6 +541,7 @@ class TugasActivity : BaseActivity() {
             showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
             FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+            setResult(RESULT_OK)
 
         }
     }
@@ -639,6 +692,7 @@ class TugasActivity : BaseActivity() {
 
     fun tugasUpdateSuccess(){
         FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+
     }
 
     fun populateJawabListToUI(jawabList: ArrayList<JawabanTugas>) {
@@ -720,7 +774,9 @@ class TugasActivity : BaseActivity() {
     fun jawabTugasDeleteSuccess() {
         hideProgressDialog()
         Toast.makeText(this, "Jawaban tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
+        //TODO GANTI JADI ADDUPDATE JIKA ADA MASALAH
         FirestoreClass().getKelasDetails(this, mKelasDocumentId) // Refresh data
+        setResult(RESULT_OK)
     }
 
     fun jawabanDetails(jawabanPosition: Int){

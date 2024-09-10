@@ -87,14 +87,14 @@ class MateriListActivity : BaseActivity() {
     }
 
     private fun setupActionBar(){
-        setSupportActionBar(binding?.toolbarMateriListActivity)
+        setSupportActionBar(binding?.toolbarMateriList)
         val toolbar = supportActionBar
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
             supportActionBar?.title = "Daftar Materi ${mKelasDetails.nama}"
         }
-        binding?.toolbarMateriListActivity?.setNavigationOnClickListener {
+        binding?.toolbarMateriList?.setNavigationOnClickListener {
             onBackPressed()
         }
     }
