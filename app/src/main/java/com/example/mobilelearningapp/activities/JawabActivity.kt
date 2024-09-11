@@ -78,7 +78,7 @@ class JawabActivity : BaseActivity() {
                         binding?.btnKumpulTugas?.text = "Update Jawaban"
                         setUpDataJawaban()
                     }else{
-                        binding?.btnKumpulTugas?.text = "Buat Tugas"
+                        binding?.btnKumpulTugas?.text = "Kumpul Tugas"
                     }
                     binding?.etNilai?.inputType = InputType.TYPE_NULL
 
@@ -364,7 +364,7 @@ class JawabActivity : BaseActivity() {
             && requestCode == Constants.PICK_VIDEO_REQUEST_CODE
             && data!!.data != null
         ) {
-            showProgressDialog("Uploading Video")
+
             mSelectedVideoFileUri = data.data
 
             try {
@@ -376,7 +376,7 @@ class JawabActivity : BaseActivity() {
                     .into(binding?.ivVideoMateri!!)
 
                 binding?.llVideoMateri?.visibility = View.VISIBLE
-
+                binding?.llUploadProgress?.visibility = View.VISIBLE
                 uploadJawabanVideo()
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -469,7 +469,7 @@ class JawabActivity : BaseActivity() {
                 )
 
                 taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
-                    hideProgressDialog()
+                    binding?.llUploadProgress?.visibility = View.GONE
                     Log.e("Downloadable Video URL", uri.toString())
                     mMateriVideoURL = uri.toString()
 
@@ -484,7 +484,11 @@ class JawabActivity : BaseActivity() {
                     exception.message,
                     Toast.LENGTH_LONG
                 ).show()
-                hideProgressDialog()
+
+            }.addOnProgressListener { taskSnapshot ->
+                val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
+                binding?.progressBarUploadVideo?.progress = progress.toInt()
+                binding?.textProgress?.text = "${progress.toString()} %"
             }
         }
     }

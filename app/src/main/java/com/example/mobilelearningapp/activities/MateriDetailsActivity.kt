@@ -254,7 +254,7 @@ class MateriDetailsActivity : BaseActivity() {
             && requestCode == Constants.PICK_VIDEO_REQUEST_CODE
             && data!!.data != null
         ) {
-            showProgressDialog("Uploading Video")
+
             mSelectedVideoFileUri = data.data
 
             try {
@@ -266,7 +266,7 @@ class MateriDetailsActivity : BaseActivity() {
                     .into(binding?.ivVideoMateri!!)
 
                 binding?.llVideoMateri?.visibility = View.VISIBLE
-
+                binding?.llUploadProgress?.visibility = View.VISIBLE
                 uploadMateriVideo()
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -500,7 +500,7 @@ class MateriDetailsActivity : BaseActivity() {
                 taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
                     Log.e("Downloadable Video URL", uri.toString())
                     mMateriVideoURL = uri.toString()
-                    hideProgressDialog()
+                    binding?.llUploadProgress?.visibility = View.GONE
 
                     // Update Materi dengan URL gambar baru
                     updateMateriWithVideo()
@@ -511,7 +511,10 @@ class MateriDetailsActivity : BaseActivity() {
                     exception.message,
                     Toast.LENGTH_LONG
                 ).show()
-                hideProgressDialog()
+            }.addOnProgressListener { taskSnapshot ->
+                val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
+                binding?.progressBarUploadVideo?.progress = progress.toInt()
+                binding?.textProgress?.text = "${progress.toString()} %"
             }
         }
     }

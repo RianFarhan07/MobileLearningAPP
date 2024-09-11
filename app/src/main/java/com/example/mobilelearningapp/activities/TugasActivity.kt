@@ -96,6 +96,7 @@ class TugasActivity : BaseActivity() {
             FirestoreClass().getUserRole(currentUserID) { role ->
                 if (role == "siswa") {
                     binding?.btnLihatHasilTugas?.visibility = View.GONE
+                    binding?.btnDeleteFile?.visibility = View.GONE
                     binding?.btnKumpulTugas?.setOnClickListener {
 
                         val intent = Intent(this@TugasActivity,JawabActivity::class.java)
@@ -736,6 +737,13 @@ class TugasActivity : BaseActivity() {
 
                     val tvYa = dialogView.findViewById<TextView>(R.id.tv_ya)
                     val tvTidak = dialogView.findViewById<TextView>(R.id.tv_tidak)
+                    val tvTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+                    val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+
+                    tvTitle.text = "Hapus Jawaban"
+                    tvMessage.text = "Apakah Anda yakin ingin menghapus jawaban ini?"
+
+
 
                     tvYa.setOnClickListener {
                         showProgressDialog(resources.getString(R.string.mohon_tunggu))
