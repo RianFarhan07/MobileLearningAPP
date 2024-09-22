@@ -94,7 +94,8 @@
             android:name=".activities.CreateQuestionActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -103,7 +104,8 @@
             android:name=".activities.CreateQuizActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -121,7 +123,8 @@
             android:name=".activities.JawabActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -130,7 +133,8 @@
             android:name=".activities.TugasActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -139,7 +143,8 @@
             android:name=".activities.MateriDetailsActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -157,7 +162,8 @@
             android:name=".activities.GuruProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -211,7 +217,8 @@
             android:name=".activities.LoginGuruActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -220,7 +227,8 @@
             android:name=".activities.LoginSiswaActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

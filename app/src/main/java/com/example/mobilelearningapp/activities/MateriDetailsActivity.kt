@@ -15,6 +15,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.*
+import android.text.method.ScrollingMovementMethod
 import android.text.style.StyleSpan
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,6 +24,7 @@ import android.view.View
 import android.view.WindowManager
 import android.webkit.MimeTypeMap
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -83,6 +85,8 @@ class MateriDetailsActivity : BaseActivity() {
         setupActionBar()
         FirestoreClass().getKelasDetails(this,mKelasDocumentId)
         populateMateriDesc()
+
+
 
         val currentUserID = FirestoreClass().getCurrentUserID()
         if (currentUserID.isNotEmpty()) {
