@@ -51,24 +51,47 @@
 
                 <ImageButton
                     android:id="@+id/ib_close_list_name"
+                    android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackground"
                     android:padding="10dp"
                     android:src="@drawable/ic_cancel" />
 
-                <EditText
-                    android:id="@+id/et_task_list_name"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_weight="12"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:autofillHints="Nama Materi"
-                    android:hint="Nama Materi"
-                    android:imeOptions="actionDone"
-                    android:inputType="text" />
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <EditText
+                        android:id="@+id/et_materi_list_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:autofillHints="Nama Materi"
+                        android:hint="Nama Materi"
+                        android:imeOptions="actionDone"
+                        android:inputType="text" />
+
+                    <EditText
+                        android:id="@+id/et_materi_list_course"
+                        android:layout_width="match_parent"
+
+                        android:layout_height="wrap_content"
+                        android:autofillHints="Kelas"
+                        android:hint="Mata Pelajaran"
+                        android:textSize="18sp"
+                        android:imeOptions="actionDone"
+                        android:inputType="text" />
+
+                </LinearLayout>
+
 
                 <ImageButton
                     android:id="@+id/ib_done_list_name"
+                    android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackground"

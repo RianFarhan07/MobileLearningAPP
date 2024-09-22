@@ -64,11 +64,13 @@ class MateriListActivity : BaseActivity() {
         }
 
         binding!!.ibDoneListName.setOnClickListener{
-            val listName = binding!!.etTaskListName.text.toString()
+            val listName = binding!!.etMateriListName.text.toString()
+            val materiCourse = binding!!.etMateriListCourse.text.toString()
 
-            if (listName.isNotEmpty()){
-                createMateriList(listName)
-                binding!!.etTaskListName.text.clear()
+            if (listName.isNotEmpty() && materiCourse.isNotEmpty()){
+                createMateriList(listName,materiCourse)
+                binding!!.etMateriListName.text.clear()
+                binding!!.etMateriListCourse.text.clear()
                 binding!!.tvAddMateri.visibility = View.VISIBLE
                 binding!!.cvAddTaskListName.visibility = View.GONE
             }else{
@@ -178,11 +180,11 @@ class MateriListActivity : BaseActivity() {
         }
     }
 
-    fun createMateriList(materiListName: String){
+    fun createMateriList(materiListName: String, materiCourse : String){
 
         val currentUserId = FirestoreClass().getCurrentUserID()
         val materiId = FirestoreClass().mFireStore.collection(Constants.KELAS).document().id
-        val materi = Materi(materiId, materiListName, currentUserId)
+        val materi = Materi(materiId, materiListName, materiCourse,currentUserId)
 
 
         mKelasDetails.materiList.add(0,materi)

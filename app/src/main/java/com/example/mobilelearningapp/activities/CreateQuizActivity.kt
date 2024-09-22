@@ -230,7 +230,7 @@ class CreateQuizActivity : BaseActivity() {
             id = UUID.randomUUID().toString(),
             namaKuis = namaKuis,
             namaKelas = mKelasDetails.nama,
-            namaMataPelajaran = mKelasDetails.course,
+            namaMataPelajaran = mKelasDetails.materiList[mMateriListPosition].mapel,
             namaMateri = mKelasDetails.materiList[mMateriListPosition].nama,
             createdBy = FirestoreClass().getCurrentUserID(),
             desc = deskripsi,

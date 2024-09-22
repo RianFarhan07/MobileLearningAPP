@@ -375,7 +375,7 @@ class TugasActivity : BaseActivity() {
             namaTugas = namaTugas,
             namaMateri = mKelasDetails.materiList[mMateriListPosition].nama,
             namaKelas = mKelasDetails.nama,
-            namaMapel = mKelasDetails.course,
+            namaMapel = mKelasDetails.materiList[mMateriListPosition].mapel,
             soal = deskripsiTugas,
             imageSoal = mMateriImageURL,
             dueDate = mSelectedDueDateMilliSeconds,

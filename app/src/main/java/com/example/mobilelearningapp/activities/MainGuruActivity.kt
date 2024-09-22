@@ -187,16 +187,13 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
 
         binding.tvAdd.setOnClickListener {
             val nama = binding.etClasssesName.text.toString()
-            val course = binding.etCourse.text.toString()
 
             var kelas = Kelas(
                 nama,
-                course,
                 mUserName,
             )
 
-            if (binding.etClasssesName.text?.isNotEmpty() == true &&
-                binding.etCourse.text?.isNotEmpty() == true){
+            if (binding.etClasssesName.text?.isNotEmpty() == true){
                 FirestoreClass().createKelas(this,kelas)
 
                 dialog.dismiss()
@@ -219,13 +216,11 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
 
         // Mengisi EditText dengan informasi kelas yang ada
         binding.etClasssesName.setText(kelas.nama)
-        binding.etCourse.setText(kelas.course)
 
         binding.tvAdd.text = "UPDATE" // Mengubah teks tombol menjadi "Update"
 
         binding.tvAdd.setOnClickListener {
             val newNama = binding.etClasssesName.text.toString()
-            val newCourse = binding.etCourse.text.toString()
 
             val kelasHashMap = HashMap<String, Any>()
             var anyChangesMade = false
@@ -235,10 +230,6 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
                 anyChangesMade = true
             }
 
-            if (newCourse != kelas.course) {
-                kelasHashMap["course"] = newCourse
-                anyChangesMade = true
-            }
 
             if (anyChangesMade) {
                 // Update kelas di Firestore

@@ -6,7 +6,6 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class Kelas (
     val nama: String ="",
-    val course: String ="",
     val createdBy: String? = "",
     var materiList : ArrayList<Materi> = ArrayList(),
     var documentId: String? = "",

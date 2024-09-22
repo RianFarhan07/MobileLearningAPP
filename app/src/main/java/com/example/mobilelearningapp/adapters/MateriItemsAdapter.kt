@@ -38,6 +38,7 @@ class MateriItemsAdapter(
         val model = list[position]
 
         holder.binding.tvName.text = model.nama
+        holder.binding.tvMapel.text = "Mata Pelajaran : ${model.mapel}"
 
         holder.itemView.setOnClickListener {
             val intent = Intent(context, MateriDetailsActivity::class.java)
@@ -110,17 +111,20 @@ class MateriItemsAdapter(
 
 
         val etMateri = dialogView.findViewById<EditText>(R.id.et_classses_name)
+        val etCourse = dialogView.findViewById<EditText>(R.id.et_classses_course)
         val tvEdit = dialogView.findViewById<TextView>(R.id.tv_edit_materi)
         val tvCancel = dialogView.findViewById<TextView>(R.id.tv_cancel)
 
 
         etMateri.setText(materi.nama)
+        etCourse.setText(materi.mapel)
 
 
         tvEdit.setOnClickListener {
             val newName = etMateri.text.toString()
-            if (newName.isNotEmpty()) {
-                onEditClickListener?.onEditClick(position, materi.copy(nama = newName))
+            val newCourse = etCourse.text.toString()
+            if (newName.isNotEmpty() && newCourse.isNotEmpty()) {
+                onEditClickListener?.onEditClick(position, materi.copy(nama = newName, mapel = newCourse))
                 dialog.dismiss()
             }
         }

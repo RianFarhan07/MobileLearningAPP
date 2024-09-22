@@ -8,6 +8,7 @@ import kotlin.collections.ArrayList
 data class Materi(
     var id: String = "",
     var nama: String = "",
+    var mapel : String = "",
     var createdBy: String = "",
     var desc : String = "",
     var file : ArrayList<File> = ArrayList(),
