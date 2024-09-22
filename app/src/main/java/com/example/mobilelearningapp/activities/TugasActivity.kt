@@ -744,7 +744,6 @@ class TugasActivity : BaseActivity() {
                     tvMessage.text = "Apakah Anda yakin ingin menghapus jawaban ini?"
 
 
-
                     tvYa.setOnClickListener {
                         showProgressDialog(resources.getString(R.string.mohon_tunggu))
                         FirestoreClass().deleteJawabTugas(

@@ -77,7 +77,8 @@ class MainGuruActivity : BaseActivity(), NavigationView.OnNavigationItemSelected
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_logo -> {
-                // Tindakan ketika logo diklik
+                FirestoreClass().getSiswaDetails(this)
+                FirestoreClass().getKelasList(this)
                 return true
             }
         }
