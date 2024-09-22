@@ -91,12 +91,14 @@ class TugasActivity : BaseActivity() {
         mStorageReference = FirebaseStorage.getInstance().reference
 
 
+
         val currentUserID = FirestoreClass().getCurrentUserID()
         if (currentUserID.isNotEmpty()) {
             FirestoreClass().getUserRole(currentUserID) { role ->
                 if (role == "siswa") {
                     binding?.btnLihatHasilTugas?.visibility = View.GONE
                     binding?.btnDeleteFile?.visibility = View.GONE
+                    binding?.btnDeleteImage?.visibility = View.GONE
                     binding?.btnKumpulTugas?.setOnClickListener {
 
                         val intent = Intent(this@TugasActivity,JawabActivity::class.java)
@@ -158,6 +160,22 @@ class TugasActivity : BaseActivity() {
                     Log.e("selectedPdfname",selectedPdfFileName.toString())
 
 
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Tidak") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
+
+        binding?.btnDeleteImage?.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Hapus Foto")
+                .setMessage("Apakah Anda yakin ingin menghapus foto ini?")
+                .setPositiveButton("Ya") { dialog, _ ->
+                    // Logika untuk menghapus file dari tampilan dan database
+                    binding?.llImageSoal?.visibility = View.GONE
+                    deleteSoalImage()
                     dialog.dismiss()
                 }
                 .setNegativeButton("Tidak") { dialog, _ ->
@@ -244,17 +262,23 @@ class TugasActivity : BaseActivity() {
             }
         }
 
-        if (currentTugas.imageSoal.isNotEmpty()) {
+        if (mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal.isEmpty()){
+            binding?.llImageSoal?.visibility = View.GONE
+        }else{
             binding?.llImageSoal?.visibility = View.VISIBLE
             Glide
                 .with(this@TugasActivity)
                 .load(currentTugas.imageSoal)
                 .centerCrop()
                 .placeholder(R.drawable.ic_board_place_holder)
-                .into(binding?.ivImageMateri!!)
-        } else {
-            binding?.llImageSoal?.visibility = View.GONE
+                .into(binding?.ivImageSoal!!)
         }
+//        else if (currentTugas.imageSoal.isNotEmpty()){
+//
+
+//        } else {
+//            binding?.llImageSoal?.visibility = View.GONE
+//        }
         hideProgressDialog()
     }
 
@@ -527,7 +551,7 @@ class TugasActivity : BaseActivity() {
                     .load(mSelectedImageFileUri)
                     .centerCrop()
                     .placeholder(R.drawable.ic_board_place_holder)
-                    .into(binding?.ivImageMateri!!)
+                    .into(binding?.ivImageSoal!!)
 
                 binding?.llImageSoal?.visibility = View.VISIBLE
 
@@ -667,6 +691,33 @@ class TugasActivity : BaseActivity() {
                 hideProgressDialog()
             }
         }
+    }
+
+    private fun deleteSoalImage() {
+
+        if (isUpdate){
+            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal)
+
+            // Delete the image from Firebase Storage
+            storageRef.delete().addOnSuccessListener {
+                // Image deleted successfully from Storage, now update Firestore
+                mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal = ""
+
+            }.addOnFailureListener { exception ->
+                hideProgressDialog()
+                Toast.makeText(
+                    this@TugasActivity,
+                    "Error deleting image: ${exception.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }else{
+            binding?.llImageSoal?.visibility = View.GONE
+            mMateriImageURL = ""
+        }
+
+        // Get the storage reference of the image
+
     }
 
     fun materiUpdateSuccess() {

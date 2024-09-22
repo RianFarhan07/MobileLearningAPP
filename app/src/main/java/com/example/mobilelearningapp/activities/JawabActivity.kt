@@ -3,6 +3,7 @@ package com.example.mobilelearningapp.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -122,6 +123,38 @@ class JawabActivity : BaseActivity() {
                     Constants.READ_STORAGE_PERMISSION_CODE
                 )
             }
+        }
+
+        binding?.btnDeleteImage?.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Hapus Foto")
+                .setMessage("Apakah Anda yakin ingin menghapus foto ini?")
+                .setPositiveButton("Ya") { dialog, _ ->
+                    // Logika untuk menghapus file dari tampilan dan database
+                    binding?.llImageJawab?.visibility = View.GONE
+                    deleteJawabImage()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Tidak") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
+
+        binding?.btnDeleteVideo?.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Hapus Video")
+                .setMessage("Apakah Anda yakin ingin menghapus video ini?")
+                .setPositiveButton("Ya") { dialog, _ ->
+                    // Logika untuk menghapus file dari tampilan dan database
+                    binding?.llVideoMateri?.visibility = View.GONE
+                    deleteJawabVideo()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Tidak") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
         }
 
         binding?.btnUploadFile?.setOnClickListener {
@@ -491,6 +524,60 @@ class JawabActivity : BaseActivity() {
                 binding?.textProgress?.text = "${progress.toString()} %"
             }
         }
+    }
+
+    private fun deleteJawabImage() {
+
+        if (isUpdate){
+            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].imageJawaban)
+
+            // Delete the image from Firebase Storage
+            storageRef.delete().addOnSuccessListener {
+                // Image deleted successfully from Storage, now update Firestore
+                mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].imageJawaban = ""
+
+            }.addOnFailureListener { exception ->
+                hideProgressDialog()
+                Toast.makeText(
+                    this@JawabActivity,
+                    "Error deleting image: ${exception.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }else{
+            binding?.llImageJawab?.visibility = View.GONE
+            mMateriImageURL = ""
+        }
+
+        // Get the storage reference of the image
+
+    }
+
+    private fun deleteJawabVideo() {
+
+        if (isUpdate){
+            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban)
+
+            // Delete the image from Firebase Storage
+            storageRef.delete().addOnSuccessListener {
+                // Image deleted successfully from Storage, now update Firestore
+                mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban = ""
+
+            }.addOnFailureListener { exception ->
+                hideProgressDialog()
+                Toast.makeText(
+                    this@JawabActivity,
+                    "Error deleting video: ${exception.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }else{
+            binding?.llVideoMateri?.visibility = View.GONE
+            mMateriVideoURL = ""
+        }
+
+        // Get the storage reference of the image
+
     }
 
     private fun createJawaban() {

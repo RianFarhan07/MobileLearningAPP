@@ -73,7 +73,7 @@
                         android:minLines="3"
                         android:visibility="gone"/>
 
-                    <LinearLayout
+                    <FrameLayout
                         android:id="@+id/ll_image_jawab"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -86,37 +86,56 @@
                             android:layout_width="330dp"
                             android:layout_height="450dp"
                             android:scaleType="fitXY" />
-                    </LinearLayout>
 
-                    <LinearLayout
+                        <ImageButton
+                            android:id="@+id/btn_delete_image"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_delete_24"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:layout_gravity="top|end"
+                            android:padding="8dp"
+                            android:contentDescription="Delete Image"/>
+                    </FrameLayout>
+
+                    <FrameLayout
                         android:id="@+id/ll_video_materi"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/rv_item_image_background"
                         android:padding="2dp"
-                        android:layout_marginTop="20dp"
-                        android:visibility="gone">
+                        android:visibility="gone"
+                        android:layout_marginTop="20dp">
 
-                        <FrameLayout
-                            android:layout_width="330dp"
-                            android:layout_height="200dp">
+                    <FrameLayout
+                        android:layout_width="330dp"
+                        android:layout_height="200dp">
 
-                            <ImageView
-                                android:id="@+id/iv_video_materi"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="fitXY" />
+                        <ImageView
+                            android:id="@+id/iv_video_materi"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="fitXY" />
 
-                            <ImageView
-                                android:id="@+id/iv_play_icon"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
-                                android:layout_gravity="center"
-                                android:layout_marginRight="10dp"
-                                android:src="@drawable/ic_baseline_play_circle_24"
-                                android:alpha="0.7"/>
+                        <ImageView
+                            android:id="@+id/iv_play_icon"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_gravity="center"
+                            android:layout_marginRight="10dp"
+                            android:src="@drawable/ic_baseline_play_circle_24"
+                            android:alpha="0.7"/>
                         </FrameLayout>
-                    </LinearLayout>
+                        <ImageButton
+                            android:id="@+id/btn_delete_video"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_delete_24"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:layout_gravity="top|end"
+                            android:padding="8dp"
+                            android:contentDescription="Delete Video"/>
+                    </FrameLayout>
 
                     <LinearLayout
                         android:id="@+id/ll_upload_progress"

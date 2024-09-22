@@ -73,20 +73,30 @@
                         android:minLines="3"
                         android:visibility="gone"/>
 
-                    <LinearLayout
+                    <FrameLayout
                         android:id="@+id/ll_image_soal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/rv_item_image_background"
-                        android:padding="2dp"
-                        android:visibility="gone">
+                        android:visibility="gone"
+                        android:padding="2dp">
 
                         <ImageView
-                            android:id="@+id/iv_image_materi"
+                            android:id="@+id/iv_image_soal"
                             android:layout_width="330dp"
                             android:layout_height="450dp"
                             android:scaleType="fitXY" />
-                    </LinearLayout>
+
+                        <ImageButton
+                            android:id="@+id/btn_delete_image"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_delete_24"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:layout_gravity="top|end"
+                            android:padding="8dp"
+                            android:contentDescription="Delete Image"/>
+                    </FrameLayout>
 
                     <LinearLayout
                         android:id="@+id/ll_input"

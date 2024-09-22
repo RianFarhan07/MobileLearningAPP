@@ -100,6 +100,8 @@ class MateriDetailsActivity : BaseActivity() {
                     binding?.btnUpdateText?.visibility = View.GONE
                     binding?.btnUploadVideo?.visibility = View.GONE
                     binding?.btnUploadFile?.visibility = View.GONE
+                    binding?.btnDeleteImage?.visibility = View.GONE
+                    binding?.btnDeleteVideo?.visibility = View.GONE
                     binding?.tvMateri?.visibility = View.VISIBLE
 
                     binding?.tvMateri?.text =
@@ -157,6 +159,38 @@ class MateriDetailsActivity : BaseActivity() {
                     Constants.READ_STORAGE_PERMISSION_CODE
                 )
             }
+        }
+
+        binding?.btnDeleteImage?.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Hapus Foto")
+                .setMessage("Apakah Anda yakin ingin menghapus foto ini?")
+                .setPositiveButton("Ya") { dialog, _ ->
+                    // Logika untuk menghapus file dari tampilan dan database
+                    binding?.llImageMateri?.visibility = View.GONE
+                    deleteMateriImage()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Tidak") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
+
+        binding?.btnDeleteVideo?.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Hapus Video")
+                .setMessage("Apakah Anda yakin ingin menghapus video ini?")
+                .setPositiveButton("Ya") { dialog, _ ->
+                    // Logika untuk menghapus file dari tampilan dan database
+                    binding?.llVideoMateri?.visibility = View.GONE
+                    deleteMateriVideo()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Tidak") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
         }
 
         binding?.btnTugas?.setOnClickListener {
@@ -449,36 +483,76 @@ class MateriDetailsActivity : BaseActivity() {
         materiUpdateSuccess()
     }
 
-    private fun uploadMateriImage() {
+        private fun uploadMateriImage() {
 
-        if (mSelectedImageFileUri != null) {
-            val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
-                "MATERI_IMAGE" + System.currentTimeMillis() + "."
-                        + Constants.getFileExtension(this, mSelectedImageFileUri!!)
-            )
-
-            sRef.putFile(mSelectedImageFileUri!!).addOnSuccessListener { taskSnapshot ->
-                Log.e(
-                    "Firebase Image URL",
-                    taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
+            if (mSelectedImageFileUri != null) {
+                val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
+                    "MATERI_IMAGE" + System.currentTimeMillis() + "."
+                            + Constants.getFileExtension(this, mSelectedImageFileUri!!)
                 )
 
-                taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
-                    Log.e("Downloadable Image URL", uri.toString())
-                    mMateriImageURL = uri.toString()
-                    hideProgressDialog()
+                sRef.putFile(mSelectedImageFileUri!!).addOnSuccessListener { taskSnapshot ->
+                    Log.e(
+                        "Firebase Image URL",
+                        taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
+                    )
 
-                    // Update Materi dengan URL gambar baru
-                    updateMateriWithImage()
+                    taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
+                        Log.e("Downloadable Image URL", uri.toString())
+                        mMateriImageURL = uri.toString()
+                        hideProgressDialog()
+
+                        // Update Materi dengan URL gambar baru
+                        updateMateriWithImage()
+                    }
+                }.addOnFailureListener { exception ->
+                    Toast.makeText(
+                        this@MateriDetailsActivity,
+                        exception.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                    hideProgressDialog()
                 }
-            }.addOnFailureListener { exception ->
-                Toast.makeText(
-                    this@MateriDetailsActivity,
-                    exception.message,
-                    Toast.LENGTH_LONG
-                ).show()
-                hideProgressDialog()
             }
+        }
+
+    private fun deleteMateriImage() {
+
+        // Get the storage reference of the image
+        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mKelasDetails.materiList[mMateriListPosition].image)
+
+        // Delete the image from Firebase Storage
+        storageRef.delete().addOnSuccessListener {
+            // Image deleted successfully from Storage, now update Firestore
+            mKelasDetails.materiList[mMateriListPosition].image = ""
+            updateMateriInFirestore()
+        }.addOnFailureListener { exception ->
+            hideProgressDialog()
+            Toast.makeText(
+                this@MateriDetailsActivity,
+                "Error deleting image: ${exception.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun deleteMateriVideo() {
+
+        // Get the storage reference of the image
+        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mKelasDetails.materiList[mMateriListPosition].video)
+
+        // Delete the image from Firebase Storage
+        storageRef.delete().addOnSuccessListener {
+            // Image deleted successfully from Storage, now update Firestore
+            mKelasDetails.materiList[mMateriListPosition].video = ""
+            updateMateriInFirestore()
+        }.addOnFailureListener { exception ->
+            hideProgressDialog()
+            Toast.makeText(
+                this@MateriDetailsActivity,
+                "Error deleting image: ${exception.message}",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -486,6 +560,8 @@ class MateriDetailsActivity : BaseActivity() {
         mKelasDetails.materiList[mMateriListPosition].image = mMateriImageURL
         updateMateriInFirestore()
     }
+
+
 
     private fun uploadMateriVideo() {
 
