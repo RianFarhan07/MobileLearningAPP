@@ -132,10 +132,12 @@ class MateriListActivity : BaseActivity() {
             rvMateriList.visibility = View.VISIBLE
             tvNoKelasAvailable.visibility  = View.GONE
 
+            val sortedList = ArrayList(materiList.sortedBy { it.mapel })
+
             rvMateriList.layoutManager = LinearLayoutManager(this)
             rvMateriList.setHasFixedSize(true)
 
-            val adapter = MateriItemsAdapter(this@MateriListActivity,materiList)
+            val adapter = MateriItemsAdapter(this@MateriListActivity,sortedList)
             rvMateriList.adapter = adapter
 
             adapter.setOnClickListener(object: MateriItemsAdapter.OnClickListener{
