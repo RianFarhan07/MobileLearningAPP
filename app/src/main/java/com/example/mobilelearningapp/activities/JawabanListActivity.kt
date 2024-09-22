@@ -125,9 +125,8 @@ class JawabanListActivity : BaseActivity() {
             val adapter = JawabTugasItemsAdapter(this, mJawabList)
             rvJawabList.adapter = adapter
 
-            val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    val position = viewHolder.adapterPosition
+            adapter.setOnDeleteClickListener(object : JawabTugasItemsAdapter.OnDeleteClickListener {
+                override fun onDeleteClick(position: Int) {
                     val jawabToDelete = jawabList[position]
 
                     val dialogView = LayoutInflater.from(this@JawabanListActivity).inflate(R.layout.dialog_confirm_delete, null)
@@ -158,10 +157,7 @@ class JawabanListActivity : BaseActivity() {
                     }
 
                 }
-            }
-
-            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
-            deleteItemTouchHelper.attachToRecyclerView(rvJawabList)
+            })
 
             adapter.setOnClickListener(object: JawabTugasItemsAdapter.OnClickListener{
                 override fun onClick(position: Int, model: JawabanTugas) {

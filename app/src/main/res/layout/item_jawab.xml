@@ -7,6 +7,10 @@
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +21,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Informasi Jawaban Tugas"
+            android:text="Informasi Jawaban Kuis"
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginBottom="8dp"/>
@@ -159,4 +163,16 @@
             </LinearLayout>
         </HorizontalScrollView>
     </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:layout_gravity="top|end"
+            android:contentDescription="Delete"/>
+
+    </FrameLayout>
 </androidx.cardview.widget.CardView>

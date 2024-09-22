@@ -27,7 +27,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="Hapus Kelas"
+                    android:text="Hapus"
                     android:textColor="@color/onPrimary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -36,7 +36,7 @@
                     android:id="@+id/tvDialogMessage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Apakah Anda yakin ingin menghapus kelas ini?"
+                    android:text="Apakah Anda yakin ingin menghapus ini?"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:layout_marginTop="10dp"

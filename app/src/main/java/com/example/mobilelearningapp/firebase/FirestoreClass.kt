@@ -814,6 +814,56 @@ class FirestoreClass {
             }
     }
 
+    fun deleteJawabKuisForGuru(
+        activity: JawabanKuisListActivity,
+        kelasDocumentId: String,
+        materiPosition: Int,
+        kuisPosition: Int,
+        jawabId: String
+    ) {
+        mFireStore.collection(Constants.KELAS).document(kelasDocumentId)
+            .get()
+            .addOnSuccessListener { document ->
+                val kelasDetails = document.toObject(Kelas::class.java)
+                kelasDetails?.let { kelas ->
+                    if (materiPosition < kelas.materiList.size &&
+                        kuisPosition < kelas.materiList[materiPosition].kuis.size) {
+
+                        val currentKuis = kelas.materiList[materiPosition].kuis[kuisPosition]
+                        val updatedJawabList = currentKuis.jawab.filter { it.id != jawabId }
+
+                        // Create a new Tugas object with the updated jawab list
+                        val updatedKuis = currentKuis.copy(jawab = ArrayList(updatedJawabList))
+
+                        // Update the Tugas in the Materi
+                        kelas.materiList[materiPosition].kuis[kuisPosition] = updatedKuis
+
+                        // Update the entire Kelas object in Firestore
+                        mFireStore.collection(Constants.KELAS)
+                            .document(kelasDocumentId)
+                            .set(kelas)
+                            .addOnSuccessListener {
+                                activity.jawabKuisDeleteSuccess()
+                            }
+                            .addOnFailureListener { e ->
+                                activity.hideProgressDialog()
+                                Log.e(activity.javaClass.simpleName, "Error while deleting jawab tugas", e)
+                            }
+                    } else {
+                        activity.hideProgressDialog()
+                        Log.e(activity.javaClass.simpleName, "Invalid materi or tugas position")
+                    }
+                } ?: run {
+                    activity.hideProgressDialog()
+                    Log.e(activity.javaClass.simpleName, "Kelas details are null")
+                }
+            }
+            .addOnFailureListener { e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error while fetching kelas details", e)
+            }
+    }
+
     fun updateKuisInMateri(
         activity: CreateQuizActivity,
         kelasDocumentId: String,

@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +35,7 @@ class JawabTugasItemsAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var onClickListener: JawabTugasItemsAdapter.OnClickListener? = null
+    private var onDeleteClickListener: OnDeleteClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MyViewHolder(
@@ -70,6 +72,10 @@ class JawabTugasItemsAdapter(
                 onClickListener!!.onClick(index, model)
             }
         }
+
+        holder.itemView.findViewById<ImageButton>(R.id.btnDelete).setOnClickListener {
+            onDeleteClickListener?.onDeleteClick(position)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -89,11 +95,19 @@ class JawabTugasItemsAdapter(
         this.onClickListener = onClickListener
     }
 
+    fun setOnDeleteClickListener(onDeleteClickListener: OnDeleteClickListener) {
+        this.onDeleteClickListener = onDeleteClickListener
+    }
+
     fun updateData(newItems: List<JawabanTugas>) {
         Log.d("JawabTugasItemsAdapter", "Updating data with ${newItems.size} items")
         items.clear()
         items.addAll(newItems)
         notifyDataSetChanged()
+    }
+
+    interface OnDeleteClickListener {
+        fun onDeleteClick(position: Int)
     }
 
     private class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {

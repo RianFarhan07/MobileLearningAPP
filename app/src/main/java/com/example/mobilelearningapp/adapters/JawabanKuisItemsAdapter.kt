@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -18,6 +19,7 @@ class JawabanKuisItemsAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var onClickListener: JawabanKuisItemsAdapter.OnClickListener? = null
+    private var onDeleteClickListener: JawabanKuisItemsAdapter.OnDeleteClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MyViewHolder(
@@ -52,6 +54,11 @@ class JawabanKuisItemsAdapter(
                 onClickListener!!.onClick(index, model)
             }
         }
+
+        holder.itemView.findViewById<ImageButton>(R.id.btnDelete).setOnClickListener {
+            onDeleteClickListener?.onDeleteClick(position)
+        }
+
     }
 
     override fun getItemCount(): Int {
@@ -69,6 +76,14 @@ class JawabanKuisItemsAdapter(
 
     fun setOnClickListener(onClickListener: JawabanKuisItemsAdapter.OnClickListener) {
         this.onClickListener = onClickListener
+    }
+
+    fun setOnDeleteClickListener(onDeleteClickListener: JawabanKuisItemsAdapter.OnDeleteClickListener) {
+        this.onDeleteClickListener = onDeleteClickListener
+    }
+
+    interface OnDeleteClickListener {
+        fun onDeleteClick(position: Int)
     }
 
     private class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {

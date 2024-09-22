@@ -773,10 +773,9 @@ class TugasActivity : BaseActivity() {
             val adapter = JawabTugasItemsAdapter(this, filteredJawabanList)
             rvJawabList.adapter = adapter
 
-            val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    val position = viewHolder.adapterPosition
-                    val jawabToDelete = jawabList[position]
+            adapter.setOnDeleteClickListener(object : JawabTugasItemsAdapter.OnDeleteClickListener {
+                override fun onDeleteClick(position: Int) {
+                    val jawabToDelete = filteredJawabanList[position]
 
                     val dialogView = LayoutInflater.from(this@TugasActivity).inflate(R.layout.dialog_confirm_delete, null)
                     val dialog = AlertDialog.Builder(this@TugasActivity)
@@ -794,7 +793,6 @@ class TugasActivity : BaseActivity() {
                     tvTitle.text = "Hapus Jawaban"
                     tvMessage.text = "Apakah Anda yakin ingin menghapus jawaban ini?"
 
-
                     tvYa.setOnClickListener {
                         showProgressDialog(resources.getString(R.string.mohon_tunggu))
                         FirestoreClass().deleteJawabTugas(
@@ -810,12 +808,8 @@ class TugasActivity : BaseActivity() {
                     tvTidak.setOnClickListener {
                         dialog.dismiss()
                     }
-
                 }
-            }
-
-            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
-            deleteItemTouchHelper.attachToRecyclerView(rvJawabList)
+            })
 
             adapter.setOnClickListener(object: JawabTugasItemsAdapter.OnClickListener{
                 override fun onClick(position: Int, model: JawabanTugas) {

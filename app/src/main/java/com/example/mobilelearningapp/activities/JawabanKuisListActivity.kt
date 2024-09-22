@@ -1,11 +1,17 @@
 package com.example.mobilelearningapp.activities
 
+import android.app.AlertDialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mobilelearningapp.JawabTugasItemsAdapter
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityJawabanKuisListBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
@@ -93,53 +99,50 @@ class JawabanKuisListActivity : BaseActivity() {
             val adapter = JawabanKuisItemsAdapter(this, mJawabList)
             rvJawabList.adapter = adapter
 
-//            val deleteSwipeHandler = object : SwipeToDeleteCallback(this) {
-//                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-//                    val position = viewHolder.adapterPosition
-//                    val jawabToDelete = jawabList[position]
-//
-//                    val dialogView = LayoutInflater.from(this@JawabanKuisListActivity).inflate(R.layout.dialog_confirm_delete, null)
-//                    val dialog = AlertDialog.Builder(this@JawabanKuisListActivity)
-//                        .setView(dialogView)
-//                        .create()
-//
-//                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-//                    dialog.show()
-//
-//                    val tvYa = dialogView.findViewById<TextView>(R.id.tv_ya)
-//                    val tvTidak = dialogView.findViewById<TextView>(R.id.tv_tidak)
-//
-//                    tvYa.setOnClickListener {
-//                        showProgressDialog(resources.getString(R.string.mohon_tunggu))
-//                        FirestoreClass().deleteJawabTugasForGuru(
-//                            this@JawabanListActivity,
-//                            mKelasDocumentId,
-//                            mMateriListPosition,
-//                            mTugasListPosition,
-//                            jawabToDelete.id
-//                        )
-//                        dialog.dismiss()
-//                    }
-//
-//                    tvTidak.setOnClickListener {
-//                        dialog.dismiss()
-//                    }
-//
-//                }
-//            }
-//
-//            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
-//            deleteItemTouchHelper.attachToRecyclerView(rvJawabList)
-//
-//            adapter.setOnClickListener(object: JawabTugasItemsAdapter.OnClickListener{
-//                override fun onClick(position: Int, model: JawabanTugas) {
-//                    jawabanDetails(position)
-//                }
-//            })
+            adapter.setOnDeleteClickListener(object : JawabanKuisItemsAdapter.OnDeleteClickListener {
+                override fun onDeleteClick(position: Int) {
+                    val jawabToDelete = jawabList[position]
+
+                    val dialogView = LayoutInflater.from(this@JawabanKuisListActivity).inflate(R.layout.dialog_confirm_delete, null)
+                    val dialog = AlertDialog.Builder(this@JawabanKuisListActivity)
+                        .setView(dialogView)
+                        .create()
+
+                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    dialog.show()
+
+                    val tvYa = dialogView.findViewById<TextView>(R.id.tv_ya)
+                    val tvTidak = dialogView.findViewById<TextView>(R.id.tv_tidak)
+
+                    tvYa.setOnClickListener {
+                        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+                        FirestoreClass().deleteJawabKuisForGuru(
+                            this@JawabanKuisListActivity,
+                            mKelasDocumentId,
+                            mMateriListPosition,
+                            mKuisListPosition,
+                            jawabToDelete.id
+                        )
+                        dialog.dismiss()
+                    }
+
+                    tvTidak.setOnClickListener {
+                        dialog.dismiss()
+                    }
+
+                }
+            })
 
         } else {
             rvJawabList.visibility = View.GONE
             tvNoJawaban.visibility = View.VISIBLE
         }
+    }
+
+    fun jawabKuisDeleteSuccess() {
+        setResult(RESULT_OK)
+        hideProgressDialog()
+        Toast.makeText(this, "Jawaban kuis berhasil dihapus", Toast.LENGTH_SHORT).show()
+        FirestoreClass().getKelasDetails(this, mKelasDocumentId) // Refresh data
     }
 }
