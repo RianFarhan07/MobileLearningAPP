@@ -76,17 +76,16 @@ class JawabanListActivity : BaseActivity() {
     }
 
     private fun setupActionBar(){
-        setSupportActionBar(binding?.toolbarJawabanListActivity)
+        setSupportActionBar(binding?.toolbar)
         val toolbar = supportActionBar
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
-
-            supportActionBar?.title = "Tugas ${mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas}"
-
+//            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
+            supportActionBar?.title = "Daftar Jawaban Kuis ${mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas}"
         }
-        binding?.toolbarJawabanListActivity?.setNavigationOnClickListener {
+        binding?.toolbar?.setNavigationOnClickListener {
             onBackPressed()
+
         }
     }
 

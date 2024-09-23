@@ -11,24 +11,19 @@
         android:orientation="vertical"
         tools:context=".activities.JawabanKuisListActivity">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_jawaban_list_activity"
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@drawable/app_gradient_color_background">
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/tv_title"
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:paddingStart="25dp"
-                android:paddingEnd="0dp"
-                android:text="DAFTAR JAWABAN KUIS"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-        </androidx.appcompat.widget.Toolbar>
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:title="Materi Pembelajaran"
+                app:titleTextColor="@color/bluePrimary"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_jawaban_kuis_list"
