@@ -137,7 +137,7 @@ class MateriListActivity : BaseActivity() {
             rvMateriList.layoutManager = LinearLayoutManager(this)
             rvMateriList.setHasFixedSize(true)
 
-            val adapter = MateriItemsAdapter(this@MateriListActivity,sortedList)
+            val adapter = MateriItemsAdapter(this@MateriListActivity,materiList)
             rvMateriList.adapter = adapter
 
             adapter.setOnClickListener(object: MateriItemsAdapter.OnClickListener{
