@@ -195,12 +195,13 @@ class KuisSayaActivity : BaseActivity() {
     private fun onJawabanClicked(position: Int, jawaban: JawabanKuis) {
         for (kelas in kelasList) {
             for (materi in kelas.materiList) {
-                for (kuis in materi.kuis) {
-                    if (kuis.jawab.contains(jawaban)) {
+                for ((kuisIndex, kuis) in materi.kuis.withIndex()) {
+                    val jawabanIndex = kuis.jawab.indexOfFirst { it.id == jawaban.id }
+                    if (jawabanIndex != -1) {
                         val intent = Intent(this, MateriDetailsActivity::class.java).apply {
-                            putExtra(Constants.MATERI_LIST_ITEM_POSITION, kelas.materiList.indexOf(materi))
-                            putExtra(Constants.TUGAS_LIST_ITEM_POSITION, materi.kuis.indexOf(kuis))
-                            putExtra(Constants.JAWAB_LIST_ITEM_POSITION, kuis.jawab.indexOf(jawaban))
+                            putExtra(Constants.MATERI_ID, materi.id)
+                            putExtra(Constants.TUGAS_LIST_ITEM_POSITION,kuisIndex)
+                            putExtra(Constants.JAWAB_LIST_ITEM_POSITION, jawabanIndex)
                             putExtra(Constants.KELAS_DETAIL, kelas)
                             putExtra(Constants.IS_UPDATE, true)
                             putExtra(Constants.DOCUMENT_ID, kelas.documentId)
