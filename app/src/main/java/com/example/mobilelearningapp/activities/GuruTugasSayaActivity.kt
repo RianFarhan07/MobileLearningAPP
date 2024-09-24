@@ -173,11 +173,14 @@ class GuruTugasSayaActivity : BaseActivity() {
 
     private fun onTugasClicked(position: Int, tugas: Tugas) {
         for (kelas in kelasList) {
-            for (materi in kelas.materiList) {
-                if (materi.tugas.contains(tugas)) {
+            for ((materiIndex,materi) in kelas.materiList.withIndex()) {
+                val tugasIndex = materi.tugas.indexOfFirst { it.id == tugas.id }
+                if (tugasIndex != -1) {
                     val intent = Intent(this, MateriDetailsActivity::class.java).apply {
-                        putExtra(Constants.MATERI_LIST_ITEM_POSITION, kelas.materiList.indexOf(materi))
-                        putExtra(Constants.TUGAS_LIST_ITEM_POSITION, materi.tugas.indexOf(tugas))
+                        putExtra(Constants.MATERI_ID, materi.id)
+                        // atau gunakan ini jika Anda lebih suka menggunakan posisi
+                        // putExtra(Constants.MATERI_LIST_ITEM_POSITION, materiIndex)
+                        putExtra(Constants.TUGAS_LIST_ITEM_POSITION, tugasIndex)
                         putExtra(Constants.KELAS_DETAIL, kelas)
                         putExtra(Constants.IS_UPDATE, true)
                         putExtra(Constants.DOCUMENT_ID, kelas.documentId)

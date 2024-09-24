@@ -20,6 +20,7 @@ import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.adapters.MapelPagerAdapter
 import com.example.mobilelearningapp.databinding.ActivityMateriListBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
+import com.example.mobilelearningapp.fragments.MateriListFragment
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.utils.Constants
@@ -97,6 +98,25 @@ class MateriListActivity : BaseActivity() {
         }
     }
 
+    private fun setupViewPager(materiList: ArrayList<Materi>) {
+        adapter = MapelPagerAdapter(supportFragmentManager)
+        val materiByMapel = materiList.groupBy { it.mapel }
+
+        for ((mapel, materiForMapel) in materiByMapel) {
+            val fragment = adapter.getFragment(mapel) as? MateriListFragment
+            if (fragment != null && fragment.isAdded) {
+                fragment.updateMateriList(ArrayList(materiForMapel))
+            } else {
+                adapter.addFragment(MateriListFragment.newInstance(mapel, ArrayList(materiForMapel)), mapel)
+            }
+        }
+
+        adapter.notifyDataSetChanged()
+
+        viewPager.adapter = adapter
+        tabs.setupWithViewPager(viewPager)
+    }
+
     private fun setupActionBar(){
         setSupportActionBar(binding?.toolbarMateriList)
         val toolbar = supportActionBar
@@ -117,19 +137,19 @@ class MateriListActivity : BaseActivity() {
 
     fun kelasDetails(kelas: Kelas){
         mKelasDetails = kelas
-
         setupActionBar()
-        populateMaterListToUI(mKelasDetails.materiList)
+        setupViewPager(mKelasDetails.materiList)
         hideProgressDialog()
 
     }
 
-    fun materiDetails(materiListPosition: Int){
-        val intent = Intent(this,MateriDetailsActivity::class.java)
-        intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,materiListPosition)
-        intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+    fun materiDetails(materiId: String, mapel: String) {
+        val intent = Intent(this, MateriDetailsActivity::class.java)
+        intent.putExtra(Constants.MATERI_ID, materiId)
+        intent.putExtra(Constants.KELAS_DETAIL, mKelasDetails)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
-        startActivityForResult(intent,REQUEST_CODE_MATERI_DETAILS)
+        intent.putExtra("MAPEL", mapel)
+        startActivityForResult(intent, REQUEST_CODE_MATERI_DETAILS)
     }
 
     fun createMateriList(materiListName: String, materiCourse : String){
@@ -154,9 +174,30 @@ class MateriListActivity : BaseActivity() {
         FirestoreClass().getKelasDetails(this@MateriListActivity,mKelasDetails.documentId.toString())
     }
 
-    private fun updateMateri(materi: Materi) {
+    fun updateMateri(materi: Materi) {
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
         FirestoreClass().updateMateri(this, mKelasDocumentId, materi)
+        updateViewPager()
+    }
+
+    fun showDeleteConfirmationDialog(materi: Materi) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Konfirmasi Hapus")
+        builder.setMessage("Apakah Anda yakin ingin menghapus materi '${materi.nama}'?")
+        builder.setPositiveButton("Ya") { dialog, _ ->
+            deleteMateri(materi)
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Tidak") { dialog, _ ->
+            dialog.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    private fun deleteMateri(materi: Materi) {
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+        FirestoreClass().deleteMateri(this, materi.id)
     }
 
     fun materiUpdateSuccess() {
@@ -171,6 +212,38 @@ class MateriListActivity : BaseActivity() {
         Toast.makeText(this, "Materi berhasil dihapus", Toast.LENGTH_SHORT).show()
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
         FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+    }
+
+    private fun updateViewPager() {
+        val materiByMapel = mKelasDetails.materiList.groupBy { it.mapel }
+
+        // Remove tabs that no longer have any materi
+        val tabsToRemove = mutableListOf<String>()
+        for (i in 0 until adapter.count) {
+            val mapel = adapter.getPageTitle(i).toString()
+            if (!materiByMapel.containsKey(mapel)) {
+                tabsToRemove.add(mapel)
+            }
+        }
+        tabsToRemove.forEach { mapel ->
+            val index = adapter.getFragmentPosition(mapel)
+            if (index != -1) {
+                adapter.removeFragment(index)
+            }
+        }
+
+        // Update existing fragments and add new ones
+        for ((mapel, materiForMapel) in materiByMapel) {
+            val fragment = adapter.getFragment(mapel) as? MateriListFragment
+            if (fragment != null) {
+                fragment.updateMateriList(ArrayList(materiForMapel))
+            } else {
+                adapter.addFragment(MateriListFragment.newInstance(mapel, ArrayList(materiForMapel)), mapel)
+            }
+        }
+
+        adapter.notifyDataSetChanged()
+        tabs.setupWithViewPager(viewPager)
     }
 
 }

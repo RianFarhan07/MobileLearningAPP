@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activities.MateriListActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,14 +25,23 @@
                 app:title="Daftar Materi"
                 app:titleTextColor="@color/onPrimary"/>
 
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabMode="scrollable"
+                app:tabGravity="fill"
+                android:background="@color/bluePrimary"
+                app:tabTextColor="@color/onPrimary" />
+
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_materi_list"
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/view_pager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:visibility="gone"/>
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cv_add_task_list_name"
@@ -113,17 +124,5 @@
             android:textColor="@color/bluePrimary"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/tv_no_materi_available"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="250dp"
-            android:layout_gravity="center"
-            android:textSize="24dp"
-            android:text="Belum ada Materi!!!!"
-            android:textColor="@color/dark_grey"/>
-
-
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

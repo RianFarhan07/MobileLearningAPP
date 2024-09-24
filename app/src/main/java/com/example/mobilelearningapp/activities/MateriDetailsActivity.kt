@@ -56,7 +56,12 @@ class MateriDetailsActivity : BaseActivity() {
     private var binding : ActivityMateriDetailsBinding? = null
     private lateinit var mKelasDetails : Kelas
     lateinit var mKelasDocumentId : String
+
+    private lateinit var mMateriId: String
+
     private var mMateriListPosition = -1
+        get() = findMateriIndexById(mMateriId)
+
     private lateinit var mFileList: ArrayList<File>
 
     private var mSelectedImageFileUri : Uri? = null
@@ -210,6 +215,8 @@ class MateriDetailsActivity : BaseActivity() {
         }
     }
 
+
+
     private fun setupActionBar(){
         setSupportActionBar(binding?.toolbar)
         val toolbar = supportActionBar
@@ -312,10 +319,17 @@ class MateriDetailsActivity : BaseActivity() {
         }
     }
 
+    private fun findMateriIndexById(id: String): Int {
+        return mKelasDetails.materiList.indexOfFirst { it.id == id }
+    }
+
     private fun getIntentData() {
         if (intent.hasExtra(Constants.KELAS_DETAIL)) {
             mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
-
+        }
+        if (intent.hasExtra(Constants.MATERI_ID)) {
+            mMateriId = intent.getStringExtra(Constants.MATERI_ID)!!
+            Log.e("MATERI_ID", mMateriId)
         }
         if (intent.hasExtra(Constants.MATERI_LIST_ITEM_POSITION)) {
             mMateriListPosition = intent.getIntExtra(Constants.MATERI_LIST_ITEM_POSITION, -1)
@@ -326,6 +340,7 @@ class MateriDetailsActivity : BaseActivity() {
             Log.e("document", "document $mKelasDocumentId")
         }
     }
+
 
     fun kelasDetails(kelas: Kelas){
         mKelasDetails = kelas

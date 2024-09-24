@@ -167,11 +167,14 @@ class GuruKuisSayaActivity : BaseActivity() {
 
     private fun onKuisClicked(position: Int, kuis: Kuis) {
         for (kelas in kelasList) {
-            for (materi in kelas.materiList) {
-                if (materi.kuis.contains(kuis)) {
+            for ((materiIndex, materi) in kelas.materiList.withIndex()) {
+                val kuisIndex = materi.kuis.indexOfFirst { it.id == kuis.id }
+                if (kuisIndex != -1) {
                     val intent = Intent(this, MateriDetailsActivity::class.java).apply {
-                        putExtra(Constants.MATERI_LIST_ITEM_POSITION, kelas.materiList.indexOf(materi))
-                        putExtra(Constants.TUGAS_LIST_ITEM_POSITION, materi.kuis.indexOf(kuis))
+                        putExtra(Constants.MATERI_ID, materi.id)
+                        // atau gunakan ini jika Anda lebih suka menggunakan posisi
+                        // putExtra(Constants.MATERI_LIST_ITEM_POSITION, materiIndex)
+                        putExtra(Constants.QUIZ_LIST_ITEM_POSITION, kuisIndex)
                         putExtra(Constants.KELAS_DETAIL, kelas)
                         putExtra(Constants.IS_UPDATE, true)
                         putExtra(Constants.DOCUMENT_ID, kelas.documentId)
