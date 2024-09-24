@@ -17,7 +17,7 @@ object Constants {
     const val KUIS: String = "kuis"
     const val MATERIFILE: String = "materiFile"
 
-
+    const val MATERI_ID : String = "materiId"
 
     const val IMAGE : String = "image"
     const val NAME : String = "name"
