@@ -13,20 +13,26 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.ViewPager
 import com.example.mobilelearningapp.KelasItemsAdapter
 import com.example.mobilelearningapp.MateriItemsAdapter
 import com.example.mobilelearningapp.R
+import com.example.mobilelearningapp.adapters.MapelPagerAdapter
 import com.example.mobilelearningapp.databinding.ActivityMateriListBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.utils.Constants
+import com.google.android.material.tabs.TabLayout
 
 class MateriListActivity : BaseActivity() {
 
     private var binding : ActivityMateriListBinding? = null
     private lateinit var mKelasDetails : Kelas
     lateinit var mKelasDocumentId : String
+    private lateinit var viewPager: ViewPager
+    private lateinit var tabs: TabLayout
+    private lateinit var adapter: MapelPagerAdapter
 
     companion object{
         const val REQUEST_CODE_MATERI_DETAILS = 7
@@ -36,6 +42,9 @@ class MateriListActivity : BaseActivity() {
         binding = ActivityMateriListBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding?.root)
+
+        viewPager = findViewById(R.id.view_pager)
+        tabs = findViewById(R.id.tabs)
 
         if (intent.hasExtra(Constants.DOCUMENT_ID)){
             mKelasDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID).toString()
@@ -121,65 +130,6 @@ class MateriListActivity : BaseActivity() {
         intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
         startActivityForResult(intent,REQUEST_CODE_MATERI_DETAILS)
-    }
-
-    fun populateMaterListToUI(materiList: ArrayList<Materi>){
-        val rvMateriList : RecyclerView = findViewById(R.id.rv_materi_list)
-        val tvNoKelasAvailable : TextView = findViewById(R.id.tv_no_materi_available)
-
-
-        if (materiList.size >0){
-            rvMateriList.visibility = View.VISIBLE
-            tvNoKelasAvailable.visibility  = View.GONE
-
-            val sortedList = ArrayList(materiList.sortedBy { it.mapel })
-
-            rvMateriList.layoutManager = LinearLayoutManager(this)
-            rvMateriList.setHasFixedSize(true)
-
-            val adapter = MateriItemsAdapter(this@MateriListActivity,materiList)
-            rvMateriList.adapter = adapter
-
-            adapter.setOnClickListener(object: MateriItemsAdapter.OnClickListener{
-                override fun onClick(position: Int, model: Materi) {
-                   materiDetails(position)
-                }
-            })
-
-            adapter.setOnEditClickListener(object : MateriItemsAdapter.OnEditClickListener {
-                override fun onEditClick(position: Int, model: Materi) {
-                    updateMateri(model)
-                }
-            })
-
-            adapter.setOnDeleteClickListener(object : MateriItemsAdapter.OnDeleteClickListener {
-                override fun onDeleteClick(position: Int, model: Materi) {
-                    val dialogView = LayoutInflater.from(this@MateriListActivity).inflate(R.layout.dialog_confirm_delete, null)
-                    val dialog = AlertDialog.Builder(this@MateriListActivity)
-                        .setView(dialogView)
-                        .create()
-
-                    dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                    dialog.show()
-
-                    val tvYa = dialogView.findViewById<TextView>(R.id.tv_ya)
-                    val tvTidak = dialogView.findViewById<TextView>(R.id.tv_tidak)
-
-                    tvYa.setOnClickListener {
-                        showProgressDialog(resources.getString(R.string.mohon_tunggu))
-                        FirestoreClass().deleteMateri(this@MateriListActivity, model.id)
-                        dialog.dismiss()
-                    }
-
-                    tvTidak.setOnClickListener {
-                        dialog.dismiss()
-                    }
-                }
-            })
-        }else{
-            rvMateriList.visibility = View.GONE
-            tvNoKelasAvailable.visibility  = View.VISIBLE
-        }
     }
 
     fun createMateriList(materiListName: String, materiCourse : String){
