@@ -42,6 +42,7 @@ import com.example.mobilelearningapp.databinding.ActivityMateriDetailsBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.*
 import com.example.mobilelearningapp.utils.Constants
+import com.example.mobilelearningapp.utils.FormattedTextHandler
 import com.example.mobilelearningapp.utils.SwipeToDeleteCallback
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -108,9 +109,14 @@ class MateriDetailsActivity : BaseActivity() {
                     binding?.btnDeleteImage?.visibility = View.GONE
                     binding?.btnDeleteVideo?.visibility = View.GONE
                     binding?.tvMateri?.visibility = View.VISIBLE
-
-                    binding?.tvMateri?.text =
-                        mKelasDetails.materiList[mMateriListPosition].desc
+                    try {
+                        val formattedText = FormattedTextHandler.fromJson(  mKelasDetails.materiList[mMateriListPosition].desc)
+                        val spannableString = FormattedTextHandler.toSpannableString(formattedText)
+                        binding?.tvMateri?.text = spannableString
+                    } catch (e: Exception) {
+                        binding?.tvMateri?.text =   mKelasDetails.materiList[mMateriListPosition].desc
+                        Log.e("JawabActivity", "Error parsing formatted text for tvSoal: ${e.message}")
+                    }
                 }
             }
         }
@@ -121,7 +127,14 @@ class MateriDetailsActivity : BaseActivity() {
 
         binding?.btnUpdateText?.setOnClickListener {
             val newDesc = binding?.etMateri?.text.toString()
-            updateMateriContent(newDesc)
+            val spannable = binding?.etMateri?.text as? Spannable
+            val formattedTextJson = if (spannable != null) {
+                val spans = FormattedTextHandler.getExistingSpans(spannable)
+                FormattedTextHandler.toJson(newDesc, spans)
+            } else {
+                newDesc
+            }
+            updateMateriContent(formattedTextJson)
         }
 
         binding?.btnBold?.setOnClickListener { applyStyle(Typeface.BOLD) }
@@ -350,18 +363,10 @@ class MateriDetailsActivity : BaseActivity() {
         }
 
     private fun applyStyle(style: Int) {
-        val start = binding?.etMateri?.selectionStart
-        val end = binding?.etMateri?.selectionEnd
-        val spannableString = SpannableStringBuilder(binding?.etMateri?.text)
-        if (start != null) {
-            if (end != null) {
-                spannableString.setSpan(StyleSpan(style), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-        }
-        binding?.etMateri?.setText(spannableString)
-        if (end != null) {
-            binding?.etMateri?.setSelection(end)
-        }
+        val start = binding?.etMateri?.selectionStart ?: 0
+        val end = binding?.etMateri?.selectionEnd ?: 0
+        val spannable = binding?.etMateri?.text as? Spannable ?: return
+        FormattedTextHandler.applyStyle(spannable, start, end, style)
     }
 
     fun populateMateriFileListToUI(fileList: ArrayList<File>){
@@ -469,7 +474,15 @@ class MateriDetailsActivity : BaseActivity() {
 
     fun populateMateriDesc() {
         hideProgressDialog()
-        binding?.etMateri?.setText(mKelasDetails.materiList[mMateriListPosition].desc)
+        try {
+            val formattedText = FormattedTextHandler.fromJson(mKelasDetails.materiList[mMateriListPosition].desc)
+            val spannableString = FormattedTextHandler.toSpannableString(formattedText)
+            binding?.etMateri?.setText(spannableString)
+        } catch (e: Exception) {
+            // Jika terjadi kesalahan, tampilkan teks asli tanpa formatting
+            binding?.etMateri?.setText(mKelasDetails.materiList[mMateriListPosition].desc)
+            Log.e("JawabActivity", "Error parsing formatted text: ${e.message}")
+        }
 
         if (mKelasDetails.materiList[mMateriListPosition].image.isNotEmpty()) {
             binding?.llImageMateri?.visibility = View.VISIBLE

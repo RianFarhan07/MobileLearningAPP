@@ -44,6 +44,7 @@ import com.example.mobilelearningapp.models.JawabanTugas
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Tugas
 import com.example.mobilelearningapp.utils.Constants
+import com.example.mobilelearningapp.utils.FormattedTextHandler
 import com.example.mobilelearningapp.utils.SwipeToDeleteCallback
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -228,11 +229,27 @@ class TugasActivity : BaseActivity() {
                     binding?.tvSoal?.visibility = View.VISIBLE
                     binding?.etNamaSoal?.inputType = InputType.TYPE_NULL
                     binding?.llInput?.visibility = View.GONE
-                    binding?.tvSoal?.text = currentTugas.soal
+                    try {
+                        val formattedText = FormattedTextHandler.fromJson(currentTugas.soal)
+                        val spannableString = FormattedTextHandler.toSpannableString(formattedText)
+                        binding?.tvSoal?.text = spannableString
+                    } catch (e: Exception) {
+                        binding?.tvSoal?.text = currentTugas.soal
+                        Log.e("JawabActivity", "Error parsing formatted text for tvSoal: ${e.message}")
+                    }
                     binding?.btnDueDate?.visibility = View.INVISIBLE
                 }else{
                     binding?.etNamaSoal?.setText(currentTugas.namaTugas)
-                    binding?.etSoal?.setText(currentTugas.soal)
+                    val soal = currentTugas.soal
+                    try {
+                        val formattedText = FormattedTextHandler.fromJson(soal)
+                        val spannableString = FormattedTextHandler.toSpannableString(formattedText)
+                        binding?.etSoal?.setText(spannableString)
+                    } catch (e: Exception) {
+                        // Jika terjadi kesalahan, tampilkan teks asli tanpa formatting
+                        binding?.etSoal?.setText(soal)
+                        Log.e("JawabActivity", "Error parsing formatted text: ${e.message}")
+                    }
                 }
             }
         }
@@ -367,23 +384,22 @@ class TugasActivity : BaseActivity() {
 
 
     private fun applyStyle(style: Int) {
-        val start = binding?.etSoal?.selectionStart
-        val end = binding?.etSoal?.selectionEnd
-        val spannableString = SpannableStringBuilder(binding?.etSoal?.text)
-        if (start != null) {
-            if (end != null) {
-                spannableString.setSpan(StyleSpan(style), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-        }
-        binding?.etSoal?.setText(spannableString)
-        if (end != null) {
-            binding?.etSoal?.setSelection(end)
-        }
+        val start = binding?.etSoal?.selectionStart ?: 0
+        val end = binding?.etSoal?.selectionEnd ?: 0
+        val spannable = binding?.etSoal?.text as? Spannable ?: return
+        FormattedTextHandler.applyStyle(spannable, start, end, style)
     }
 
     private fun createTugas() {
         val namaTugas = binding?.etNamaSoal?.text.toString().trim()
         val deskripsiTugas = binding?.etSoal?.text.toString().trim()
+        val spannable = binding?.etSoal?.text as? Spannable
+        val formattedTextJson = if (spannable != null) {
+            val spans = FormattedTextHandler.getExistingSpans(spannable)
+            FormattedTextHandler.toJson(deskripsiTugas, spans)
+        } else {
+            deskripsiTugas
+        }
         val PdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else ""
 
         if (namaTugas.isEmpty()) {
@@ -400,7 +416,7 @@ class TugasActivity : BaseActivity() {
             namaMateri = mKelasDetails.materiList[mMateriListPosition].nama,
             namaKelas = mKelasDetails.nama,
             namaMapel = mKelasDetails.materiList[mMateriListPosition].mapel,
-            soal = deskripsiTugas,
+            soal = formattedTextJson,
             imageSoal = mMateriImageURL,
             dueDate = mSelectedDueDateMilliSeconds,
             createdBy = FirestoreClass().getCurrentUserID(),
@@ -421,6 +437,13 @@ class TugasActivity : BaseActivity() {
     private fun updateTugas() {
         val namaTugas = binding?.etNamaSoal?.text.toString().trim()
         val deskripsiTugas = binding?.etSoal?.text.toString().trim()
+        val spannable = binding?.etSoal?.text as? Spannable
+        val formattedTextJson = if (spannable != null) {
+            val spans = FormattedTextHandler.getExistingSpans(spannable)
+            FormattedTextHandler.toJson(deskripsiTugas, spans)
+        } else {
+            deskripsiTugas
+        }
 
         if (namaTugas.isEmpty()) {
             Toast.makeText(this, "Mohon masukkan nama tugas", Toast.LENGTH_SHORT).show()
@@ -452,7 +475,7 @@ class TugasActivity : BaseActivity() {
             namaMateri = currentTugas.namaMateri,
             namaKelas = currentTugas.namaKelas,
             namaMapel = currentTugas.namaMapel,
-            soal = deskripsiTugas,
+            soal = formattedTextJson,
             imageSoal = if (mMateriImageURL.isNotEmpty()) mMateriImageURL else currentTugas.imageSoal,
             dueDate = mSelectedDueDateMilliSeconds,
             createdBy = FirestoreClass().getCurrentUserID(),

@@ -92,7 +92,15 @@ class JawabActivity : BaseActivity() {
                 }else{
                     binding?.btnKumpulTugas?.text = "Beri Nilai"
                     binding?.tvJawaban?.visibility = View.VISIBLE
-                    binding?.tvJawaban?.text = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].jawaban
+                    try {
+                        val formattedText = FormattedTextHandler.fromJson( mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].jawaban)
+                        val spannableString = FormattedTextHandler.toSpannableString(formattedText)
+                        binding?.tvJawaban?.text = spannableString
+                    } catch (e: Exception) {
+                        binding?.tvJawaban?.text =  mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].jawaban
+                        Log.e("JawabActivity", "Error parsing formatted text for tvSoal: ${e.message}")
+                    }
+                    binding?.etJawab?.visibility = View.GONE
                     binding?.etNamaPenjawab?.inputType = InputType.TYPE_NULL
                     binding?.llInput?.visibility = View.GONE
                     setUpDataJawaban()
@@ -183,8 +191,15 @@ class JawabActivity : BaseActivity() {
                 }
             }
         }
+        try {
+            val formattedText = FormattedTextHandler.fromJson( mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].soal)
+            val spannableString = FormattedTextHandler.toSpannableString(formattedText)
+            binding?.tvSoal?.text = spannableString
+        } catch (e: Exception) {
+            binding?.tvSoal?.text = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].soal
+            Log.e("JawabActivity", "Error parsing formatted text for tvSoal: ${e.message}")
+        }
 
-        binding?.tvSoal?.text = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].soal
         if ( mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal.isNotEmpty()) {
             binding?.llImageSoal?.visibility = View.VISIBLE
             Glide
@@ -332,22 +347,6 @@ class JawabActivity : BaseActivity() {
         FormattedTextHandler.applyStyle(spannable, start, end, style)
     }
 
-    private fun getExistingSpans(): MutableList<TextSpan> {
-        val spannable = binding?.etJawab?.text as? Spannable
-        return spannable?.getSpans(0, spannable.length, StyleSpan::class.java)?.map { span ->
-            TextSpan(spannable.getSpanStart(span), spannable.getSpanEnd(span), span.style)
-        }?.toMutableList() ?: mutableListOf()
-    }
-
-    private fun updateSpannableText(spans: List<TextSpan>) {
-        val text = binding?.etJawab?.text.toString()
-        val spannableString = SpannableStringBuilder(text)
-        spans.forEach { span ->
-            spannableString.setSpan(StyleSpan(span.style), span.start, span.end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        binding?.etJawab?.setText(spannableString)
-        binding?.etJawab?.setSelection(spannableString.length)
-    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

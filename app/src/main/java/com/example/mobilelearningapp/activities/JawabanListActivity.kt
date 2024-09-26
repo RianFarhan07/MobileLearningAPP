@@ -159,8 +159,8 @@ class JawabanListActivity : BaseActivity() {
             })
 
             adapter.setOnClickListener(object: JawabTugasItemsAdapter.OnClickListener{
-                override fun onClick(position: Int, model: JawabanTugas) {
-                    jawabanDetails(position)
+                override fun onClick( model: JawabanTugas) {
+                    jawabanDetails(model.id)
                 }
             })
 
@@ -177,15 +177,15 @@ class JawabanListActivity : BaseActivity() {
         FirestoreClass().getKelasDetails(this, mKelasDocumentId) // Refresh data
     }
 
-    fun jawabanDetails(jawabanPosition: Int){
+    fun jawabanDetails(jawabanId: String){
         val intent = Intent(this, JawabActivity::class.java)
         intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
         intent.putExtra(Constants.TUGAS_LIST_ITEM_POSITION,mTugasListPosition)
-        intent.putExtra(Constants.JAWAB_LIST_ITEM_POSITION,jawabanPosition)
+        intent.putExtra(Constants.JAWABAN_TUGAS_ID, jawabanId)
         intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
         intent.putExtra(Constants.IS_UPDATE, true)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
-        startActivityForResult(intent, REQUEST_CODE_JAWAB_DETAILS)
+        startActivityForResult(intent, TugasActivity.REQUEST_CODE_JAWAB_DETAILS)
 
     }
 }
