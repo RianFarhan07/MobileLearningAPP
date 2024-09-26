@@ -74,11 +74,12 @@ class MateriListActivity : BaseActivity() {
         }
 
         binding!!.ibDoneListName.setOnClickListener{
-            val listName = binding!!.etMateriListName.text.toString()
-            val materiCourse = binding!!.etMateriListCourse.text.toString()
+            val listName = binding!!.etMateriListName.text.toString().trim()
+            val materiCourse = binding!!.etMateriListCourse.text.toString().trim()
+            val camelCaseMateriCourse = materiCourse.toLowerCase()
 
             if (listName.isNotEmpty() && materiCourse.isNotEmpty()){
-                createMateriList(listName,materiCourse)
+                createMateriList(listName,camelCaseMateriCourse)
                 binding!!.etMateriListName.text.clear()
                 binding!!.etMateriListCourse.text.clear()
                 binding!!.tvAddMateri.visibility = View.VISIBLE

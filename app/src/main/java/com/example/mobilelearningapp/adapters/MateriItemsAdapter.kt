@@ -101,7 +101,7 @@
 
                 findViewById<TextView>(R.id.tv_edit_materi).setOnClickListener {
                     val newName = etMateri.text.toString()
-                    val newCourse = etCourse.text.toString()
+                    val newCourse = etCourse.text.toString().trim().toLowerCase()
                     if (newName.isNotEmpty() && newCourse.isNotEmpty()) {
                         onEditClickListener?.invoke(materi.copy(nama = newName, mapel = newCourse))
                         dialog.dismiss()
