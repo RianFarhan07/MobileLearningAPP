@@ -47,7 +47,9 @@ class JawabActivity : BaseActivity() {
     lateinit var mKelasDocumentId : String
     private var mMateriListPosition = -1
     private var mTugasListPosition = -1
+    private lateinit var mJawabanTugasId: String
     private var mJawabListPosition = -1
+        get() = findTugasIndexById(mJawabanTugasId)
     private var isUpdate = false
 
     private var mUloadedJawaban : Long = 0
@@ -205,6 +207,10 @@ class JawabActivity : BaseActivity() {
 
     }
 
+    private fun findTugasIndexById(id: String): Int {
+        return mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab.indexOfFirst { it.id == id }
+    }
+
     private fun getIntentData() {
         if (intent.hasExtra(Constants.KELAS_DETAIL)) {
             mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
@@ -221,9 +227,9 @@ class JawabActivity : BaseActivity() {
             mKelasDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID).toString()
             Log.e("document", "document $mKelasDocumentId")
         }
-        if (intent.hasExtra(Constants.JAWAB_LIST_ITEM_POSITION)) {
-            mJawabListPosition = intent.getIntExtra(Constants.JAWAB_LIST_ITEM_POSITION, -1)
-            Log.e("JAWAB_ITEM_POSITION", mJawabListPosition.toString())
+        if (intent.hasExtra(Constants.JAWABAN_TUGAS_ID)) {
+            mJawabanTugasId = intent.getStringExtra(Constants.JAWABAN_TUGAS_ID)!!
+            Log.e("MATERI_ID", mJawabanTugasId)
         }
         if (intent.hasExtra(Constants.IS_UPDATE)) {
             isUpdate = intent.getBooleanExtra(Constants.IS_UPDATE, false)

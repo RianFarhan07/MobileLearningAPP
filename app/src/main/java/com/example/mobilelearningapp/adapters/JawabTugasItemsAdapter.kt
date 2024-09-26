@@ -69,7 +69,7 @@ class JawabTugasItemsAdapter(
         holder.itemView.setOnClickListener {
             val index = items.indexOf(model)
             if (onClickListener != null && index != -1) {
-                onClickListener!!.onClick(index, model)
+                onClickListener!!.onClick(model)
             }
         }
 
@@ -88,7 +88,7 @@ class JawabTugasItemsAdapter(
     }
 
     interface OnClickListener {
-        fun onClick(position: Int, model: JawabanTugas)
+        fun onClick( model: JawabanTugas)
     }
 
     fun setOnClickListener(onClickListener: JawabTugasItemsAdapter.OnClickListener) {
