@@ -81,7 +81,7 @@ class JawabanListActivity : BaseActivity() {
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
 //            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
-            supportActionBar?.title = "Daftar Jawaban Kuis ${mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas}"
+            supportActionBar?.title = "Daftar Jawaban Tugas ${mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas}"
         }
         binding?.toolbar?.setNavigationOnClickListener {
             onBackPressed()
