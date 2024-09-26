@@ -126,9 +126,9 @@ class TugasSayaActivity : BaseActivity() {
         binding?.rvTugasSayaList?.layoutManager = LinearLayoutManager(this)
         jawabAdapter = JawabTugasItemsAdapter(this, allJawaban)
         jawabAdapter.setOnClickListener(object : JawabTugasItemsAdapter.OnClickListener {
-            override fun onClick(position: Int, model: JawabanTugas) {
-                Log.d("TugasSayaActivity", "Clicked on item at position $position")
-                onJawabanClicked(position, model)
+            override fun onClick( model: JawabanTugas) {
+
+                onJawabanClicked(model)
             }
         })
         binding?.rvTugasSayaList?.adapter = jawabAdapter
@@ -202,7 +202,7 @@ class TugasSayaActivity : BaseActivity() {
 //        }
 //    }
 
-    private fun onJawabanClicked(position: Int, jawaban: JawabanTugas) {
+    private fun onJawabanClicked(jawaban: JawabanTugas) {
         for (kelas in kelasList) {
             for (materi in kelas.materiList) {
                 for ((tugasIndex, tugas) in materi.tugas.withIndex()) {
