@@ -31,8 +31,12 @@ import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.JawabanTugas
 import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.utils.Constants
+import com.example.mobilelearningapp.utils.FormattedTextHandler
+import com.example.mobilelearningapp.utils.TextSpan
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.IOException
 import java.util.*
 
@@ -260,9 +264,19 @@ class JawabActivity : BaseActivity() {
         }
 
         binding?.etNamaPenjawab?.setText(currentJawaban.namaPenjawab)
-        binding?.etJawab?.setText(currentJawaban.jawaban)
         binding?.etNilai?.setText(currentJawaban.nilai)
         mUloadedJawaban = currentJawaban.uploadedDate
+
+        val jawaban = currentJawaban.jawaban
+        try {
+            val formattedText = FormattedTextHandler.fromJson(jawaban)
+            val spannableString = FormattedTextHandler.toSpannableString(formattedText)
+            binding?.etJawab?.setText(spannableString)
+        } catch (e: Exception) {
+            // Jika terjadi kesalahan, tampilkan teks asli tanpa formatting
+            binding?.etJawab?.setText(jawaban)
+            Log.e("JawabActivity", "Error parsing formatted text: ${e.message}")
+        }
 
 
 
@@ -306,18 +320,27 @@ class JawabActivity : BaseActivity() {
 
 
     private fun applyStyle(style: Int) {
-        val start = binding?.etJawab?.selectionStart
-        val end = binding?.etJawab?.selectionEnd
-        val spannableString = SpannableStringBuilder(binding?.etJawab?.text)
-        if (start != null) {
-            if (end != null) {
-                spannableString.setSpan(StyleSpan(style), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
+        val start = binding?.etJawab?.selectionStart ?: 0
+        val end = binding?.etJawab?.selectionEnd ?: 0
+        val spannable = binding?.etJawab?.text as? Spannable ?: return
+        FormattedTextHandler.applyStyle(spannable, start, end, style)
+    }
+
+    private fun getExistingSpans(): MutableList<TextSpan> {
+        val spannable = binding?.etJawab?.text as? Spannable
+        return spannable?.getSpans(0, spannable.length, StyleSpan::class.java)?.map { span ->
+            TextSpan(spannable.getSpanStart(span), spannable.getSpanEnd(span), span.style)
+        }?.toMutableList() ?: mutableListOf()
+    }
+
+    private fun updateSpannableText(spans: List<TextSpan>) {
+        val text = binding?.etJawab?.text.toString()
+        val spannableString = SpannableStringBuilder(text)
+        spans.forEach { span ->
+            spannableString.setSpan(StyleSpan(span.style), span.start, span.end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         binding?.etJawab?.setText(spannableString)
-        if (end != null) {
-            binding?.etJawab?.setSelection(end)
-        }
+        binding?.etJawab?.setSelection(spannableString.length)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -583,6 +606,13 @@ class JawabActivity : BaseActivity() {
     private fun createJawaban() {
         val namaPenjawab = binding?.etNamaPenjawab?.text.toString().trim()
         val deskripsiTugas = binding?.etJawab?.text.toString().trim()
+        val spannable = binding?.etJawab?.text as? Spannable
+        val formattedTextJson = if (spannable != null) {
+            val spans = FormattedTextHandler.getExistingSpans(spannable)
+            FormattedTextHandler.toJson(deskripsiTugas, spans)
+        } else {
+            deskripsiTugas
+        }
         val PdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else ""
         val assignedUserArrayList: ArrayList<String> = ArrayList()
         assignedUserArrayList.add(FirestoreClass().getCurrentUserID())
@@ -601,7 +631,7 @@ class JawabActivity : BaseActivity() {
             namaPenjawab = namaPenjawab,
             namaMateri  = mKelasDetails.materiList[mMateriListPosition].nama,
             namaKelas = mKelasDetails.nama,
-            jawaban = deskripsiTugas,
+            jawaban = formattedTextJson,
             imageJawaban = mMateriImageURL,
             videoJawaban = mMateriVideoURL,
             uploadedDate =  System.currentTimeMillis(),
