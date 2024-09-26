@@ -5,6 +5,7 @@ data class Guru(
     val name: String = "",
     val email: String = "",
     val image: String = "",
+    val classes : String = "",
     val role : String = "guru"
 )
 

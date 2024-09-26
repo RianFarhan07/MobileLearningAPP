@@ -231,7 +231,10 @@ class GuruProfileActivity : BaseActivity() {
             userHashMap[Constants.IMAGE] = mUserProfileImageURL
             anyChangesMade = true
         }
-
+        if (binding?.etClasses?.text.toString() != mGuruDetails.classes){
+            userHashMap[Constants.CLASSES] = binding?.etClasses?.text.toString()
+            anyChangesMade = true
+        }
         if (binding?.etName?.text.toString() != mGuruDetails.name){
             userHashMap[Constants.NAME] = binding?.etName?.text.toString()
             anyChangesMade = true
