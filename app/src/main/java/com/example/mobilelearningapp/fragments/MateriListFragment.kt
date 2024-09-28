@@ -52,7 +52,7 @@ class MateriListFragment : Fragment() {
     private fun setupRecyclerView() {
         adapter = MateriItemsAdapter(requireContext(), materiList!!).apply {
             setOnClickListener { model ->
-                (activity as? MateriListActivity)?.materiDetails(model.id, mapel ?: "")
+                (activity as? MateriListActivity)?.materiDetails(model.id)
             }
             setOnEditClickListener { model ->
                 (activity as? MateriListActivity)?.updateMateri(model)

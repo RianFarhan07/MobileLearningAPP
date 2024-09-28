@@ -144,12 +144,11 @@ class MateriListActivity : BaseActivity() {
 
     }
 
-    fun materiDetails(materiId: String, mapel: String) {
+    fun materiDetails(materiId: String) {
         val intent = Intent(this, MateriDetailsActivity::class.java)
         intent.putExtra(Constants.MATERI_ID, materiId)
         intent.putExtra(Constants.KELAS_DETAIL, mKelasDetails)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
-        intent.putExtra("MAPEL", mapel)
         startActivityForResult(intent, REQUEST_CODE_MATERI_DETAILS)
     }
 
