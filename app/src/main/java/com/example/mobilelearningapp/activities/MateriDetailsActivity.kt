@@ -167,11 +167,11 @@ class MateriDetailsActivity : BaseActivity() {
         }
         if (requestCode == REQUEST_CODE_TUGAS_DETAILS && resultCode == RESULT_OK) {
             showProgressDialog(resources.getString(R.string.mohon_tunggu))
-            FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+            FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriId)
         }
         if (requestCode == REQUEST_CODE_QUIZ_DETAILS && resultCode == RESULT_OK) {
             showProgressDialog(resources.getString(R.string.mohon_tunggu))
-            FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+            FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriId)
         }
 
         if (resultCode == Activity.RESULT_OK

@@ -330,12 +330,12 @@ class FirestoreClass {
                     is JawabanListActivity -> {
                         activity.kelasDetails(kelas!!)
                     }
-                    is CreateQuizActivity -> {
-                        activity.kelasDetails(kelas!!)
-                    }
-                    is JawabanKuisListActivity -> {
-                        activity.kelasDetails(kelas!!)
-                    }
+//                    is CreateQuizActivity -> {
+//                        activity.kelasDetails(kelas!!)
+//                    }
+//                    is JawabanKuisListActivity -> {
+//                        activity.kelasDetails(kelas!!)
+//                    }
                 }
             }
             .addOnFailureListener { e ->
@@ -353,7 +353,7 @@ class FirestoreClass {
             }
     }
 
-    fun getMateriDetails(activity: MateriDetailsActivity, kelasId: String, materiId: String) {
+    fun getMateriDetails(activity: Activity, kelasId: String, materiId: String) {
         mFireStore.collection(Constants.KELAS).document(kelasId)
             .get()
             .addOnSuccessListener { document ->
@@ -361,21 +361,46 @@ class FirestoreClass {
                 if (kelas != null) {
                     val materi = kelas.materiList.find { it.id == materiId }
                     if (materi != null) {
-                        activity.materiDetails(materi)
+                        when (activity) {
+                            is MateriDetailsActivity -> {
+                                activity.materiDetails(materi)
+                            }
+                            is CreateQuizActivity -> {
+                                activity.materiDetails(materi)
+                            }
+                            is JawabanKuisListActivity -> {
+                                activity.materiDetail(materi)
+                            }
+                        }
+
                     } else {
+                        when (activity) {
+                            is MateriDetailsActivity -> {
+                                activity.hideProgressDialog()
+                                // Handle error: materi not found
+                                Log.e(activity.javaClass.simpleName, "Materi not found")
+                            }
+                        }
+
+                    }
+                } else {
+                    when (activity) {
+                        is MateriDetailsActivity ->{
+                            activity.hideProgressDialog()
+                            // Handle error: materi not found
+                            Log.e(activity.javaClass.simpleName, "Materi not found")
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                when (activity) {
+                    is MateriDetailsActivity -> {
                         activity.hideProgressDialog()
                         // Handle error: materi not found
                         Log.e(activity.javaClass.simpleName, "Materi not found")
                     }
-                } else {
-                    activity.hideProgressDialog()
-                    // Handle error: kelas not found
-                    Log.e(activity.javaClass.simpleName, "Kelas not found")
                 }
-            }
-            .addOnFailureListener { e ->
-                activity.hideProgressDialog()
-                Log.e(activity.javaClass.simpleName, "Error getting materi details", e)
             }
     }
 
@@ -495,9 +520,9 @@ class FirestoreClass {
                     is MateriListActivity -> {
                         activity.addUpdateMateriListSuccess()
                     }
-                    is MateriDetailsActivity -> {
-                        activity.addUpdateMateriListSuccess()
-                    }
+//                    is MateriDetailsActivity -> {
+//                        activity.addUpdateMateriListSuccess()
+//                    }
                     is TugasActivity -> {
                         activity.addUpdateMateriListSuccess()
                     }
@@ -549,6 +574,12 @@ class FirestoreClass {
                                 when (activity) {
                                     is MateriDetailsActivity -> {
                                         activity.materiUpdateSuccess()
+                                    }
+                                    is CreateQuizActivity -> {
+                                        activity.addUpdateMateriListSuccess()
+                                    }
+                                    is QuizJawabActivity -> {
+                                        activity.addUpdateMateriListSuccess()
                                     }
                                     // Add other activity types if needed
                                 }
@@ -721,7 +752,7 @@ class FirestoreClass {
             }
     }
 
-    fun updateKuisInMateri(
+    fun updateJawabInMateri(
         activity: TugasActivity,
         kelasDocumentId: String,
         materiPosition: Int,
@@ -889,7 +920,7 @@ class FirestoreClass {
     fun deleteJawabKuisForGuru(
         activity: JawabanKuisListActivity,
         kelasDocumentId: String,
-        materiPosition: Int,
+        materiDetail: Materi, // Mengganti dari materiPosition ke materiDetail
         kuisPosition: Int,
         jawabId: String
     ) {
@@ -898,19 +929,15 @@ class FirestoreClass {
             .addOnSuccessListener { document ->
                 val kelasDetails = document.toObject(Kelas::class.java)
                 kelasDetails?.let { kelas ->
-                    if (materiPosition < kelas.materiList.size &&
-                        kuisPosition < kelas.materiList[materiPosition].kuis.size) {
+                    val materiIndex = kelas.materiList.indexOfFirst { it.id == materiDetail.id }
 
-                        val currentKuis = kelas.materiList[materiPosition].kuis[kuisPosition]
+                    if (materiIndex != -1 && kuisPosition < kelas.materiList[materiIndex].kuis.size) {
+                        val currentKuis = kelas.materiList[materiIndex].kuis[kuisPosition]
                         val updatedJawabList = currentKuis.jawab.filter { it.id != jawabId }
 
-                        // Create a new Tugas object with the updated jawab list
                         val updatedKuis = currentKuis.copy(jawab = ArrayList(updatedJawabList))
+                        kelas.materiList[materiIndex].kuis[kuisPosition] = updatedKuis
 
-                        // Update the Tugas in the Materi
-                        kelas.materiList[materiPosition].kuis[kuisPosition] = updatedKuis
-
-                        // Update the entire Kelas object in Firestore
                         mFireStore.collection(Constants.KELAS)
                             .document(kelasDocumentId)
                             .set(kelas)
@@ -936,10 +963,11 @@ class FirestoreClass {
             }
     }
 
-    fun updateKuisInMateri(
+
+    fun updateQuizInMateri(
         activity: CreateQuizActivity,
         kelasDocumentId: String,
-        materiPosition: Int,
+        materiDetail: Materi,
         kuisPosition: Int,
         updatedKuis: Kuis
     ) {
@@ -949,17 +977,36 @@ class FirestoreClass {
             .addOnSuccessListener { document ->
                 val kelas = document.toObject(Kelas::class.java)
                 kelas?.let {
-                    it.materiList[materiPosition].kuis[kuisPosition] = updatedKuis
-                    mFireStore.collection(Constants.KELAS)
-                        .document(kelasDocumentId)
-                        .set(it, SetOptions.merge())
-                        .addOnSuccessListener {
-                            activity.kuisUpdateSuccess()
-                        }
-                        .addOnFailureListener { e ->
-                            activity.hideProgressDialog()
-                            Log.e(activity.javaClass.simpleName, "Error while updating tugas", e)
-                        }
+                    val materiIndex = it.materiList.indexOfFirst { materi -> materi.id == materiDetail.id }
+                    if (materiIndex != -1) {
+                        // Create a new ArrayList for kuis
+                        val updatedKuisList = ArrayList(materiDetail.kuis)
+                        updatedKuisList[kuisPosition] = updatedKuis
+
+                        // Create a new Materi object with the updated kuis list
+                        val updatedMateri = materiDetail.copy(kuis = updatedKuisList)
+
+                        // Create a new ArrayList for materiList
+                        val updatedMateriList = ArrayList(it.materiList)
+                        updatedMateriList[materiIndex] = updatedMateri
+
+                        // Create a new Kelas object with the updated materiList
+                        val updatedKelas = it.copy(materiList = updatedMateriList)
+
+                        mFireStore.collection(Constants.KELAS)
+                            .document(kelasDocumentId)
+                            .set(updatedKelas, SetOptions.merge())
+                            .addOnSuccessListener {
+                                activity.kuisUpdateSuccess()
+                            }
+                            .addOnFailureListener { e ->
+                                activity.hideProgressDialog()
+                                Log.e(activity.javaClass.simpleName, "Error while updating kuis", e)
+                            }
+                    } else {
+                        activity.hideProgressDialog()
+                        Log.e(activity.javaClass.simpleName, "Materi not found in the list")
+                    }
                 }
             }
             .addOnFailureListener { e ->
@@ -971,7 +1018,7 @@ class FirestoreClass {
     fun deleteQuestion(
         activity: CreateQuizActivity,
         kelasDocumentId: String,
-        materiPosition: Int,
+        materiDetail: Materi,
         kuisPosition: Int,
         questionId: String
     ) {
@@ -980,32 +1027,40 @@ class FirestoreClass {
             .addOnSuccessListener { document ->
                 val kelasDetails = document.toObject(Kelas::class.java)
                 kelasDetails?.let { kelas ->
-                    if (materiPosition < kelas.materiList.size &&
-                        kuisPosition < kelas.materiList[materiPosition].kuis.size) {
+                    val materiIndex = kelas.materiList.indexOfFirst { it.id == materiDetail.id }
+                    if (materiIndex != -1 && kuisPosition < materiDetail.kuis.size) {
+                        val currentKuis = materiDetail.kuis[kuisPosition]
+                        val updatedQuestionList = ArrayList(currentKuis.question.filter { it.id != questionId.toInt() })
 
-                        val currentKuis = kelas.materiList[materiPosition].kuis[kuisPosition]
-                        val updatedQuestionList = currentKuis.question.filter { it.id != questionId.toInt() }
+                        // Create a new Kuis object with the updated question list
+                        val updatedKuis = currentKuis.copy(question = updatedQuestionList)
 
-                        // Create a new Tugas object with the updated jawab list
-                        val updatedQuestion = currentKuis.copy(question = ArrayList(updatedQuestionList))
+                        // Update the Kuis in the Materi
+                        val updatedKuisList = ArrayList(materiDetail.kuis)
+                        updatedKuisList[kuisPosition] = updatedKuis
 
-                        // Update the Tugas in the Materi
-                        kelas.materiList[materiPosition].kuis[kuisPosition] = updatedQuestion
+                        // Create a new Materi object with the updated kuis list
+                        val updatedMateri = materiDetail.copy(kuis = updatedKuisList)
+
+                        // Update the Materi in the Kelas
+                        val updatedMateriList = ArrayList(kelas.materiList)
+                        updatedMateriList[materiIndex] = updatedMateri
 
                         // Update the entire Kelas object in Firestore
+                        val updatedKelas = kelas.copy(materiList = updatedMateriList)
                         mFireStore.collection(Constants.KELAS)
                             .document(kelasDocumentId)
-                            .set(kelas)
+                            .set(updatedKelas)
                             .addOnSuccessListener {
                                 activity.jawabKuisDeleteSuccess()
                             }
                             .addOnFailureListener { e ->
                                 activity.hideProgressDialog()
-                                Log.e(activity.javaClass.simpleName, "Error while deleting jawab tugas", e)
+                                Log.e(activity.javaClass.simpleName, "Error while deleting question", e)
                             }
                     } else {
                         activity.hideProgressDialog()
-                        Log.e(activity.javaClass.simpleName, "Invalid materi or tugas position")
+                        Log.e(activity.javaClass.simpleName, "Invalid materi or kuis position")
                     }
                 } ?: run {
                     activity.hideProgressDialog()

@@ -18,14 +18,14 @@ import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.JawabanKuisItemsAdapter
 import com.example.mobilelearningapp.models.JawabanKuis
 import com.example.mobilelearningapp.models.Kelas
+import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.utils.Constants
 
 class JawabanKuisListActivity : BaseActivity() {
 
     private var binding : ActivityJawabanKuisListBinding? = null
-    private lateinit var mKelasDetails : Kelas
+    private lateinit var mMateriDetails : Materi
     lateinit var mKelasDocumentId : String
-    private var mMateriListPosition = -1
     private var mKuisListPosition = -1
 
     private lateinit var mJawabList: ArrayList<JawabanKuis>
@@ -42,13 +42,9 @@ class JawabanKuisListActivity : BaseActivity() {
     }
 
     private fun getIntentData() {
-        if (intent.hasExtra(Constants.KELAS_DETAIL)) {
-            mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
+        if (intent.hasExtra(Constants.MATERI_DETAIL)) {
+            mMateriDetails = intent.getParcelableExtra(Constants.MATERI_DETAIL)!!
 
-        }
-        if (intent.hasExtra(Constants.MATERI_LIST_ITEM_POSITION)) {
-            mMateriListPosition = intent.getIntExtra(Constants.MATERI_LIST_ITEM_POSITION, -1)
-            Log.e("MATERI_ITEM_POSITION", mMateriListPosition.toString())
         }
         if (intent.hasExtra(Constants.QUIZ_LIST_ITEM_POSITION)) {
             mKuisListPosition = intent.getIntExtra(Constants.QUIZ_LIST_ITEM_POSITION, -1)
@@ -66,7 +62,7 @@ class JawabanKuisListActivity : BaseActivity() {
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
 //            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
-            supportActionBar?.title = "Daftar Jawaban Kuis ${mKelasDetails.materiList[mMateriListPosition].kuis[mKuisListPosition].namaKuis}"
+            supportActionBar?.title = "Daftar Jawaban Kuis ${mMateriDetails.kuis[mKuisListPosition].namaKuis}"
         }
         binding?.toolbar?.setNavigationOnClickListener {
             onBackPressed()
@@ -74,11 +70,11 @@ class JawabanKuisListActivity : BaseActivity() {
         }
     }
 
-    fun kelasDetails(kelas: Kelas){
-        mKelasDetails = kelas
+    fun materiDetail(materi: Materi){
+        mMateriDetails = materi
 
         setupActionBar()
-        populateJawabListToUI(mKelasDetails.materiList[mMateriListPosition].kuis[mKuisListPosition].jawab)
+        populateJawabListToUI(mMateriDetails.kuis[mKuisListPosition].jawab)
 
     }
 
@@ -118,7 +114,7 @@ class JawabanKuisListActivity : BaseActivity() {
                         FirestoreClass().deleteJawabKuisForGuru(
                             this@JawabanKuisListActivity,
                             mKelasDocumentId,
-                            mMateriListPosition,
+                            mMateriDetails,
                             mKuisListPosition,
                             jawabToDelete.id
                         )
@@ -142,6 +138,6 @@ class JawabanKuisListActivity : BaseActivity() {
         setResult(RESULT_OK)
         hideProgressDialog()
         Toast.makeText(this, "Jawaban kuis berhasil dihapus", Toast.LENGTH_SHORT).show()
-        FirestoreClass().getKelasDetails(this, mKelasDocumentId) // Refresh data
+        FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriDetails.id) // Refresh data
     }
 }

@@ -143,7 +143,6 @@ class CreateQuizActivity : BaseActivity() {
 
         binding?.btnLiatJawaban?.setOnClickListener {
             val intent = Intent(this,JawabanKuisListActivity::class.java)
-            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
             intent.putExtra(Constants.QUIZ_LIST_ITEM_POSITION,mQuizListPosition)
             intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
             intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
@@ -238,7 +237,7 @@ class CreateQuizActivity : BaseActivity() {
         FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
 
         Toast.makeText(this, "Kuis berhasil disimpan", Toast.LENGTH_SHORT).show()
-//        finish()
+
     }
 
     private fun updateQuestionList() {
@@ -314,10 +313,10 @@ class CreateQuizActivity : BaseActivity() {
         mMateriDetails.kuis[mQuizListPosition] = updatedKuis
 
         // Update in Firestore
-        FirestoreClass().updateKuisInMateri(
+        FirestoreClass().updateQuizInMateri(
             this,
             mKelasDocumentId,
-            mMateriListPosition,
+            mMateriDetails,
             mQuizListPosition,
             updatedKuis
         )
@@ -401,7 +400,7 @@ class CreateQuizActivity : BaseActivity() {
                         FirestoreClass().deleteQuestion(
                             this@CreateQuizActivity,
                             mKelasDocumentId,
-                            mMateriListPosition,
+                            mMateriDetails,
                             mQuizListPosition,
                             questionToDelete.id.toString()
                         )
@@ -428,7 +427,7 @@ class CreateQuizActivity : BaseActivity() {
         setResult(RESULT_OK)
         hideProgressDialog()
         Toast.makeText(this, "Jawaban tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
-        FirestoreClass().getKelasDetails(this, mKelasDocumentId) // Refresh data
+        FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriDetails.id) // Refresh data
     }
 
     fun kuisUpdateSuccess() {
@@ -456,6 +455,7 @@ class CreateQuizActivity : BaseActivity() {
             showProgressDialog(resources.getString(R.string.mohon_tunggu))
             deleteKuis()
             dialogInterface.dismiss()
+
         }
 
         builder.setNegativeButton("Tidak") { dialogInterface, _ ->

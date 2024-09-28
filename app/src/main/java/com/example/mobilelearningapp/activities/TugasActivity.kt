@@ -18,8 +18,6 @@ import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.InputType
 import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.style.StyleSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -32,7 +30,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -45,7 +42,6 @@ import com.example.mobilelearningapp.models.Kelas
 import com.example.mobilelearningapp.models.Tugas
 import com.example.mobilelearningapp.utils.Constants
 import com.example.mobilelearningapp.utils.FormattedTextHandler
-import com.example.mobilelearningapp.utils.SwipeToDeleteCallback
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
@@ -493,7 +489,7 @@ class TugasActivity : BaseActivity() {
         mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition] = updatedTugas
 
         // Update in Firestore
-        FirestoreClass().updateKuisInMateri(
+        FirestoreClass().updateJawabInMateri(
             this,
             mKelasDocumentId,
             mMateriListPosition,

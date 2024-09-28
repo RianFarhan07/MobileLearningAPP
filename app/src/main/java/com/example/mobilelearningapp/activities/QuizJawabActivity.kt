@@ -11,10 +11,7 @@ import com.bumptech.glide.Glide
 import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityQuizJawabBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
-import com.example.mobilelearningapp.models.JawabanKuis
-import com.example.mobilelearningapp.models.Kelas
-import com.example.mobilelearningapp.models.Kuis
-import com.example.mobilelearningapp.models.Question
+import com.example.mobilelearningapp.models.*
 import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,9 +21,8 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
 
     private var binding: ActivityQuizJawabBinding? = null
     private lateinit var kuis: Kuis
-    private lateinit var mKelasDetails: Kelas
+    private lateinit var mMateriDetails: Materi
     private lateinit var mKelasDocumentId: String
-    private var mMateriListPosition = -1
     private var mQuizListPosition = -1
     private var isUpdate = false
     private lateinit var mUsername : String
@@ -48,7 +44,7 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
 
         getIntentData()
         isQuizFinished = false
-        kuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
+        kuis = mMateriDetails.kuis[mQuizListPosition]
         setQuestion()
 
         binding?.tvOptionOne?.setOnClickListener(this)
@@ -67,12 +63,10 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun getIntentData() {
-        if (intent.hasExtra(Constants.KELAS_DETAIL)) {
-            mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
+        if (intent.hasExtra(Constants.MATERI_DETAIL)) {
+            mMateriDetails = intent.getParcelableExtra(Constants.MATERI_DETAIL)!!
         }
-        if (intent.hasExtra(Constants.MATERI_LIST_ITEM_POSITION)) {
-            mMateriListPosition = intent.getIntExtra(Constants.MATERI_LIST_ITEM_POSITION, -1)
-        }
+
         if (intent.hasExtra(Constants.QUIZ_LIST_ITEM_POSITION)) {
             mQuizListPosition = intent.getIntExtra(Constants.QUIZ_LIST_ITEM_POSITION, -1)
         }
@@ -214,14 +208,14 @@ class QuizJawabActivity : AppCompatActivity(), View.OnClickListener {
             createdBy = FirestoreClass().getCurrentUserID(),
             nilai = score.toString(),
             namaPenjawab = mUsername,
-            namaKuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].namaKuis,
-            namaKelas = mKelasDetails.nama,
-            namaMateri = mKelasDetails.materiList[mMateriListPosition].nama
+            namaKuis = mMateriDetails.kuis[mQuizListPosition].namaKuis,
+            namaKelas = mMateriDetails.kelas,
+            namaMateri = mMateriDetails.nama
         )
 
         kuis.jawab.add(quizResult)
 
-        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
     }
 
     fun addUpdateMateriListSuccess(){

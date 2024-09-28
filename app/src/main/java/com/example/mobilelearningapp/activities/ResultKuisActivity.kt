@@ -7,6 +7,7 @@ import android.widget.Toast
 import com.example.mobilelearningapp.databinding.ActivityResultKuisBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.Kelas
+import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -14,7 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class ResultKuisActivity : AppCompatActivity() {
 
     private var binding : ActivityResultKuisBinding? = null
-    private lateinit var mKelasDetails: Kelas
+    private lateinit var mMateriDetails: Materi
     private lateinit var mKelasDocumentId: String
     private var mMateriListPosition = -1
     private var mQuizListPosition = -1
@@ -33,7 +34,7 @@ class ResultKuisActivity : AppCompatActivity() {
 
         if (isUpdate){
             val currentUserId = FirestoreClass().getCurrentUserID()
-            val currentKuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
+            val currentKuis = mMateriDetails.kuis[mQuizListPosition]
             val userJawaban = currentKuis.jawab.find { it.createdBy == currentUserId }
             binding?.tvScore?.text = "Nilai anda  ${userJawaban?.nilai.toString()}"
             binding?.tvName?.text = userJawaban?.namaPenjawab
@@ -49,12 +50,10 @@ class ResultKuisActivity : AppCompatActivity() {
     }
 
     private fun getIntentData() {
-        if (intent.hasExtra(Constants.KELAS_DETAIL)) {
-            mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
+        if (intent.hasExtra(Constants.MATERI_DETAIL)) {
+            mMateriDetails = intent.getParcelableExtra(Constants.MATERI_DETAIL)!!
         }
-        if (intent.hasExtra(Constants.MATERI_LIST_ITEM_POSITION)) {
-            mMateriListPosition = intent.getIntExtra(Constants.MATERI_LIST_ITEM_POSITION, -1)
-        }
+
         if (intent.hasExtra(Constants.QUIZ_LIST_ITEM_POSITION)) {
             mQuizListPosition = intent.getIntExtra(Constants.QUIZ_LIST_ITEM_POSITION, -1)
         }
