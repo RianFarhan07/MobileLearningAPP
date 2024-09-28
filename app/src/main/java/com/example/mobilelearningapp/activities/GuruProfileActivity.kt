@@ -301,6 +301,7 @@ class GuruProfileActivity : BaseActivity() {
             .into(findViewById(R.id.iv_profile_user_image))
 
         binding?.etName?.setText(guru.name)
+        binding?.etClasses?.setText(guru.classes)
         binding?.etEmail?.setText(guru.email)
         binding?.etPassword?.setText("")
 

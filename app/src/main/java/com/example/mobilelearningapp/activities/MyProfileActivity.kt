@@ -297,6 +297,7 @@ class MyProfileActivity : BaseActivity() {
 
         binding?.etName?.setText(siswa.name)
         binding?.etEmail?.setText(siswa.email)
+        binding?.etClasses?.setText(siswa.classes)
         binding?.etPassword?.setText("")
         binding?.etClasses?.setText(siswa.classes)
 
