@@ -211,6 +211,7 @@ class CreateQuizActivity : BaseActivity() {
     }
 
     private fun saveKuis() {
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
         val namaKuis = binding?.etNamaKuis?.text.toString()
         val deskripsi = binding?.etDeskripsi?.text.toString()
         val dueDateString = binding?.tvDueDate?.text.toString()
@@ -283,6 +284,7 @@ class CreateQuizActivity : BaseActivity() {
 //    }
 
     private fun updateKuis() {
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
         val namaKuis = binding?.etNamaKuis?.text.toString()
         val deskripsi = binding?.etDeskripsi?.text.toString()
         val dueDateString = binding?.tvDueDate?.text.toString()
@@ -353,6 +355,7 @@ class CreateQuizActivity : BaseActivity() {
     }
 
     fun addUpdateMateriListSuccess(){
+        hideProgressDialog()
         setResult(RESULT_OK)
         Toast.makeText(this, " kuis berhasil ditambah", Toast.LENGTH_SHORT).show()
         finish()
@@ -431,7 +434,7 @@ class CreateQuizActivity : BaseActivity() {
     }
 
     fun kuisUpdateSuccess() {
-        hideProgressDialog()
+
         FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
         updateQuestionList() // Update the UI after successful Firestore update
     }

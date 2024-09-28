@@ -15,8 +15,6 @@ import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.InputType
 import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.style.StyleSpan
 import android.util.Log
 import android.view.View
 import android.webkit.MimeTypeMap
@@ -29,21 +27,18 @@ import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityJawabBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.JawabanTugas
-import com.example.mobilelearningapp.models.Kelas
+import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.utils.Constants
 import com.example.mobilelearningapp.utils.FormattedTextHandler
-import com.example.mobilelearningapp.utils.TextSpan
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import java.io.IOException
 import java.util.*
 
 class JawabActivity : BaseActivity() {
 
     private var binding : ActivityJawabBinding? = null
-    private lateinit var mKelasDetails : Kelas
+    private lateinit var mMateriDetails : Materi
     lateinit var mKelasDocumentId : String
     private var mMateriListPosition = -1
     private var mTugasListPosition = -1
@@ -93,11 +88,11 @@ class JawabActivity : BaseActivity() {
                     binding?.btnKumpulTugas?.text = "Beri Nilai"
                     binding?.tvJawaban?.visibility = View.VISIBLE
                     try {
-                        val formattedText = FormattedTextHandler.fromJson( mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].jawaban)
+                        val formattedText = FormattedTextHandler.fromJson( mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition].jawaban)
                         val spannableString = FormattedTextHandler.toSpannableString(formattedText)
                         binding?.tvJawaban?.text = spannableString
                     } catch (e: Exception) {
-                        binding?.tvJawaban?.text =  mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].jawaban
+                        binding?.tvJawaban?.text =  mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition].jawaban
                         Log.e("JawabActivity", "Error parsing formatted text for tvSoal: ${e.message}")
                     }
                     binding?.etJawab?.visibility = View.GONE
@@ -192,19 +187,19 @@ class JawabActivity : BaseActivity() {
             }
         }
         try {
-            val formattedText = FormattedTextHandler.fromJson( mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].soal)
+            val formattedText = FormattedTextHandler.fromJson(mMateriDetails.tugas[mTugasListPosition].soal)
             val spannableString = FormattedTextHandler.toSpannableString(formattedText)
             binding?.tvSoal?.text = spannableString
         } catch (e: Exception) {
-            binding?.tvSoal?.text = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].soal
+            binding?.tvSoal?.text =mMateriDetails.tugas[mTugasListPosition].soal
             Log.e("JawabActivity", "Error parsing formatted text for tvSoal: ${e.message}")
         }
 
-        if ( mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal.isNotEmpty()) {
+        if (mMateriDetails.tugas[mTugasListPosition].imageSoal.isNotEmpty()) {
             binding?.llImageSoal?.visibility = View.VISIBLE
             Glide
                 .with(this@JawabActivity)
-                .load(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal)
+                .load(mMateriDetails.tugas[mTugasListPosition].imageSoal)
                 .centerCrop()
                 .placeholder(R.drawable.ic_board_place_holder)
                 .into(binding?.ivImageSoal!!)
@@ -213,9 +208,9 @@ class JawabActivity : BaseActivity() {
         }
 
         binding?.llVideoMateri?.setOnClickListener {
-            if (mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban.isNotEmpty()) {
+            if (mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban.isNotEmpty()) {
                 val intent = Intent(this, VideoPlayerActivity::class.java)
-                intent.putExtra("VIDEO_URL", mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban)
+                intent.putExtra("VIDEO_URL", mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban)
                 startActivity(intent)
             }
         }
@@ -223,12 +218,12 @@ class JawabActivity : BaseActivity() {
     }
 
     private fun findTugasIndexById(id: String): Int {
-        return mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab.indexOfFirst { it.id == id }
+        return mMateriDetails.tugas[mTugasListPosition].jawab.indexOfFirst { it.id == id }
     }
 
     private fun getIntentData() {
-        if (intent.hasExtra(Constants.KELAS_DETAIL)) {
-            mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
+        if (intent.hasExtra(Constants.MATERI_DETAIL)) {
+            mMateriDetails = intent.getParcelableExtra(Constants.MATERI_DETAIL)!!
         }
         if (intent.hasExtra(Constants.MATERI_LIST_ITEM_POSITION)) {
             mMateriListPosition = intent.getIntExtra(Constants.MATERI_LIST_ITEM_POSITION, -1)
@@ -274,7 +269,7 @@ class JawabActivity : BaseActivity() {
     private fun setUpDataJawaban() {
 
 
-        val currentJawaban = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition]
+        val currentJawaban = mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition]
         val currentUserID = FirestoreClass().getCurrentUserID()
         if (currentUserID.isNotEmpty()) {
             FirestoreClass().getUserRole(currentUserID) { role ->
@@ -557,12 +552,12 @@ class JawabActivity : BaseActivity() {
     private fun deleteJawabImage() {
 
         if (isUpdate){
-            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].imageJawaban)
+            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition].imageJawaban)
 
             // Delete the image from Firebase Storage
             storageRef.delete().addOnSuccessListener {
                 // Image deleted successfully from Storage, now update Firestore
-                mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].imageJawaban = ""
+                mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition].imageJawaban = ""
 
             }.addOnFailureListener { exception ->
                 hideProgressDialog()
@@ -584,12 +579,12 @@ class JawabActivity : BaseActivity() {
     private fun deleteJawabVideo() {
 
         if (isUpdate){
-            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban)
+            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban)
 
             // Delete the image from Firebase Storage
             storageRef.delete().addOnSuccessListener {
                 // Image deleted successfully from Storage, now update Firestore
-                mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban = ""
+                mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition].videoJawaban = ""
 
             }.addOnFailureListener { exception ->
                 hideProgressDialog()
@@ -609,6 +604,7 @@ class JawabActivity : BaseActivity() {
     }
 
     private fun createJawaban() {
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
         val namaPenjawab = binding?.etNamaPenjawab?.text.toString().trim()
         val deskripsiTugas = binding?.etJawab?.text.toString().trim()
         val spannable = binding?.etJawab?.text as? Spannable
@@ -632,10 +628,10 @@ class JawabActivity : BaseActivity() {
         val jawab = JawabanTugas(
 
             id = UUID.randomUUID().toString(),
-            namaTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas,
+            namaTugas = mMateriDetails.tugas[mTugasListPosition].namaTugas,
             namaPenjawab = namaPenjawab,
-            namaMateri  = mKelasDetails.materiList[mMateriListPosition].nama,
-            namaKelas = mKelasDetails.nama,
+            namaMateri  = mMateriDetails.nama,
+            namaKelas = mMateriDetails.kelas,
             jawaban = formattedTextJson,
             imageJawaban = mMateriImageURL,
             videoJawaban = mMateriVideoURL,
@@ -647,23 +643,25 @@ class JawabActivity : BaseActivity() {
         )
 
 
-        mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab.add(jawab)
+        mMateriDetails.tugas[mTugasListPosition].jawab.add(jawab)
 
 
-        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
 
 //        FirestoreClass().updateMateriDetail(this@TugasActivity, mKelasDocumentId, mKelasDetails.materiList[mMateriListPosition])
 
     }
 
     fun addUpdateMateriListSuccess(){
+        hideProgressDialog()
         setResult(RESULT_OK)
-        Toast.makeText(this, " tugas berhasil ditambah", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, " jawaban berhasil ditambah", Toast.LENGTH_SHORT).show()
         finish()
 
     }
 
     private fun updateJawaban() {
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
         val namaPenjawab = binding?.etNamaPenjawab?.text.toString().trim()
         val deskripsiJawaban = binding?.etJawab?.text.toString().trim()
         val nilai = binding?.etNilai?.text.toString().trim()
@@ -680,16 +678,16 @@ class JawabActivity : BaseActivity() {
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
         // Preserve existing PDF information if not changed
-        val currentJawaban = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition]
+        val currentJawaban = mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition]
         val updatedPdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else currentJawaban.pdfUrl
         val updatedPdfUrlName = if (selectedPdfFileName.isNotEmpty()) selectedPdfFileName else currentJawaban.pdfUrlName
 
         val updatedJawaban = JawabanTugas(
             id = currentJawaban.id,
             namaPenjawab = namaPenjawab,
-            namaTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas,
-            namaMateri  = mKelasDetails.materiList[mMateriListPosition].nama,
-            namaKelas = mKelasDetails.nama,
+            namaTugas = mMateriDetails.tugas[mTugasListPosition].namaTugas,
+            namaMateri  = mMateriDetails.nama,
+            namaKelas = mMateriDetails.kelas,
             jawaban = deskripsiJawaban,
             imageJawaban = if (mMateriImageURL.isNotEmpty()) mMateriImageURL else currentJawaban.imageJawaban,
             videoJawaban = if (mMateriVideoURL.isNotEmpty()) mMateriVideoURL else currentJawaban.videoJawaban,
@@ -702,13 +700,13 @@ class JawabActivity : BaseActivity() {
         )
 
         // Update the tugas in the mKelasDetails
-        mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab[mJawabListPosition] = updatedJawaban
+        mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition] = updatedJawaban
 
         // Update in Firestore
-        FirestoreClass().updateJawabInMateri(
+        FirestoreClass().updateJawabanTugasInMateri(
             this,
             mKelasDocumentId,
-            mMateriListPosition,
+            mMateriDetails,
             mTugasListPosition,
             mJawabListPosition,
             updatedJawaban
@@ -718,7 +716,7 @@ class JawabActivity : BaseActivity() {
 
     fun jawabUpdateSuccess(){
         hideProgressDialog()
-        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
     }
 
 

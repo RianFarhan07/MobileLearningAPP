@@ -38,7 +38,7 @@ import com.example.mobilelearningapp.R
 import com.example.mobilelearningapp.databinding.ActivityTugasBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.JawabanTugas
-import com.example.mobilelearningapp.models.Kelas
+import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.models.Tugas
 import com.example.mobilelearningapp.utils.Constants
 import com.example.mobilelearningapp.utils.FormattedTextHandler
@@ -52,9 +52,8 @@ import kotlin.collections.ArrayList
 class TugasActivity : BaseActivity() {
 
     private var binding : ActivityTugasBinding? = null
-    private lateinit var mKelasDetails : Kelas
+    private lateinit var mMateriDetails : Materi
     lateinit var mKelasDocumentId : String
-    private var mMateriListPosition = -1
     private var mTugasListPosition = -1
     private var isUpdate = false
     private var isDeleteFile = false
@@ -88,7 +87,6 @@ class TugasActivity : BaseActivity() {
         mStorageReference = FirebaseStorage.getInstance().reference
 
 
-
         val currentUserID = FirestoreClass().getCurrentUserID()
         if (currentUserID.isNotEmpty()) {
             FirestoreClass().getUserRole(currentUserID) { role ->
@@ -99,9 +97,8 @@ class TugasActivity : BaseActivity() {
                     binding?.btnKumpulTugas?.setOnClickListener {
 
                         val intent = Intent(this@TugasActivity,JawabActivity::class.java)
-                        intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
                         intent.putExtra(Constants.TUGAS_LIST_ITEM_POSITION,mTugasListPosition)
-                        intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+                        intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
                         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
                         startActivityForResult(intent, REQUEST_CODE_JAWAB_DETAILS)
                     }
@@ -204,9 +201,8 @@ class TugasActivity : BaseActivity() {
 
         binding?.btnLihatHasilTugas?.setOnClickListener {
             val intent = Intent(this,JawabanListActivity::class.java)
-            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
             intent.putExtra(Constants.TUGAS_LIST_ITEM_POSITION,mTugasListPosition)
-            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+            intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
             intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
             startActivityForResult(intent,REQUEST_CODE_JAWAB_DETAILS)
         }
@@ -215,8 +211,8 @@ class TugasActivity : BaseActivity() {
 
     private fun setUpDataTugas() {
 
-        val currentTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition]
-        populateJawabListToUI(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab)
+        val currentTugas = mMateriDetails.tugas[mTugasListPosition]
+        populateJawabListToUI(mMateriDetails.tugas[mTugasListPosition].jawab)
         val currentUserID = FirestoreClass().getCurrentUserID()
         if (currentUserID.isNotEmpty()) {
             FirestoreClass().getUserRole(currentUserID) { role ->
@@ -275,7 +271,7 @@ class TugasActivity : BaseActivity() {
             }
         }
 
-        if (mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal.isEmpty()){
+        if (mMateriDetails.tugas[mTugasListPosition].imageSoal.isEmpty()){
             binding?.llImageSoal?.visibility = View.GONE
         }else{
             binding?.llImageSoal?.visibility = View.VISIBLE
@@ -318,7 +314,7 @@ class TugasActivity : BaseActivity() {
                         }else{
                             if (isUpdate){
                                 showAlertDialogToDeleteTugas(
-                                    mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas!!)
+                                    mMateriDetails.tugas[mTugasListPosition].namaTugas!!)
                             }
                             else{
                                 Toast.makeText(this@TugasActivity,
@@ -336,14 +332,11 @@ class TugasActivity : BaseActivity() {
     }
 
     private fun getIntentData() {
-        if (intent.hasExtra(Constants.KELAS_DETAIL)) {
-            mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
+        if (intent.hasExtra(Constants.MATERI_DETAIL)) {
+            mMateriDetails = intent.getParcelableExtra(Constants.MATERI_DETAIL)!!
 
         }
-        if (intent.hasExtra(Constants.MATERI_LIST_ITEM_POSITION)) {
-            mMateriListPosition = intent.getIntExtra(Constants.MATERI_LIST_ITEM_POSITION, -1)
-            Log.e("MATERI_ITEM_POSITION", mMateriListPosition.toString())
-        }
+
         if (intent.hasExtra(Constants.TUGAS_LIST_ITEM_POSITION)) {
             mTugasListPosition = intent.getIntExtra(Constants.TUGAS_LIST_ITEM_POSITION, -1)
             Log.e("TUGAS_ITEM_POSITION", mTugasListPosition.toString())
@@ -365,7 +358,7 @@ class TugasActivity : BaseActivity() {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
             if (isUpdate){
-                supportActionBar?.title = "Tugas ${mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas}"
+                supportActionBar?.title = "Tugas ${mMateriDetails.tugas[mTugasListPosition].namaTugas}"
             }else{
                 supportActionBar?.title = "Buat Tugas"
             }
@@ -387,6 +380,7 @@ class TugasActivity : BaseActivity() {
     }
 
     private fun createTugas() {
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
         val namaTugas = binding?.etNamaSoal?.text.toString().trim()
         val deskripsiTugas = binding?.etSoal?.text.toString().trim()
         val spannable = binding?.etSoal?.text as? Spannable
@@ -409,9 +403,9 @@ class TugasActivity : BaseActivity() {
         val tugas = Tugas(
             id = UUID.randomUUID().toString(),
             namaTugas = namaTugas,
-            namaMateri = mKelasDetails.materiList[mMateriListPosition].nama,
-            namaKelas = mKelasDetails.nama,
-            namaMapel = mKelasDetails.materiList[mMateriListPosition].mapel,
+            namaMateri = mMateriDetails.nama,
+            namaKelas = mMateriDetails.kelas,
+            namaMapel = mMateriDetails.mapel,
             soal = formattedTextJson,
             imageSoal = mMateriImageURL,
             dueDate = mSelectedDueDateMilliSeconds,
@@ -421,16 +415,17 @@ class TugasActivity : BaseActivity() {
         )
 
 
-        mKelasDetails.materiList[mMateriListPosition].tugas.add(tugas)
+        mMateriDetails.tugas.add(tugas)
 
 
-        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
 
 //        FirestoreClass().updateMateriDetail(this@TugasActivity, mKelasDocumentId, mKelasDetails.materiList[mMateriListPosition])
 
     }
 
     private fun updateTugas() {
+        showProgressDialog(resources.getString(R.string.mohon_tunggu))
         val namaTugas = binding?.etNamaSoal?.text.toString().trim()
         val deskripsiTugas = binding?.etSoal?.text.toString().trim()
         val spannable = binding?.etSoal?.text as? Spannable
@@ -449,7 +444,7 @@ class TugasActivity : BaseActivity() {
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
         // Preserve existing PDF information if not changed
-        val currentTugas = mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition]
+        val currentTugas = mMateriDetails.tugas[mTugasListPosition]
 //        val updatedPdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else currentTugas.pdfUrl
 //        val updatedPdfUrlName = if (selectedPdfFileName.isNotEmpty()) selectedPdfFileName else currentTugas.pdfUrlName
 
@@ -486,13 +481,13 @@ class TugasActivity : BaseActivity() {
         Log.e("updatedpdfname",updatedPdfUrlName.toString())
 
         // Update the tugas in the mKelasDetails
-        mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition] = updatedTugas
+        mMateriDetails.tugas[mTugasListPosition] = updatedTugas
 
         // Update in Firestore
-        FirestoreClass().updateJawabInMateri(
+        FirestoreClass().updateTugasInMateri(
             this,
             mKelasDocumentId,
-            mMateriListPosition,
+            mMateriDetails,
             mTugasListPosition,
             updatedTugas
         )
@@ -584,7 +579,7 @@ class TugasActivity : BaseActivity() {
         if (requestCode == REQUEST_CODE_JAWAB_DETAILS && resultCode == RESULT_OK) {
             showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
-            FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+            FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriDetails.id)
             setResult(RESULT_OK)
 
         }
@@ -698,7 +693,7 @@ class TugasActivity : BaseActivity() {
 
                     //TODO GANTI INI KALAU IMAGE TIDAK MAU MUNCUL SAAT BUAT TUGAS PERTAMA KALI HILANGKAN ISUPDATE
                     if (isUpdate){
-                        mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal = mMateriImageURL
+                        mMateriDetails.tugas[mTugasListPosition].imageSoal = mMateriImageURL
                     }
                 }
             }.addOnFailureListener { exception ->
@@ -715,12 +710,12 @@ class TugasActivity : BaseActivity() {
     private fun deleteSoalImage() {
 
         if (isUpdate){
-            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal)
+            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mMateriDetails.tugas[mTugasListPosition].imageSoal)
 
             // Delete the image from Firebase Storage
             storageRef.delete().addOnSuccessListener {
                 // Image deleted successfully from Storage, now update Firestore
-                mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].imageSoal = ""
+                mMateriDetails.tugas[mTugasListPosition].imageSoal = ""
 
             }.addOnFailureListener { exception ->
                 hideProgressDialog()
@@ -747,22 +742,22 @@ class TugasActivity : BaseActivity() {
 
 
 
-    fun kelasDetails(kelas: Kelas){
-        mKelasDetails = kelas
-        populateJawabListToUI(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab)
+    fun materiDetails(materi: Materi){
+        mMateriDetails = materi
+        populateJawabListToUI(mMateriDetails.tugas[mTugasListPosition].jawab)
         hideProgressDialog()
 
     }
 
     fun addUpdateMateriListSuccess(){
+        hideProgressDialog()
         setResult(RESULT_OK)
         Toast.makeText(this, " tugas berhasil ditambah", Toast.LENGTH_SHORT).show()
         finish()
-
     }
 
     fun tugasUpdateSuccess(){
-        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
 
     }
 
@@ -817,7 +812,7 @@ class TugasActivity : BaseActivity() {
                         FirestoreClass().deleteJawabTugas(
                             this@TugasActivity,
                             mKelasDocumentId,
-                            mMateriListPosition,
+                            mMateriDetails,
                             mTugasListPosition,
                             jawabToDelete.id
                         )
@@ -846,16 +841,15 @@ class TugasActivity : BaseActivity() {
         hideProgressDialog()
         Toast.makeText(this, "Jawaban tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
         //TODO GANTI JADI ADDUPDATE JIKA ADA MASALAH
-        FirestoreClass().getKelasDetails(this, mKelasDocumentId) // Refresh data
+        FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriDetails.id) // Refresh data
         setResult(RESULT_OK)
     }
 
     fun jawabanDetails(jawabanId: String){
         val intent = Intent(this, JawabActivity::class.java)
-        intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
         intent.putExtra(Constants.TUGAS_LIST_ITEM_POSITION,mTugasListPosition)
         intent.putExtra(Constants.JAWABAN_TUGAS_ID, jawabanId)
-        intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+        intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
         intent.putExtra(Constants.IS_UPDATE, true)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
         startActivityForResult(intent, REQUEST_CODE_JAWAB_DETAILS)
@@ -886,13 +880,13 @@ class TugasActivity : BaseActivity() {
     }
 
     private fun deleteTugas() {
-        val tugasList: ArrayList<Tugas> = mKelasDetails.materiList[mMateriListPosition].tugas
+        val tugasList: ArrayList<Tugas> =mMateriDetails.tugas
         tugasList.removeAt(mTugasListPosition)
 
-        mKelasDetails.materiList[mMateriListPosition].tugas = tugasList
+        mMateriDetails.tugas = tugasList
 
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
-        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
     }
 
 }

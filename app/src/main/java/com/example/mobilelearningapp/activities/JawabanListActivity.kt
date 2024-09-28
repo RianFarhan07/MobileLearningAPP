@@ -25,6 +25,7 @@ import com.example.mobilelearningapp.databinding.ActivityJawabanTugasListBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 import com.example.mobilelearningapp.models.JawabanTugas
 import com.example.mobilelearningapp.models.Kelas
+import com.example.mobilelearningapp.models.Materi
 import com.example.mobilelearningapp.utils.Constants
 import com.example.mobilelearningapp.utils.SwipeToDeleteCallback
 import com.google.firebase.storage.StorageReference
@@ -33,7 +34,7 @@ import java.io.IOException
 class JawabanListActivity : BaseActivity() {
 
     private var binding : ActivityJawabanTugasListBinding? = null
-    private lateinit var mKelasDetails : Kelas
+    private lateinit var mMateriDetails : Materi
     lateinit var mKelasDocumentId : String
     private var mMateriListPosition = -1
     private var mTugasListPosition = -1
@@ -52,13 +53,13 @@ class JawabanListActivity : BaseActivity() {
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
         getIntentData()
         setupActionBar()
-        FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+        FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriDetails.id)
 
     }
 
     private fun getIntentData() {
-        if (intent.hasExtra(Constants.KELAS_DETAIL)) {
-            mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
+        if (intent.hasExtra(Constants.MATERI_DETAIL)) {
+            mMateriDetails = intent.getParcelableExtra(Constants.MATERI_DETAIL)!!
 
         }
         if (intent.hasExtra(Constants.MATERI_LIST_ITEM_POSITION)) {
@@ -81,7 +82,7 @@ class JawabanListActivity : BaseActivity() {
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
 //            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
-            supportActionBar?.title = "Daftar Jawaban Tugas ${mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].namaTugas}"
+            supportActionBar?.title = "Daftar Jawaban Tugas ${mMateriDetails.tugas[mTugasListPosition].namaTugas}"
         }
         binding?.toolbar?.setNavigationOnClickListener {
             onBackPressed()
@@ -94,16 +95,16 @@ class JawabanListActivity : BaseActivity() {
         if (requestCode == REQUEST_CODE_JAWAB_DETAILS && resultCode == RESULT_OK) {
             showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
-            FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+            FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriDetails.id)
 
         }
     }
 
-    fun kelasDetails(kelas: Kelas){
-        mKelasDetails = kelas
+    fun materiDetails(materi: Materi){
+        mMateriDetails = materi
 
         setupActionBar()
-        populateJawabListToUI(mKelasDetails.materiList[mMateriListPosition].tugas[mTugasListPosition].jawab)
+        populateJawabListToUI(mMateriDetails.tugas[mTugasListPosition].jawab)
         hideProgressDialog()
 
     }
@@ -144,7 +145,7 @@ class JawabanListActivity : BaseActivity() {
                         FirestoreClass().deleteJawabTugasForGuru(
                             this@JawabanListActivity,
                             mKelasDocumentId,
-                            mMateriListPosition,
+                            mMateriDetails,
                             mTugasListPosition,
                             jawabToDelete.id
                         )
@@ -174,18 +175,17 @@ class JawabanListActivity : BaseActivity() {
         setResult(RESULT_OK)
         hideProgressDialog()
         Toast.makeText(this, "Jawaban tugas berhasil dihapus", Toast.LENGTH_SHORT).show()
-        FirestoreClass().getKelasDetails(this, mKelasDocumentId) // Refresh data
+        FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriDetails.id) // Refresh data
     }
 
     fun jawabanDetails(jawabanId: String){
         val intent = Intent(this, JawabActivity::class.java)
-        intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
         intent.putExtra(Constants.TUGAS_LIST_ITEM_POSITION,mTugasListPosition)
         intent.putExtra(Constants.JAWABAN_TUGAS_ID, jawabanId)
-        intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+        intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
         intent.putExtra(Constants.IS_UPDATE, true)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
-        startActivityForResult(intent, TugasActivity.REQUEST_CODE_JAWAB_DETAILS)
+        startActivityForResult(intent, REQUEST_CODE_JAWAB_DETAILS)
 
     }
 }

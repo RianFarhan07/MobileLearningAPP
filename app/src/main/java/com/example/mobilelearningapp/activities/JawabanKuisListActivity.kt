@@ -37,7 +37,7 @@ class JawabanKuisListActivity : BaseActivity() {
 
         getIntentData()
         setupActionBar()
-        FirestoreClass().getKelasDetails(this,mKelasDocumentId)
+        FirestoreClass().getMateriDetails(this,mKelasDocumentId,mMateriDetails.id)
 
     }
 
