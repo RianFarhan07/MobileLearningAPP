@@ -55,13 +55,15 @@ import kotlin.collections.ArrayList
 class MateriDetailsActivity : BaseActivity() {
 
     private var binding : ActivityMateriDetailsBinding? = null
-    private lateinit var mKelasDetails : Kelas
+//    private lateinit var mKelasDetails : Kelas
+    private lateinit var mMateriDetails : Materi
+
     lateinit var mKelasDocumentId : String
 
     private lateinit var mMateriId: String
 
-    private var mMateriListPosition = -1
-        get() = findMateriIndexById(mMateriId)
+//    private var mMateriListPosition = -1
+//        get() = findMateriIndexById(mMateriId)
 
     private lateinit var mFileList: ArrayList<File>
 
@@ -88,144 +90,8 @@ class MateriDetailsActivity : BaseActivity() {
 
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
         getIntentData()
-        setupActionBar()
-        FirestoreClass().getKelasDetails(this,mKelasDocumentId)
-        populateMateriDesc()
+        FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriId)
 
-
-
-        val currentUserID = FirestoreClass().getCurrentUserID()
-        if (currentUserID.isNotEmpty()) {
-            FirestoreClass().getUserRole(currentUserID) { role ->
-                if (role == "siswa") {
-                    binding?.etMateri?.visibility = View.GONE
-//                    binding?.etMateri?.inputType = InputType.TYPE_NULL
-                    binding?.btnBold?.visibility = View.GONE
-                    binding?.btnItalic?.visibility = View.GONE
-                    binding?.btnUploadImage?.visibility = View.GONE
-                    binding?.btnUpdateText?.visibility = View.GONE
-                    binding?.btnUploadVideo?.visibility = View.GONE
-                    binding?.btnUploadFile?.visibility = View.GONE
-                    binding?.btnDeleteImage?.visibility = View.GONE
-                    binding?.btnDeleteVideo?.visibility = View.GONE
-                    binding?.tvMateri?.visibility = View.VISIBLE
-                    try {
-                        val formattedText = FormattedTextHandler.fromJson(  mKelasDetails.materiList[mMateriListPosition].desc)
-                        val spannableString = FormattedTextHandler.toSpannableString(formattedText)
-                        binding?.tvMateri?.text = spannableString
-                    } catch (e: Exception) {
-                        binding?.tvMateri?.text =   mKelasDetails.materiList[mMateriListPosition].desc
-                        Log.e("JawabActivity", "Error parsing formatted text for tvSoal: ${e.message}")
-                    }
-                }
-            }
-        }
-
-        if (mKelasDetails.materiList[mMateriListPosition].image.isEmpty()){
-            binding?.llImageMateri?.visibility = View.GONE
-        }
-
-        binding?.btnUpdateText?.setOnClickListener {
-            val newDesc = binding?.etMateri?.text.toString()
-            val spannable = binding?.etMateri?.text as? Spannable
-            val formattedTextJson = if (spannable != null) {
-                val spans = FormattedTextHandler.getExistingSpans(spannable)
-                FormattedTextHandler.toJson(newDesc, spans)
-            } else {
-                newDesc
-            }
-            updateMateriContent(formattedTextJson)
-        }
-
-        binding?.btnBold?.setOnClickListener { applyStyle(Typeface.BOLD) }
-        binding?.btnItalic?.setOnClickListener { applyStyle(Typeface.ITALIC)}
-
-        binding?.btnUploadImage?.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED){
-                Constants.showImageChooser(this)
-            }else{
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    Constants.READ_STORAGE_PERMISSION_CODE
-                )
-            }
-        }
-
-        binding?.btnUploadFile?.setOnClickListener {
-
-            val intent = Intent(Intent.ACTION_GET_CONTENT)
-            intent.type = "*/*"
-            startActivityForResult(intent, Constants.PICK_FILE_REQUEST_CODE)
-
-            FirestoreClass().getKelasDetails(this,mKelasDocumentId)
-            populateMateriFileListToUI(mKelasDetails.materiList[mMateriListPosition].file)
-
-        }
-
-        binding?.btnUploadVideo?.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED){
-                Constants.showVideoChooser(this)
-            }else{
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    Constants.READ_STORAGE_PERMISSION_CODE
-                )
-            }
-        }
-
-        binding?.btnDeleteImage?.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Hapus Foto")
-                .setMessage("Apakah Anda yakin ingin menghapus foto ini?")
-                .setPositiveButton("Ya") { dialog, _ ->
-                    // Logika untuk menghapus file dari tampilan dan database
-                    binding?.llImageMateri?.visibility = View.GONE
-                    deleteMateriImage()
-                    dialog.dismiss()
-                }
-                .setNegativeButton("Tidak") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .show()
-        }
-
-        binding?.btnDeleteVideo?.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Hapus Video")
-                .setMessage("Apakah Anda yakin ingin menghapus video ini?")
-                .setPositiveButton("Ya") { dialog, _ ->
-                    // Logika untuk menghapus file dari tampilan dan database
-                    binding?.llVideoMateri?.visibility = View.GONE
-                    deleteMateriVideo()
-                    dialog.dismiss()
-                }
-                .setNegativeButton("Tidak") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .show()
-        }
-
-        binding?.btnTugas?.setOnClickListener {
-            showTugasDialog()
-        }
-
-        binding?.btnKuis?.setOnClickListener {
-            showQuizDialog()
-        }
-
-        binding?.llVideoMateri?.setOnClickListener {
-            if (mKelasDetails.materiList[mMateriListPosition].video.isNotEmpty()) {
-                val intent = Intent(this, VideoPlayerActivity::class.java)
-                intent.putExtra("VIDEO_URL", mKelasDetails.materiList[mMateriListPosition].video)
-                startActivity(intent)
-            }
-        }
     }
 
 
@@ -236,7 +102,7 @@ class MateriDetailsActivity : BaseActivity() {
         if (toolbar != null){
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
 //            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_home_black_24dp)
-            supportActionBar?.title = "Materi ${mKelasDetails.materiList[mMateriListPosition].nama}"
+            supportActionBar?.title = "Materi ${mMateriDetails.nama}"
         }
         binding?.toolbar?.setNavigationOnClickListener {
             onBackPressed()
@@ -332,22 +198,22 @@ class MateriDetailsActivity : BaseActivity() {
         }
     }
 
-    private fun findMateriIndexById(id: String): Int {
-        return mKelasDetails.materiList.indexOfFirst { it.id == id }
-    }
+//    private fun findMateriIndexById(id: String): Int {
+//        return mKelasDetails.materiList.indexOfFirst { it.id == id }
+//    }
 
     private fun getIntentData() {
-        if (intent.hasExtra(Constants.KELAS_DETAIL)) {
-            mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
-        }
+//        if (intent.hasExtra(Constants.KELAS_DETAIL)) {
+//            mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
+//        }
         if (intent.hasExtra(Constants.MATERI_ID)) {
             mMateriId = intent.getStringExtra(Constants.MATERI_ID)!!
             Log.e("MATERI_ID", mMateriId)
         }
-        if (intent.hasExtra(Constants.MATERI_LIST_ITEM_POSITION)) {
-            mMateriListPosition = intent.getIntExtra(Constants.MATERI_LIST_ITEM_POSITION, -1)
-            Log.e("MATERI_ITEM_POSITION", mMateriListPosition.toString())
-        }
+//        if (intent.hasExtra(Constants.MATERI_LIST_ITEM_POSITION)) {
+//            mMateriListPosition = intent.getIntExtra(Constants.MATERI_LIST_ITEM_POSITION, -1)
+//            Log.e("MATERI_ITEM_POSITION", mMateriListPosition.toString())
+//        }
         if (intent.hasExtra(Constants.DOCUMENT_ID)) {
             mKelasDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID).toString()
             Log.e("document", "document $mKelasDocumentId")
@@ -355,12 +221,157 @@ class MateriDetailsActivity : BaseActivity() {
     }
 
 
-    fun kelasDetails(kelas: Kelas){
-        mKelasDetails = kelas
+//    fun kelasDetails(kelas: Kelas) {
+//        mKelasDetails = kelas
+//        setupActionBar()
+//        populateMateriFileListToUI(kelas.materiList[mMateriListPosition].file)
 //        hideProgressDialog()
+//    }
 
-        populateMateriFileListToUI(kelas.materiList[mMateriListPosition].file)
+    fun materiDetails(materi: Materi) {
+        mMateriDetails = materi
+        setupActionBar()
+        populateMateriDesc(mMateriDetails)
+        populateMateriFileListToUI(materi.file)
+        afterInisilize()
+        hideProgressDialog()
+    }
+
+    fun afterInisilize(){
+
+        val currentUserID = FirestoreClass().getCurrentUserID()
+        if (currentUserID.isNotEmpty()) {
+            FirestoreClass().getUserRole(currentUserID) { role ->
+                if (role == "siswa") {
+                    binding?.etMateri?.visibility = View.GONE
+//                    binding?.etMateri?.inputType = InputType.TYPE_NULL
+                    binding?.btnBold?.visibility = View.GONE
+                    binding?.btnItalic?.visibility = View.GONE
+                    binding?.btnUploadImage?.visibility = View.GONE
+                    binding?.btnUpdateText?.visibility = View.GONE
+                    binding?.btnUploadVideo?.visibility = View.GONE
+                    binding?.btnUploadFile?.visibility = View.GONE
+                    binding?.btnDeleteImage?.visibility = View.GONE
+                    binding?.btnDeleteVideo?.visibility = View.GONE
+                    binding?.tvMateri?.visibility = View.VISIBLE
+                    try {
+                        val formattedText = FormattedTextHandler.fromJson(mMateriDetails.desc)
+                        val spannableString = FormattedTextHandler.toSpannableString(formattedText)
+                        binding?.tvMateri?.text = spannableString
+                    } catch (e: Exception) {
+                        binding?.tvMateri?.text = mMateriDetails.desc
+                        Log.e("JawabActivity", "Error parsing formatted text for tvSoal: ${e.message}")
+                    }
+                }
+            }
         }
+
+        if (mMateriDetails.image.isEmpty()){
+            binding?.llImageMateri?.visibility = View.GONE
+        }
+
+        binding?.btnUpdateText?.setOnClickListener {
+            val newDesc = binding?.etMateri?.text.toString()
+            val spannable = binding?.etMateri?.text as? Spannable
+            val formattedTextJson = if (spannable != null) {
+                val spans = FormattedTextHandler.getExistingSpans(spannable)
+                FormattedTextHandler.toJson(newDesc, spans)
+            } else {
+                newDesc
+            }
+            updateMateriContent(formattedTextJson)
+        }
+
+        binding?.btnBold?.setOnClickListener { applyStyle(Typeface.BOLD) }
+        binding?.btnItalic?.setOnClickListener { applyStyle(Typeface.ITALIC)}
+
+        binding?.btnUploadImage?.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED){
+                Constants.showImageChooser(this)
+            }else{
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    Constants.READ_STORAGE_PERMISSION_CODE
+                )
+            }
+        }
+
+        binding?.btnUploadFile?.setOnClickListener {
+
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "*/*"
+            startActivityForResult(intent, Constants.PICK_FILE_REQUEST_CODE)
+
+            FirestoreClass().getKelasDetails(this,mKelasDocumentId)
+            populateMateriFileListToUI(mMateriDetails.file)
+
+        }
+
+        binding?.btnUploadVideo?.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED){
+                Constants.showVideoChooser(this)
+            }else{
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    Constants.READ_STORAGE_PERMISSION_CODE
+                )
+            }
+        }
+
+        binding?.btnDeleteImage?.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Hapus Foto")
+                .setMessage("Apakah Anda yakin ingin menghapus foto ini?")
+                .setPositiveButton("Ya") { dialog, _ ->
+                    // Logika untuk menghapus file dari tampilan dan database
+                    binding?.llImageMateri?.visibility = View.GONE
+                    deleteMateriImage()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Tidak") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
+
+        binding?.btnDeleteVideo?.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Hapus Video")
+                .setMessage("Apakah Anda yakin ingin menghapus video ini?")
+                .setPositiveButton("Ya") { dialog, _ ->
+                    // Logika untuk menghapus file dari tampilan dan database
+                    binding?.llVideoMateri?.visibility = View.GONE
+                    deleteMateriVideo()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Tidak") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
+
+        binding?.btnTugas?.setOnClickListener {
+            showTugasDialog()
+        }
+
+        binding?.btnKuis?.setOnClickListener {
+            showQuizDialog()
+        }
+
+        binding?.llVideoMateri?.setOnClickListener {
+            if (mMateriDetails.video.isNotEmpty()) {
+                val intent = Intent(this, VideoPlayerActivity::class.java)
+                intent.putExtra("VIDEO_URL", mMateriDetails.video)
+                startActivity(intent)
+            }
+        }
+    }
 
     private fun applyStyle(style: Int) {
         val start = binding?.etMateri?.selectionStart ?: 0
@@ -419,10 +430,11 @@ class MateriDetailsActivity : BaseActivity() {
 
                                 tvYa.setOnClickListener {
                                     showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
                                     FirestoreClass().deleteFileMateri(
                                         this@MateriDetailsActivity,
                                         mKelasDocumentId,
-                                        mMateriListPosition,
+                                        mMateriDetails.id,
                                         fileToDelete.id
                                     )
 
@@ -450,20 +462,21 @@ class MateriDetailsActivity : BaseActivity() {
     }
 
     private fun updateMateriContent(newDesc: String) {
-        if (::mKelasDetails.isInitialized && mMateriListPosition != -1) {
-            mKelasDetails.materiList[mMateriListPosition].desc = newDesc
+        if (::mMateriDetails.isInitialized ) {
+            mMateriDetails.desc = newDesc
             updateMateriInFirestore()
         }
     }
+
 
     private fun updateMateriInFirestore() {
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
         FirestoreClass().updateMateriDetail(
             this@MateriDetailsActivity,
             mKelasDocumentId,
-            mKelasDetails.materiList[mMateriListPosition]
+            mMateriDetails
         )
-        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
     }
 
     fun materiUpdateSuccess() {
@@ -472,23 +485,23 @@ class MateriDetailsActivity : BaseActivity() {
         Toast.makeText(this, "Deskripsi materi berhasil diperbarui", Toast.LENGTH_SHORT).show()
     }
 
-    fun populateMateriDesc() {
+    fun populateMateriDesc(materi:Materi) {
         hideProgressDialog()
         try {
-            val formattedText = FormattedTextHandler.fromJson(mKelasDetails.materiList[mMateriListPosition].desc)
+            val formattedText = FormattedTextHandler.fromJson(materi.desc)
             val spannableString = FormattedTextHandler.toSpannableString(formattedText)
             binding?.etMateri?.setText(spannableString)
         } catch (e: Exception) {
             // Jika terjadi kesalahan, tampilkan teks asli tanpa formatting
-            binding?.etMateri?.setText(mKelasDetails.materiList[mMateriListPosition].desc)
+            binding?.etMateri?.setText(materi.desc)
             Log.e("JawabActivity", "Error parsing formatted text: ${e.message}")
         }
 
-        if (mKelasDetails.materiList[mMateriListPosition].image.isNotEmpty()) {
+        if (materi.image.isNotEmpty()) {
             binding?.llImageMateri?.visibility = View.VISIBLE
             Glide
                 .with(this@MateriDetailsActivity)
-                .load(mKelasDetails.materiList[mMateriListPosition].image)
+                .load(materi.image)
                 .centerCrop()
                 .placeholder(R.drawable.ic_board_place_holder)
                 .into(binding?.ivImageMateri!!)
@@ -496,11 +509,11 @@ class MateriDetailsActivity : BaseActivity() {
             binding?.llImageMateri?.visibility = View.GONE
         }
 
-        if (mKelasDetails.materiList[mMateriListPosition].video.isNotEmpty()) {
+        if (materi.video.isNotEmpty()) {
             binding?.llVideoMateri?.visibility = View.VISIBLE
             Glide
                 .with(this@MateriDetailsActivity)
-                .load(mKelasDetails.materiList[mMateriListPosition].video)
+                .load(materi.video)
                 .centerCrop()
                 .placeholder(R.drawable.ic_board_place_holder)
                 .into(binding?.ivVideoMateri!!)
@@ -547,12 +560,12 @@ class MateriDetailsActivity : BaseActivity() {
     private fun deleteMateriImage() {
 
         // Get the storage reference of the image
-        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mKelasDetails.materiList[mMateriListPosition].image)
+        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mMateriDetails.image)
 
         // Delete the image from Firebase Storage
         storageRef.delete().addOnSuccessListener {
             // Image deleted successfully from Storage, now update Firestore
-            mKelasDetails.materiList[mMateriListPosition].image = ""
+            mMateriDetails.image = ""
             updateMateriInFirestore()
         }.addOnFailureListener { exception ->
             hideProgressDialog()
@@ -567,12 +580,13 @@ class MateriDetailsActivity : BaseActivity() {
     private fun deleteMateriVideo() {
 
         // Get the storage reference of the image
-        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mKelasDetails.materiList[mMateriListPosition].video)
+        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mMateriDetails.video)
 
         // Delete the image from Firebase Storage
         storageRef.delete().addOnSuccessListener {
             // Image deleted successfully from Storage, now update Firestore
-            mKelasDetails.materiList[mMateriListPosition].video = ""
+            mMateriDetails.video = ""
+
             updateMateriInFirestore()
         }.addOnFailureListener { exception ->
             hideProgressDialog()
@@ -585,7 +599,8 @@ class MateriDetailsActivity : BaseActivity() {
     }
 
     private fun updateMateriWithImage() {
-        mKelasDetails.materiList[mMateriListPosition].image = mMateriImageURL
+        mMateriDetails.image = mMateriImageURL
+
         updateMateriInFirestore()
     }
 
@@ -628,7 +643,8 @@ class MateriDetailsActivity : BaseActivity() {
     }
 
     private fun updateMateriWithVideo() {
-        mKelasDetails.materiList[mMateriListPosition].video = mMateriVideoURL
+        mMateriDetails.video = mMateriVideoURL
+
         updateMateriInFirestore()
     }
 
@@ -663,7 +679,7 @@ class MateriDetailsActivity : BaseActivity() {
                         fileType = mFileType.toString()
                     )
 
-                    mKelasDetails.materiList[mMateriListPosition].file.add(0, file)
+                    mMateriDetails.file.add(0, file)
 
                     // Notify the adapter of the new item
                     val adapter = rv_materi_file_list.adapter as? MateriFileItemsAdapter
@@ -672,9 +688,8 @@ class MateriDetailsActivity : BaseActivity() {
                         rv_materi_file_list.scrollToPosition(0)
                         hideProgressDialog()
                     } else {
-                        populateMateriFileListToUI(mKelasDetails.materiList[mMateriListPosition].file)
+                        populateMateriFileListToUI(mMateriDetails.file)
                     }
-
                     updateMateriInFirestore()
                 }
             }
@@ -708,12 +723,12 @@ class MateriDetailsActivity : BaseActivity() {
     fun fileUpdateSuccess() {
         hideProgressDialog()
         setResult(RESULT_OK)
-       FirestoreClass().getKelasDetails(this, mKelasDocumentId)
+       FirestoreClass().getMateriDetails(this, mKelasDocumentId,mMateriId)
         Toast.makeText(this, "Deskripsi materi berhasil diperbarui", Toast.LENGTH_SHORT).show()
     }
 
     private fun showTugasDialog() {
-        val tugasList = mKelasDetails.materiList[mMateriListPosition].tugas
+        val tugasList = mMateriDetails.tugas
         val dialogView = layoutInflater.inflate(R.layout.dialog_tugas, null)
         val dialogBuilder = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -762,8 +777,7 @@ class MateriDetailsActivity : BaseActivity() {
 
         btnBuatTugas.setOnClickListener {
             val intent = Intent(this,TugasActivity::class.java)
-            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
-            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+            intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
             intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
             startActivityForResult(intent,REQUEST_CODE_TUGAS_DETAILS)
             dialog.dismiss()
@@ -774,9 +788,9 @@ class MateriDetailsActivity : BaseActivity() {
 
     fun tugasDetails(tugasPosition: Int){
         val intent = Intent(this, TugasActivity::class.java)
-        intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+
         intent.putExtra(Constants.TUGAS_LIST_ITEM_POSITION,tugasPosition)
-        intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+        intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
         intent.putExtra(Constants.IS_UPDATE, true)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
         startActivityForResult(intent,REQUEST_CODE_TUGAS_DETAILS)
@@ -785,9 +799,9 @@ class MateriDetailsActivity : BaseActivity() {
 
     fun quizDetails(quizPosition: Int){
         val intent = Intent(this, CreateQuizActivity::class.java)
-        intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+
         intent.putExtra(Constants.QUIZ_LIST_ITEM_POSITION,quizPosition)
-        intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+        intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
         intent.putExtra(Constants.IS_UPDATE, true)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
         startActivityForResult(intent, REQUEST_CODE_QUIZ_DETAILS)
@@ -796,9 +810,9 @@ class MateriDetailsActivity : BaseActivity() {
 
     fun quizDetailsForSiswa(quizPosition: Int){
         val intent = Intent(this, QuizJawabActivity::class.java)
-        intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
+
         intent.putExtra(Constants.QUIZ_LIST_ITEM_POSITION,quizPosition)
-        intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+        intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
         intent.putExtra(Constants.IS_UPDATE, true)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
         startActivityForResult(intent, REQUEST_CODE_QUIZ_DETAILS)
@@ -812,7 +826,7 @@ class MateriDetailsActivity : BaseActivity() {
     }
 
     private fun showQuizDialog() {
-        val quizList = mKelasDetails.materiList[mMateriListPosition].kuis
+        val quizList = mMateriDetails.kuis
         val dialogView = layoutInflater.inflate(R.layout.dialog_kuis, null)
         val dialogBuilder = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -867,8 +881,8 @@ class MateriDetailsActivity : BaseActivity() {
 //
         btnBuatKuis.setOnClickListener {
             val intent = Intent(this,CreateQuizActivity::class.java)
-            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
-            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+
+            intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
             intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
             startActivityForResult(intent,REQUEST_CODE_QUIZ_DETAILS)
             dialog.dismiss()
@@ -884,9 +898,9 @@ class MateriDetailsActivity : BaseActivity() {
         if (userJawaban != null) {
             // User has already completed the quiz, redirect to ResultActivity
             val intent = Intent(this, ResultKuisActivity::class.java)
-            intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION, mMateriListPosition)
+
             intent.putExtra(Constants.QUIZ_LIST_ITEM_POSITION, position)
-            intent.putExtra(Constants.KELAS_DETAIL, mKelasDetails)
+            intent.putExtra(Constants.MATERI_DETAIL, mMateriDetails)
             intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
             intent.putExtra(Constants.IS_UPDATE, true)
             startActivity(intent)

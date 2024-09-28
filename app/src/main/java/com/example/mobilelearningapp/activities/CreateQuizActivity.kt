@@ -34,7 +34,7 @@ class CreateQuizActivity : BaseActivity() {
     private var binding : ActivityCreateQuizBinding? = null
     private val questions = ArrayList<Question>()
     private lateinit var questionAdapter: QuestionItemsAdapter
-    private lateinit var mKelasDetails : Kelas
+    private lateinit var mMateriDetails : Materi
     lateinit var mKelasDocumentId : String
     private var mMateriListPosition = -1
     private var mQuizListPosition = -1
@@ -68,7 +68,7 @@ class CreateQuizActivity : BaseActivity() {
 
     private fun setUpDataQuiz() {
 
-        val currentKuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
+        val currentKuis = mMateriDetails.kuis[mQuizListPosition]
         populateQuestionListToUI(currentKuis.question)
         setupRecyclerView()
 
@@ -101,7 +101,7 @@ class CreateQuizActivity : BaseActivity() {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
         if (isUpdate){
-            supportActionBar?.title = "Update Quiz ${mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].namaKuis}"
+            supportActionBar?.title = "Update Quiz ${mMateriDetails.kuis[mQuizListPosition].namaKuis}"
         }
         }
         binding?.toolbarCreateQuiz?.setNavigationOnClickListener {

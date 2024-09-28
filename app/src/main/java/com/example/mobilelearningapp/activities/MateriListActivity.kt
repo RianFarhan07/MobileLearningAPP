@@ -147,7 +147,8 @@ class MateriListActivity : BaseActivity() {
     fun materiDetails(materiId: String) {
         val intent = Intent(this, MateriDetailsActivity::class.java)
         intent.putExtra(Constants.MATERI_ID, materiId)
-        intent.putExtra(Constants.KELAS_DETAIL, mKelasDetails)
+        //ganti ini jadi kirim kelasdocumentid
+//        intent.putExtra((Constants.KELAS_DETAIL,mKelasDetails)
         intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
         startActivityForResult(intent, REQUEST_CODE_MATERI_DETAILS)
     }

@@ -321,9 +321,9 @@ class FirestoreClass {
                     is MateriListActivity -> {
                         activity.kelasDetails(kelas!!)
                     }
-                    is MateriDetailsActivity -> {
-                        activity.kelasDetails(kelas!!)
-                    }
+//                    is MateriDetailsActivity -> {
+//                        activity.kelasDetails(kelas!!)
+//                    }
                     is TugasActivity -> {
                         activity.kelasDetails(kelas!!)
                     }
@@ -350,6 +350,32 @@ class FirestoreClass {
                 }
 
                 Log.e(activity.javaClass.simpleName, "Error fetching kelompok details: ${e.message}")
+            }
+    }
+
+    fun getMateriDetails(activity: MateriDetailsActivity, kelasId: String, materiId: String) {
+        mFireStore.collection(Constants.KELAS).document(kelasId)
+            .get()
+            .addOnSuccessListener { document ->
+                val kelas = document.toObject(Kelas::class.java)
+                if (kelas != null) {
+                    val materi = kelas.materiList.find { it.id == materiId }
+                    if (materi != null) {
+                        activity.materiDetails(materi)
+                    } else {
+                        activity.hideProgressDialog()
+                        // Handle error: materi not found
+                        Log.e(activity.javaClass.simpleName, "Materi not found")
+                    }
+                } else {
+                    activity.hideProgressDialog()
+                    // Handle error: kelas not found
+                    Log.e(activity.javaClass.simpleName, "Kelas not found")
+                }
+            }
+            .addOnFailureListener { e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error getting materi details", e)
             }
     }
 
@@ -502,6 +528,52 @@ class FirestoreClass {
             }
     }
 
+    fun updateSingleMateriInKelas(activity: Activity, kelasId: String, updatedMateri: Materi) {
+
+        mFireStore.collection(Constants.KELAS).document(kelasId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    val kelas = document.toObject(Kelas::class.java)
+                    kelas?.let {
+                        // Find and update the specific materi
+                        val updatedList = it.materiList.map { materi ->
+                            if (materi.id == updatedMateri.id) updatedMateri else materi
+                        } as ArrayList<Materi>
+
+                        // Update Firestore with the new list
+                        mFireStore.collection(Constants.KELAS).document(kelasId)
+                            .update(Constants.MATERI_LIST, updatedList)
+                            .addOnSuccessListener {
+
+                                when (activity) {
+                                    is MateriDetailsActivity -> {
+                                        activity.materiUpdateSuccess()
+                                    }
+                                    // Add other activity types if needed
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                when (activity) {
+                                    is MateriDetailsActivity -> {
+                                        activity.hideProgressDialog()
+                                    }
+                                    // Add other activity types if needed
+                                }
+                            }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                when (activity) {
+                    is MateriDetailsActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                    // Add other activity types if needed
+                }
+            }
+    }
+
     fun updateMateri(activity: MateriListActivity, kelasId: String, updatedMateri: Materi) {
         mFireStore.collection(Constants.KELAS)
             .document(kelasId)
@@ -604,7 +676,7 @@ class FirestoreClass {
     fun deleteFileMateri(
         activity: MateriDetailsActivity,
         kelasDocumentId: String,
-        materiPosition: Int,
+        materiId: String,
         fileId: String
     ) {
         mFireStore.collection(Constants.KELAS).document(kelasDocumentId)
@@ -612,16 +684,16 @@ class FirestoreClass {
             .addOnSuccessListener { document ->
                 val kelasDetails = document.toObject(Kelas::class.java)
                 kelasDetails?.let { kelas ->
-                    if (materiPosition < kelas.materiList.size) {
-
-                        val currentMateri = kelas.materiList[materiPosition]
+                    val materiIndex = kelas.materiList.indexOfFirst { it.id == materiId }
+                    if (materiIndex != -1) {
+                        val currentMateri = kelas.materiList[materiIndex]
                         val updatedFileList = currentMateri.file.filter { it.id != fileId }
 
-                        // Create a new Tugas object with the updated jawab list
-                        val updatedFile = currentMateri.copy(file = ArrayList(updatedFileList))
+                        // Create a new Materi object with the updated file list
+                        val updatedMateri = currentMateri.copy(file = ArrayList(updatedFileList))
 
-                        // Update the Tugas in the Materi
-                        kelas.materiList[materiPosition] = updatedFile
+                        // Update the Materi in the list
+                        kelas.materiList[materiIndex] = updatedMateri
 
                         // Update the entire Kelas object in Firestore
                         mFireStore.collection(Constants.KELAS)
@@ -632,11 +704,11 @@ class FirestoreClass {
                             }
                             .addOnFailureListener { e ->
                                 activity.hideProgressDialog()
-                                Log.e(activity.javaClass.simpleName, "Error while deleting jawab tugas", e)
+                                Log.e(activity.javaClass.simpleName, "Error while deleting file from materi", e)
                             }
                     } else {
                         activity.hideProgressDialog()
-                        Log.e(activity.javaClass.simpleName, "Invalid materi or tugas position")
+                        Log.e(activity.javaClass.simpleName, "Materi not found")
                     }
                 } ?: run {
                     activity.hideProgressDialog()

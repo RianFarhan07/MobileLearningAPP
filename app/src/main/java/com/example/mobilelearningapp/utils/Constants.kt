@@ -17,8 +17,10 @@ object Constants {
     const val KUIS: String = "kuis"
     const val MATERIFILE: String = "materiFile"
 
+    const val KELAS_ID : String = "kelasId"
     const val MATERI_ID : String = "materiId"
     const val JAWABAN_TUGAS_ID : String = "jawabanTugasId"
+    const val MATERI_DETAIL : String = "materi_detail"
 
     const val IMAGE : String = "image"
     const val NAME : String = "name"
