@@ -76,10 +76,11 @@ class MateriListActivity : BaseActivity() {
         binding!!.ibDoneListName.setOnClickListener{
             val listName = binding!!.etMateriListName.text.toString().trim()
             val materiCourse = binding!!.etMateriListCourse.text.toString().trim()
+            val className = mKelasDetails.nama
             val camelCaseMateriCourse = materiCourse.toLowerCase()
 
             if (listName.isNotEmpty() && materiCourse.isNotEmpty()){
-                createMateriList(listName,camelCaseMateriCourse)
+                createMateriList(listName,camelCaseMateriCourse,className)
                 binding!!.etMateriListName.text.clear()
                 binding!!.etMateriListCourse.text.clear()
                 binding!!.tvAddMateri.visibility = View.VISIBLE
@@ -153,11 +154,11 @@ class MateriListActivity : BaseActivity() {
         startActivityForResult(intent, REQUEST_CODE_MATERI_DETAILS)
     }
 
-    fun createMateriList(materiListName: String, materiCourse : String){
+    fun createMateriList(materiListName: String, materiCourse: String, kelasName: String){
 
         val currentUserId = FirestoreClass().getCurrentUserID()
         val materiId = FirestoreClass().mFireStore.collection(Constants.KELAS).document().id
-        val materi = Materi(materiId, materiListName, materiCourse,currentUserId)
+        val materi = Materi(materiId, materiListName, materiCourse,kelasName,currentUserId)
 
 
         mKelasDetails.materiList.add(0,materi)

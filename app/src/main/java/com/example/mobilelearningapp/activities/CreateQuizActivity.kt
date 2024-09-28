@@ -145,7 +145,7 @@ class CreateQuizActivity : BaseActivity() {
             val intent = Intent(this,JawabanKuisListActivity::class.java)
             intent.putExtra(Constants.MATERI_LIST_ITEM_POSITION,mMateriListPosition)
             intent.putExtra(Constants.QUIZ_LIST_ITEM_POSITION,mQuizListPosition)
-            intent.putExtra(Constants.KELAS_DETAIL,mKelasDetails)
+            intent.putExtra(Constants.MATERI_DETAIL,mMateriDetails)
             intent.putExtra(Constants.DOCUMENT_ID, mKelasDocumentId)
             startActivity(intent)
         }
@@ -156,12 +156,8 @@ class CreateQuizActivity : BaseActivity() {
     }
 
     private fun getIntentData() {
-        if (intent.hasExtra(Constants.KELAS_DETAIL)) {
-            mKelasDetails = intent.getParcelableExtra(Constants.KELAS_DETAIL)!!
-        }
-        if (intent.hasExtra(Constants.MATERI_LIST_ITEM_POSITION)) {
-            mMateriListPosition = intent.getIntExtra(Constants.MATERI_LIST_ITEM_POSITION, -1)
-            Log.e("MATERI_ITEM_POSITION", mMateriListPosition.toString())
+        if (intent.hasExtra(Constants.MATERI_DETAIL)) {
+            mMateriDetails = intent.getParcelableExtra(Constants.MATERI_DETAIL)!!
         }
         if (intent.hasExtra(Constants.QUIZ_LIST_ITEM_POSITION)) {
             mQuizListPosition = intent.getIntExtra(Constants.QUIZ_LIST_ITEM_POSITION, -1)
@@ -199,7 +195,7 @@ class CreateQuizActivity : BaseActivity() {
                         }else{
                             if (isUpdate){
                                 showAlertDialogToDeleteKuis(
-                                    mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].namaKuis!!)
+                                    mMateriDetails.kuis[mQuizListPosition].namaKuis!!)
                             }else{
                                 Toast.makeText(this@CreateQuizActivity,
                                 "belum ada kuis",Toast.LENGTH_LONG
@@ -229,17 +225,17 @@ class CreateQuizActivity : BaseActivity() {
         val kuis = Kuis(
             id = UUID.randomUUID().toString(),
             namaKuis = namaKuis,
-            namaKelas = mKelasDetails.nama,
-            namaMataPelajaran = mKelasDetails.materiList[mMateriListPosition].mapel,
-            namaMateri = mKelasDetails.materiList[mMateriListPosition].nama,
+            namaKelas = mMateriDetails.kelas,
+            namaMataPelajaran = mMateriDetails.mapel,
+            namaMateri = mMateriDetails.nama,
             createdBy = FirestoreClass().getCurrentUserID(),
             desc = deskripsi,
             dueDate = mSelectedDueDateMilliSeconds,
             question = ArrayList(questions)
         )
 
-        mKelasDetails.materiList[mMateriListPosition].kuis.add(kuis)
-        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        mMateriDetails.kuis.add(kuis)
+        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
 
         Toast.makeText(this, "Kuis berhasil disimpan", Toast.LENGTH_SHORT).show()
 //        finish()
@@ -267,8 +263,8 @@ class CreateQuizActivity : BaseActivity() {
 
                 // If it's an update, also update the mKelasDetails
                 if (isUpdate) {
-                    mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].question = ArrayList(questions)
-                    populateQuestionListToUI( mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].question)
+                    mMateriDetails.kuis[mQuizListPosition].question = ArrayList(questions)
+                    populateQuestionListToUI(mMateriDetails.kuis[mQuizListPosition].question)
                 }
             }
         }
@@ -300,7 +296,7 @@ class CreateQuizActivity : BaseActivity() {
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
 
         // Preserve existing PDF information if not changed
-        val currentKuis = mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition]
+        val currentKuis = mMateriDetails.kuis[mQuizListPosition]
 
         val updatedKuis = Kuis(
             id = currentKuis.id,
@@ -315,7 +311,7 @@ class CreateQuizActivity : BaseActivity() {
         )
 
         // Update the tugas in the mKelasDetails
-        mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition] = updatedKuis
+        mMateriDetails.kuis[mQuizListPosition] = updatedKuis
 
         // Update in Firestore
         FirestoreClass().updateKuisInMateri(
@@ -437,15 +433,15 @@ class CreateQuizActivity : BaseActivity() {
 
     fun kuisUpdateSuccess() {
         hideProgressDialog()
-        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
         updateQuestionList() // Update the UI after successful Firestore update
     }
 
-    fun kelasDetails(kelas: Kelas){
-        mKelasDetails = kelas
+    fun materiDetails(materi: Materi){
+        mMateriDetails = materi
 
         setupActionBar()
-        populateQuestionListToUI(mKelasDetails.materiList[mMateriListPosition].kuis[mQuizListPosition].question)
+        populateQuestionListToUI(mMateriDetails.kuis[mQuizListPosition].question)
         hideProgressDialog()
     }
 
@@ -473,13 +469,13 @@ class CreateQuizActivity : BaseActivity() {
     }
 
     private fun deleteKuis() {
-        val kuisList: ArrayList<Kuis> = mKelasDetails.materiList[mMateriListPosition].kuis
+        val kuisList: ArrayList<Kuis> = mMateriDetails.kuis
         kuisList.removeAt(mQuizListPosition)
 
-        mKelasDetails.materiList[mMateriListPosition].kuis = kuisList
+        mMateriDetails.kuis = kuisList
 
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
-        FirestoreClass().addUpdateMateriList(this, mKelasDetails)
+        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
     }
 
 }
