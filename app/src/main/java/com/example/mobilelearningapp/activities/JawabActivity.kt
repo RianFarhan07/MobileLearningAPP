@@ -271,13 +271,7 @@ class JawabActivity : BaseActivity() {
 
         val currentJawaban = mMateriDetails.tugas[mTugasListPosition].jawab[mJawabListPosition]
         val currentUserID = FirestoreClass().getCurrentUserID()
-        if (currentUserID.isNotEmpty()) {
-            FirestoreClass().getUserRole(currentUserID) { role ->
-                if (role == "siswa") {
 
-                }
-            }
-        }
 
         binding?.etNamaPenjawab?.setText(currentJawaban.namaPenjawab)
         binding?.etNilai?.setText(currentJawaban.nilai)
@@ -339,7 +333,7 @@ class JawabActivity : BaseActivity() {
         val start = binding?.etJawab?.selectionStart ?: 0
         val end = binding?.etJawab?.selectionEnd ?: 0
         val spannable = binding?.etJawab?.text as? Spannable ?: return
-        FormattedTextHandler.applyStyle(spannable, start, end, style)
+        FormattedTextHandler.toggleStyle(spannable, start, end, style)
     }
 
 
@@ -604,7 +598,7 @@ class JawabActivity : BaseActivity() {
     }
 
     private fun createJawaban() {
-        showProgressDialog(resources.getString(R.string.mohon_tunggu))
+
         val namaPenjawab = binding?.etNamaPenjawab?.text.toString().trim()
         val deskripsiTugas = binding?.etJawab?.text.toString().trim()
         val spannable = binding?.etJawab?.text as? Spannable
@@ -622,31 +616,33 @@ class JawabActivity : BaseActivity() {
         if (namaPenjawab.isEmpty()) {
             Toast.makeText(this, "Mohon masukkan nama anda", Toast.LENGTH_SHORT).show()
             return
+        }else{
+            val jawab = JawabanTugas(
+
+                id = UUID.randomUUID().toString(),
+                namaTugas = mMateriDetails.tugas[mTugasListPosition].namaTugas,
+                namaPenjawab = namaPenjawab,
+                namaMateri  = mMateriDetails.nama,
+                namaKelas = mMateriDetails.kelas,
+                jawaban = formattedTextJson,
+                imageJawaban = mMateriImageURL,
+                videoJawaban = mMateriVideoURL,
+                uploadedDate =  System.currentTimeMillis(),
+                createdBy = FirestoreClass().getCurrentUserID(),
+                pdfUrl =  PdfUrl,
+                assignedTo =  assignedUserArrayList,
+                pdfUrlName= selectedPdfFileName,
+            )
+
+            showProgressDialog(resources.getString(R.string.mohon_tunggu))
+            mMateriDetails.tugas[mTugasListPosition].jawab.add(jawab)
+
+
+            FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
         }
 //
 
-        val jawab = JawabanTugas(
 
-            id = UUID.randomUUID().toString(),
-            namaTugas = mMateriDetails.tugas[mTugasListPosition].namaTugas,
-            namaPenjawab = namaPenjawab,
-            namaMateri  = mMateriDetails.nama,
-            namaKelas = mMateriDetails.kelas,
-            jawaban = formattedTextJson,
-            imageJawaban = mMateriImageURL,
-            videoJawaban = mMateriVideoURL,
-            uploadedDate =  System.currentTimeMillis(),
-            createdBy = FirestoreClass().getCurrentUserID(),
-            pdfUrl =  PdfUrl,
-            assignedTo =  assignedUserArrayList,
-            pdfUrlName= selectedPdfFileName,
-        )
-
-
-        mMateriDetails.tugas[mTugasListPosition].jawab.add(jawab)
-
-
-        FirestoreClass().updateSingleMateriInKelas(this, mKelasDocumentId,mMateriDetails)
 
 //        FirestoreClass().updateMateriDetail(this@TugasActivity, mKelasDocumentId, mKelasDetails.materiList[mMateriListPosition])
 
@@ -665,6 +661,13 @@ class JawabActivity : BaseActivity() {
         val namaPenjawab = binding?.etNamaPenjawab?.text.toString().trim()
         val deskripsiJawaban = binding?.etJawab?.text.toString().trim()
         val nilai = binding?.etNilai?.text.toString().trim()
+        val spannable = binding?.etJawab?.text as? Spannable
+        val formattedTextJson = if (spannable != null) {
+            val spans = FormattedTextHandler.getExistingSpans(spannable)
+            FormattedTextHandler.toJson(deskripsiJawaban, spans)
+        } else {
+            deskripsiJawaban
+        }
 
         val PdfUrl = if (mUploadedPdfUri != null) mUploadedPdfUri.toString() else ""
         val assignedUserArrayList: ArrayList<String> = ArrayList()
@@ -688,7 +691,7 @@ class JawabActivity : BaseActivity() {
             namaTugas = mMateriDetails.tugas[mTugasListPosition].namaTugas,
             namaMateri  = mMateriDetails.nama,
             namaKelas = mMateriDetails.kelas,
-            jawaban = deskripsiJawaban,
+            jawaban = formattedTextJson,
             imageJawaban = if (mMateriImageURL.isNotEmpty()) mMateriImageURL else currentJawaban.imageJawaban,
             videoJawaban = if (mMateriVideoURL.isNotEmpty()) mMateriVideoURL else currentJawaban.videoJawaban,
             uploadedDate = mUloadedJawaban,

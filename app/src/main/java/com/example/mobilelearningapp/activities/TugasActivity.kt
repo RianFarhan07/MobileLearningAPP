@@ -376,7 +376,7 @@ class TugasActivity : BaseActivity() {
         val start = binding?.etSoal?.selectionStart ?: 0
         val end = binding?.etSoal?.selectionEnd ?: 0
         val spannable = binding?.etSoal?.text as? Spannable ?: return
-        FormattedTextHandler.applyStyle(spannable, start, end, style)
+        FormattedTextHandler.toggleStyle(spannable, start, end, style)
     }
 
     private fun createTugas() {

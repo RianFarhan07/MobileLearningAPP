@@ -13,11 +13,20 @@ data class FormattedText(val text: String, val spans: List<TextSpan>)
 
 class FormattedTextHandler {
     companion object {
-        fun applyStyle(text: Spannable, start: Int, end: Int, style: Int): List<TextSpan> {
-            val spans = getExistingSpans(text)
-            spans.add(TextSpan(start, end, style))
-            updateSpannableText(text, spans)
-            return spans
+
+        fun toggleStyle(spannable: Spannable, start: Int, end: Int, style: Int) {
+            val spans = spannable.getSpans(start, end, StyleSpan::class.java)
+            val existingSpan = spans.find { it.style == style }
+
+            if (existingSpan != null) {
+                spannable.removeSpan(existingSpan)
+            } else {
+                applyStyle(spannable, start, end, style)
+            }
+        }
+
+        fun applyStyle(spannable: Spannable, start: Int, end: Int, style: Int) {
+            spannable.setSpan(StyleSpan(style), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         fun getExistingSpans(text: Spannable): MutableList<TextSpan> {

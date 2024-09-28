@@ -377,7 +377,7 @@ class MateriDetailsActivity : BaseActivity() {
         val start = binding?.etMateri?.selectionStart ?: 0
         val end = binding?.etMateri?.selectionEnd ?: 0
         val spannable = binding?.etMateri?.text as? Spannable ?: return
-        FormattedTextHandler.applyStyle(spannable, start, end, style)
+        FormattedTextHandler.toggleStyle(spannable, start, end, style)
     }
 
     fun populateMateriFileListToUI(fileList: ArrayList<File>){
