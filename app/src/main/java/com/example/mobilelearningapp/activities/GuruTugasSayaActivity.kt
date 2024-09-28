@@ -181,7 +181,7 @@ class GuruTugasSayaActivity : BaseActivity() {
                         // atau gunakan ini jika Anda lebih suka menggunakan posisi
                         // putExtra(Constants.MATERI_LIST_ITEM_POSITION, materiIndex)
                         putExtra(Constants.TUGAS_LIST_ITEM_POSITION, tugasIndex)
-                        putExtra(Constants.KELAS_DETAIL, kelas)
+                        putExtra(Constants.MATERI_DETAIL, materi)
                         putExtra(Constants.IS_UPDATE, true)
                         putExtra(Constants.DOCUMENT_ID, kelas.documentId)
                     }

@@ -175,7 +175,7 @@ class GuruKuisSayaActivity : BaseActivity() {
                         // atau gunakan ini jika Anda lebih suka menggunakan posisi
                         // putExtra(Constants.MATERI_LIST_ITEM_POSITION, materiIndex)
                         putExtra(Constants.QUIZ_LIST_ITEM_POSITION, kuisIndex)
-                        putExtra(Constants.KELAS_DETAIL, kelas)
+                        putExtra(Constants.MATERI_DETAIL, materi)
                         putExtra(Constants.IS_UPDATE, true)
                         putExtra(Constants.DOCUMENT_ID, kelas.documentId)
                     }

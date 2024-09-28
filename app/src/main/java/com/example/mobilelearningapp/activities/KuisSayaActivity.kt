@@ -202,7 +202,7 @@ class KuisSayaActivity : BaseActivity() {
                             putExtra(Constants.MATERI_ID, materi.id)
                             putExtra(Constants.TUGAS_LIST_ITEM_POSITION,kuisIndex)
                             putExtra(Constants.JAWAB_LIST_ITEM_POSITION, jawabanIndex)
-                            putExtra(Constants.KELAS_DETAIL, kelas)
+                            putExtra(Constants.MATERI_DETAIL, materi)
                             putExtra(Constants.IS_UPDATE, true)
                             putExtra(Constants.DOCUMENT_ID, kelas.documentId)
                         }
