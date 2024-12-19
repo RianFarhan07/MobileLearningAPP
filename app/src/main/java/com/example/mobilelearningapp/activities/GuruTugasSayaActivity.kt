@@ -130,6 +130,8 @@ class GuruTugasSayaActivity : BaseActivity() {
                 onTugasClicked(position, model)
             }
         })
+
+        Log.e("TUGAS", allTugas.toString())
         binding?.rvGuruTugasSayaList?.adapter = tugasAdapter
         hideProgressDialog()
     }
@@ -146,6 +148,7 @@ class GuruTugasSayaActivity : BaseActivity() {
                         processKelas(it)
                     }
                 }
+
             }
             .addOnFailureListener { e ->
                 Log.e("TugasSayaActivity", "Error fetching kelas: ", e)

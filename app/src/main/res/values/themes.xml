@@ -38,6 +38,8 @@
         <item name="android:textColor">#FFFFFF</item> <!-- Ganti warna teks sesuai kebutuhan -->
     </style>
 
+    
+
 <!--    <style name="SearchBar" parent="Widget.Material3.SearchBar">-->
 <!--        &lt;!&ndash; Customize attributes for the SearchBar &ndash;&gt;-->
 <!--        <item name="android:background">@drawable/app_gradient_color_background3</item>-->

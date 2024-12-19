@@ -18,7 +18,10 @@ import com.google.firebase.auth.FirebaseUser
 
 class RegisterGuruActivity : BaseActivity() {
     private var binding : ActivityRegisterGuruBinding? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         binding = ActivityRegisterGuruBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding?.root)

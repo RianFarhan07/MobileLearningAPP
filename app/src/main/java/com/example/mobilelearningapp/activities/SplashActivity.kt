@@ -8,7 +8,7 @@ import android.view.WindowManager
 import com.example.mobilelearningapp.databinding.ActivitySplashBinding
 import com.example.mobilelearningapp.firebase.FirestoreClass
 
-class SplashActivity : BaseActivity() {
+class   SplashActivity : BaseActivity() {
     private var binding: ActivitySplashBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -524,38 +524,38 @@ class MateriDetailsActivity : BaseActivity() {
         materiUpdateSuccess()
     }
 
-        private fun uploadMateriImage() {
+    private fun uploadMateriImage() {
 
-            if (mSelectedImageFileUri != null) {
-                val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
-                    "MATERI_IMAGE" + System.currentTimeMillis() + "."
-                            + Constants.getFileExtension(this, mSelectedImageFileUri!!)
+        if (mSelectedImageFileUri != null) {
+            val sRef: StorageReference = FirebaseStorage.getInstance().reference.child(
+                "MATERI_IMAGE" + System.currentTimeMillis() + "."
+                        + Constants.getFileExtension(this, mSelectedImageFileUri!!)
+            )
+
+            sRef.putFile(mSelectedImageFileUri!!).addOnSuccessListener { taskSnapshot ->
+                Log.e(
+                    "Firebase Image URL",
+                    taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
                 )
 
-                sRef.putFile(mSelectedImageFileUri!!).addOnSuccessListener { taskSnapshot ->
-                    Log.e(
-                        "Firebase Image URL",
-                        taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
-                    )
-
-                    taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
-                        Log.e("Downloadable Image URL", uri.toString())
-                        mMateriImageURL = uri.toString()
-                        hideProgressDialog()
-
-                        // Update Materi dengan URL gambar baru
-                        updateMateriWithImage()
-                    }
-                }.addOnFailureListener { exception ->
-                    Toast.makeText(
-                        this@MateriDetailsActivity,
-                        exception.message,
-                        Toast.LENGTH_LONG
-                    ).show()
+                taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
+                    Log.e("Downloadable Image URL", uri.toString())
+                    mMateriImageURL = uri.toString()
                     hideProgressDialog()
+
+                    // Update Materi dengan URL gambar baru
+                    updateMateriWithImage()
                 }
+            }.addOnFailureListener { exception ->
+                Toast.makeText(
+                    this@MateriDetailsActivity,
+                    exception.message,
+                    Toast.LENGTH_LONG
+                ).show()
+                hideProgressDialog()
             }
         }
+    }
 
     private fun deleteMateriImage() {
 

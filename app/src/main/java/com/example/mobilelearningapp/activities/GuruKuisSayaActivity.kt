@@ -1,6 +1,7 @@
 package com.example.mobilelearningapp.activities
 
 import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -42,15 +43,15 @@ class GuruKuisSayaActivity : BaseActivity() {
         showProgressDialog(resources.getString(R.string.mohon_tunggu))
         db = FirebaseFirestore.getInstance()
         currentUserId = FirestoreClass().getCurrentUserID()
-        fetchUserKuis()
+        fetchUserQuizzes()
     }
 
     private fun setupActionBar() {
         val toolbar: Toolbar = findViewById(R.id.toolbar_my_kuis_guru_list_activity)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_action_navigation_menu) // Ganti dengan icon menu Anda
-        supportActionBar?.setDisplayShowTitleEnabled(false) // Sembunyikan judul default
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_action_navigation_menu)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.title = "DAFTAR KUIS"
         toolbar.title = "DAFTAR KUIS"
     }
@@ -81,20 +82,19 @@ class GuruKuisSayaActivity : BaseActivity() {
                     val intent = Intent(this, GuruProfileActivity::class.java)
                     startActivityForResult(intent, MainGuruActivity.GURU_PROFILE_REQUEST_CODE)
                 }
-
-                R.id.nav_buat_kelas ->{
-                    Toast.makeText(this,"Silahkan kembali ke beranda untuk membuat tugas",
+                R.id.nav_buat_kelas -> {
+                    Toast.makeText(this, "Silahkan kembali ke beranda untuk membuat kuis",
                         Toast.LENGTH_LONG).show()
                 }
-                R.id.nav_kuis ->{
+                R.id.nav_kuis -> {
                     startActivity(Intent(this, GuruKuisSayaActivity::class.java))
                     finish()
                 }
-                R.id.nav_tugas->{
+                R.id.nav_tugas -> {
                     startActivity(Intent(this, GuruTugasSayaActivity::class.java))
                     finish()
                 }
-                R.id.nav_sign_out->{
+                R.id.nav_sign_out -> {
                     FirebaseAuth.getInstance().signOut()
 
                     val intent = Intent(this, UserChooseActivity::class.java)
@@ -124,11 +124,12 @@ class GuruKuisSayaActivity : BaseActivity() {
                 onKuisClicked(position, model)
             }
         })
+        Log.e("KUIS", allKuis.toString())
         binding?.rvGuruKuisSayaList?.adapter = kuisAdapter
         hideProgressDialog()
     }
 
-    private fun fetchUserKuis() {
+    private fun fetchUserQuizzes() {
         db.collection(Constants.KELAS)
             .get()
             .addOnSuccessListener { kelasSnapshot ->
@@ -142,7 +143,7 @@ class GuruKuisSayaActivity : BaseActivity() {
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("TugasSayaActivity", "Error fetching kelas: ", e)
+                Log.e("KuisSayaActivity", "Error fetching kelas: ", e)
             }
     }
 
@@ -153,12 +154,12 @@ class GuruKuisSayaActivity : BaseActivity() {
     }
 
     private fun processKuisForMateri(kelas: Kelas, materi: Materi) {
-        Log.d("KuisSayaActivity", "Processing materi: ${materi.nama}, Tugas count: ${materi.kuis.size}")
+        Log.d("KuisSayaActivity", "Processing materi: ${materi.nama}, Kuis count: ${materi.kuis.size}")
         for (kuis in materi.kuis) {
-            if (kuis.createdBy == currentUserId) {
-                allKuis.add(kuis)
-                Log.d("KuisSayaActivity", "Added jawaban for user: ${kuis.namaKuis}")
-            }
+            //salah di created by
+
+            allKuis.add(kuis)
+            Log.d("KuisSayaActivity", "Added kuis for user: ${kuis.namaKuis}")
         }
         setupRecyclerView()
         setupActionBar()
@@ -172,8 +173,6 @@ class GuruKuisSayaActivity : BaseActivity() {
                 if (kuisIndex != -1) {
                     val intent = Intent(this, MateriDetailsActivity::class.java).apply {
                         putExtra(Constants.MATERI_ID, materi.id)
-                        // atau gunakan ini jika Anda lebih suka menggunakan posisi
-                        // putExtra(Constants.MATERI_LIST_ITEM_POSITION, materiIndex)
                         putExtra(Constants.QUIZ_LIST_ITEM_POSITION, kuisIndex)
                         putExtra(Constants.MATERI_DETAIL, materi)
                         putExtra(Constants.IS_UPDATE, true)
@@ -186,4 +185,3 @@ class GuruKuisSayaActivity : BaseActivity() {
         }
     }
 }
-

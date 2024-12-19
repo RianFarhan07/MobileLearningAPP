@@ -707,7 +707,9 @@ class TugasActivity : BaseActivity() {
         }
     }
 
+
     private fun deleteSoalImage() {
+
 
         if (isUpdate){
             val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(mMateriDetails.tugas[mTugasListPosition].imageSoal)
